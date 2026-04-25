@@ -51,6 +51,10 @@ Log::Log(std::string _name, LogLevel _level)
     : name(_name), log_level(_level) {
 }
 
-Log::~Log() {}
+Log::~Log() {
+    for(auto *s : sinks) {
+        delete s;
+    }
+}
 
 }

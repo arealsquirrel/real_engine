@@ -1,17 +1,17 @@
 
+#include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include <real/core/core.hpp>
 
 int main(void) {
     real::print_version();
 
-    using namespace real;
-    Log log;
-    log.sinks.push_back(new LogSink_Console(false));
+    real::Instance instance;
 
-    log.trace("hello {}", 5);
-    log.info("hello {}", 5);
-    log.warn("hello {}", 5);
-    log.error("hello {}", 5);
-    log.fatal("hello {}", 5);
+    /* -------- LOGGING -------- */
+    instance.log.name = "engine";
+    instance.log.log_level = real::LogLevel_Trace;
+    instance.log.sinks.push_back(new real::LogSink_Console());
+
+    instance.log.info("look at me!");
 }
