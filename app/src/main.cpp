@@ -1,12 +1,14 @@
 
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
+#include "real/resource/resource.hpp"
 #include <real/core/core.hpp>
 
 int main(void) {
     real::print_version();
 
-    real::Instance instance;
+    using namespace real;
+    Instance instance;
 
     /* -------- LOGGING -------- */
     instance.log.name = "engine";

@@ -5,10 +5,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-enable_testing()
-
 include("cmake/get_cpm.cmake")
 include("cmake/packages.cmake")
+
+enable_testing()
 
 project(real_engine LANGUAGES CXX)
 
