@@ -13,6 +13,8 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    Vulkan-Headers
     fmt
+	Vulkan::Vulkan
+	vk-bootstrap
+	glfw
 )
