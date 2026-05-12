@@ -19,6 +19,8 @@ class Graphics {
 public:
     static void init_backend(const GraphicsInfo &info);
     static GraphicsBackend get_backend();
+
+    static void destroy_backend();
 };
 
 }

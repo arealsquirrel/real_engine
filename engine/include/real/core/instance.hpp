@@ -2,6 +2,7 @@
 #define REALLIB_CORE_INSTANCE
 
 #include "real/core/logging.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 
 namespace real {
@@ -20,6 +21,7 @@ public:
 public:
     Log log;
     Window *window;
+    Renderer *renderer;
 };
 
 }

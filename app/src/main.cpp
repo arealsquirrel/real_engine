@@ -1,6 +1,7 @@
 
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
+#include "real/graphics/graphics.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
 #include <GLFW/glfw3.h>
@@ -10,12 +11,12 @@ int main(void) {
     real::print_version();
 
     using namespace real;
-    Instance instance;
+    Instance *instance = new Instance;
 
     /* -------- LOGGING -------- */
-    instance.log.name = "engine";
-    instance.log.log_level = real::LogLevel_Trace;
-    instance.log.sinks.push_back(new real::LogSink_Console());
+    instance->log.name = "engine";
+    instance->log.log_level = real::LogLevel_Trace;
+    instance->log.sinks.push_back(new real::LogSink_Console());
 
     /* -------- SETTING UP FOR INIT -------- */
     WindowInfo window_info {
@@ -24,9 +25,15 @@ int main(void) {
         .title="hello"
     };
 
-    instance.init(window_info);
+    Graphics::init_backend({});
+    instance->init(window_info);
 
-    while (!instance.window->should_exit()) {
+    while (!instance->window->should_exit()) {
+        instance->renderer->draw();
         glfwPollEvents();
     }
+
+    delete instance;
+
+    Graphics::destroy_backend();
 }
