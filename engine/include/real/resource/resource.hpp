@@ -55,8 +55,9 @@ public:
      */
     template<typename ResourceType>
     static ResourceType *load(
-        const LoadStruct loadstruct=nullptr,
-         Optional<Path> path=std::nullopt);
+        Instance *instance,
+        Optional<Path> path=std::nullopt,
+        const LoadStruct loadstruct=nullptr);
 
     /**
     * @brief saves a resource to another medium/data format

@@ -55,6 +55,10 @@ struct RendererDataVulkan {
     vkinit::DeletionQueue delete_queue;
 };
 
+struct ShaderVulkan {
+    VkShaderModule module;
+};
+
 }
 
 #endif

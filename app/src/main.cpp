@@ -3,6 +3,8 @@
 #include "real/core/logging.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/graphics/window.hpp"
+#include "real/resource/resource.hpp"
+#include "real/resource/resource_shader.hpp"
 #include <real/core/core.hpp>
 
 int main(void) {
@@ -28,9 +30,14 @@ int main(void) {
 
     instance->init(window_info);
 
+    // holy fuck
+    ResourceShader *shader = ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceShader>(instance, "../engine/resources/shaders/gradient.comp.spv", instance->window->backend_handle());
+
     while (instance->update() == false) {
         
     }
+
+    delete shader;
 
     delete instance;
 

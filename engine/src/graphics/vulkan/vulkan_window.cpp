@@ -118,6 +118,8 @@ Window::~Window() {
         instance->log.info("killing GLFW");
         glfwTerminate();
     }
+
+	delete (WindowBackendVulkan*)window_backend;
 }
 
 WindowBackend Window::backend_handle() {

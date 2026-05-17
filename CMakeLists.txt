@@ -12,7 +12,6 @@ include("cmake/packages.cmake")
 
 enable_testing()
 
-
 add_subdirectory(engine)
 add_subdirectory(app)
 add_subdirectory(tests)

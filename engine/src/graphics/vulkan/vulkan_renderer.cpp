@@ -55,13 +55,15 @@ Renderer::~Renderer() {
     for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
         vkDestroyCommandPool(window_backend->device, rdata->frame_data[i].command_pool, nullptr);
 
-	vkDestroyFence(window_backend->device, rdata->frame_data[i].render_fence, nullptr);
-	vkDestroySemaphore(window_backend->device, rdata->frame_data[i].swapchain_semaphores, nullptr);
+	    vkDestroyFence(window_backend->device, rdata->frame_data[i].render_fence, nullptr);
+	    vkDestroySemaphore(window_backend->device, rdata->frame_data[i].swapchain_semaphores, nullptr);
     
         rdata->frame_data[i].delete_queue.flush();
     }
 
     rdata->delete_queue.flush();
+
+    delete (RendererDataVulkan*)render_data;
 }
 
 void Renderer::draw() {
