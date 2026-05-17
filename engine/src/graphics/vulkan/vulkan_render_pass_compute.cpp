@@ -18,6 +18,7 @@ RenderPassCompute::RenderPassCompute(
     : RenderPass(_instance) {
 
     RenderPassVulkan *pass = new RenderPassVulkan;
+	RendererDataVulkan *render_data = (RendererDataVulkan*)instance->renderer->get_handle();
     WindowBackendVulkan *wind = (WindowBackendVulkan*)(instance->window->backend_handle());
 
 	/* ----- DESCRIPTORS ----- */
@@ -25,21 +26,22 @@ RenderPassCompute::RenderPassCompute(
 		instance->log.warn("why are you passing a shader that isnt a compute shader to a compute pipeline. dumb ass");
 	}
 
-	VkDescriptorSetLayout layout = vkinit::make_descriptor_set_array(
+	pass->descriptor_set_layout = vkutil::make_descriptor_set_array(
 	shader->fields, wind->device, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, nullptr, 0);
 
-	VkDescriptorSet _drawImageDescriptors = wind->descriptor_allocator.allocate(wind->device, layout);	
+	pass->descriptor_set = wind->descriptor_allocator.allocate(wind->device, pass->descriptor_set_layout);	
 
+    ImageVulkan *render_image_handle = (ImageVulkan*) render_data->render_image->get_handle();
 	VkDescriptorImageInfo imgInfo{};
 	imgInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-	// imgInfo.imageView = _drawImage.imageView; // need to do images
+	imgInfo.imageView = render_image_handle->imageView; // need to do images
 	
 	VkWriteDescriptorSet drawImageWrite = {};
 	drawImageWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	drawImageWrite.pNext = nullptr;
 	
 	drawImageWrite.dstBinding = 0;
-	drawImageWrite.dstSet = _drawImageDescriptors;
+	drawImageWrite.dstSet = pass->descriptor_set;
 	drawImageWrite.descriptorCount = 1;
 	drawImageWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 	drawImageWrite.pImageInfo = &imgInfo;
@@ -51,7 +53,7 @@ RenderPassCompute::RenderPassCompute(
 	VkPipelineLayoutCreateInfo computeLayout{};
 	computeLayout.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	computeLayout.pNext = nullptr;
-	computeLayout.pSetLayouts = &layout;
+	computeLayout.pSetLayouts = &pass->descriptor_set_layout;
 	computeLayout.setLayoutCount = 1;
 
 	VK_CHECK(vkCreatePipelineLayout(wind->device, &computeLayout, nullptr, &pass->layout));
@@ -71,20 +73,39 @@ RenderPassCompute::RenderPassCompute(
 	
 	VK_CHECK(vkCreateComputePipelines(wind->device, VK_NULL_HANDLE,1,&computePipelineCreateInfo, nullptr, &pass->pipeline));
 
+	
     data = pass;
 }
 
 RenderPassCompute::~RenderPassCompute() {
-    RenderPassVulkan *pass = new RenderPassVulkan;
-    WindowBackendVulkan *wind = (WindowBackendVulkan*)instance->window;
+    RenderPassVulkan *pass = (RenderPassVulkan*)data;
+    WindowBackendVulkan *wind = (WindowBackendVulkan*)instance->window->backend_handle();
 
-    vkDestroyPipelineLayout(wind->device, pass->layout, nullptr);
+	// vkDestroyDescriptorSetLayout(wind->device, VkDescriptorSetLayout descriptorSetLayout, const VkAllocationCallbacks *pAllocator)
+    vkDeviceWaitIdle(wind->device);
+	
+	vkDestroyDescriptorSetLayout(wind->device, pass->descriptor_set_layout, nullptr);
+	vkDestroyPipelineLayout(wind->device, pass->layout, nullptr);
     vkDestroyPipeline(wind->device, pass->pipeline, nullptr);
 
     delete pass;
 }
 
-void RenderPassCompute::draw(Renderer *attached_renderer) {
+void RenderPassCompute::draw(Renderer *attached_renderer, FrameContext context) {
+	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+	RenderPassVulkan *pass = (RenderPassVulkan*)data;
+
+    // bind the gradient drawing compute pipeline
+	vkCmdBindPipeline(
+		frame->main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pass->pipeline);
+
+	// bind the descriptor set containing the draw image for the compute pipeline
+	vkCmdBindDescriptorSets(
+		frame->main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pass->layout, 0, 1, &pass->descriptor_set, 0, nullptr);
+
+	// execute the compute pipeline dispatch. We are using 16x16 workgroup size so we need to divide by it
+	vkCmdDispatch(
+		frame->main_command_buffer, std::ceil(frame->draw_extent.width / 16.0), std::ceil(frame->draw_extent.height / 16.0), 1);
 
 }
     

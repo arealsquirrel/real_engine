@@ -16,5 +16,6 @@ target_link_libraries(${PROJECT_NAME}
     fmt
 	Vulkan::Vulkan
 	vk-bootstrap
+	GPUOpen::VulkanMemoryAllocator
 	glfw
 )

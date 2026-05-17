@@ -7,6 +7,7 @@
 namespace real {
 
 typedef void* RendererData;
+typedef void* FrameContext;
 
 class Instance;
 
@@ -21,11 +22,10 @@ public:
     Renderer(Instance *_instance, Window *_window);
     ~Renderer();
 
-    /**
-     * @brief the magic command that draws the things to the screen
-     *
-     */
-    void draw();
+    FrameContext start_frame();
+    void end_frame(FrameContext context);
+
+    RendererData get_handle() { return render_data; };
 
 private:
     RendererData render_data;

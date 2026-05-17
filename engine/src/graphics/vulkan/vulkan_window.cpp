@@ -14,6 +14,14 @@
 
 #include <cassert>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnullability-completeness"
+
+#define VMA_IMPLEMENTATION
+#include "vk_mem_alloc.h"
+
+#pragma GCC diagnostic pop
+
 namespace real {
 
 u32 Window::s_window_count = 0;
@@ -84,7 +92,7 @@ Window::Window(Instance *_instance, const WindowInfo &info)
     window_backend->graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
 	window_backend->graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 
-	VkSemaphoreCreateInfo semaphoreCreateInfo = vkinit::semaphore_create_info();
+	VkSemaphoreCreateInfo semaphoreCreateInfo = vkutil::semaphore_create_info();
 	for (int i = 0; i < window_backend->swapchain_images.size(); i++) {
 		VkSemaphore s;
 		VK_CHECK(vkCreateSemaphore(
@@ -101,6 +109,13 @@ Window::Window(Instance *_instance, const WindowInfo &info)
 	window_backend->descriptor_allocator.init_pool(
 		window_backend->device, 10, sizes);
 
+	VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice = window_backend->chosenGPU;
+    allocatorInfo.device = window_backend->device;
+    allocatorInfo.instance = vulkan_backend->instance;
+    allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+    vmaCreateAllocator(&allocatorInfo, &window_backend->allocator);
+
     backend = window_backend;
 }
 
@@ -109,6 +124,8 @@ Window::~Window() {
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 
 	window_backend->descriptor_allocator.destroy_pool(window_backend->device);
+
+	vmaDestroyAllocator(window_backend->allocator);
 
     vkDestroySwapchainKHR(window_backend->device, window_backend->swapchain, nullptr);
 

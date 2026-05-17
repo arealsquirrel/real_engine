@@ -34,20 +34,25 @@ int main(void) {
 
     // holy fuck
     ShaderLoadStruct load_shader {
-        .fields={{.type=ShaderFieldType::STORAGE_IMAGE, .name="image", .location=0}},
+        .fields={{.type=ShaderFieldType::STORAGE_IMAGE, .name="image what", .location=0}},
         .type=ShaderType::COMPUTE,
         .window=instance->window->backend_handle()
     };
     ResourceShader *shader = ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceShader>(instance, "../engine/resources/shaders/gradient.comp.spv", &load_shader);
     
-    // RenderPassCompute *computePass = new RenderPassCompute(instance, shader);
+    RenderPassCompute *computePass = new RenderPassCompute(instance, shader);
+
+    instance->log.info("starting");
 
     while (instance->update() == false) {
-        
+        auto frame = instance->renderer->start_frame();
+
+        computePass->draw(instance->renderer, frame);
+
+        instance->renderer->end_frame(frame);
     }
 
-    // delete computePass;
-    
+    delete computePass;
     delete shader;
 
     delete instance;

@@ -15,7 +15,7 @@ public:
         ResourceShader* shader);
     ~RenderPassCompute();
 
-    virtual void draw(Renderer *attached_renderer);
+    virtual void draw(Renderer *attached_renderer, FrameContext context);
 };
 
 };

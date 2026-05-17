@@ -21,12 +21,10 @@ public:
     Resource(Instance *_instance, Optional<Path> _path);
     virtual ~Resource();
 
-private:
-    Instance *instance;
-
 protected:
     Optional<Path> path;
     uint32_t size;
+    Instance *instance;
 };
 
 // just say you hate fun :3
