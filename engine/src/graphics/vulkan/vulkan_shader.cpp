@@ -2,14 +2,20 @@
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
 #include "vulkan_backend.hpp"
-#include <optional>
 #include <real/resource/resource_shader.hpp>
 #include <vulkan/vulkan_core.h>
 
 namespace real {
 
-ResourceShader::ResourceShader(Instance *_instance, Optional<Path> _path, WindowBackend _window, ShaderHandle _handle) 
-    : Resource(_instance, _path), window(_window), handle(_handle) {}
+ResourceShader::ResourceShader(
+    Instance *_instance, Optional<Path> _path,
+    WindowBackend _window, ShaderHandle _handle,
+    std::initializer_list<ShaderField> _fields, ShaderType _type) 
+    : Resource(_instance, _path), window(_window), handle(_handle), fields(_fields), type(_type) {
+
+    // ShaderVulkan *shader = (ShaderVulkan*)handle;
+
+}
 
 ResourceShader::~ResourceShader() {
     WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window;
@@ -26,7 +32,8 @@ ResourceShader *ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceS
         Optional<Path> path,
         const LoadStruct loadstruct) {
 
-    WindowBackendVulkan *render_data = (WindowBackendVulkan*)loadstruct;
+    ShaderLoadStruct *ld = (ShaderLoadStruct*)loadstruct;
+    WindowBackendVulkan *render_data = (WindowBackendVulkan*)ld->window;
 
     if(path.has_value() == false) {
         instance->log.warn("resource shader vulkan std::optional path has not value");
@@ -58,7 +65,7 @@ ResourceShader *ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceS
         return nullptr;
     }
 
-    ResourceShader *shader = new ResourceShader(instance, path, loadstruct, s);
+    ResourceShader *shader = new ResourceShader(instance, path, render_data, s, ld->fields, ld->type);
     return shader;
 }
 

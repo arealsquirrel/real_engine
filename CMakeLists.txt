@@ -15,3 +15,11 @@ enable_testing()
 add_subdirectory(engine)
 add_subdirectory(app)
 add_subdirectory(tests)
+
+add_custom_target(
+    Shaders
+    COMMAND make
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/engine/resources/"
+    COMMENT "compiling engine resources"
+)
+

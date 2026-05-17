@@ -4,6 +4,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
+#include "vulkan_descriptor_allocator.hpp"
 #include "vulkan_util.hpp"
 #include <VkBootstrap.h>
 
@@ -36,6 +37,8 @@ struct WindowBackendVulkan {
     VkExtent2D swapchain_extent;
     VkSwapchainKHR swapchain;
 	VkFormat swapchain_image_format;
+
+    DescriptorAllocator descriptor_allocator;
 };
 
 /**
@@ -57,6 +60,12 @@ struct RendererDataVulkan {
 
 struct ShaderVulkan {
     VkShaderModule module;
+    // std::vector<VkDescriptorSetLayoutBinding> bindings;
+};
+
+struct RenderPassVulkan {
+    VkPipeline pipeline;
+    VkPipelineLayout layout;
 };
 
 }

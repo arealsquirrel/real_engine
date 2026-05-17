@@ -5,6 +5,7 @@
 #include <cmath>
 #include <real/graphics/renderer.hpp>
 #include <vulkan/vulkan_core.h>
+#include "vulkan_descriptor_allocator.hpp"
 #include "vulkan_util.hpp"
 
 namespace real {

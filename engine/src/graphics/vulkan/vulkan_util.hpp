@@ -1,9 +1,15 @@
 #ifndef REALLIB_VULKAN_UTIL_HPP
 #define REALLIB_VULKAN_UTIL_HPP
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include "real/resource/resource_shader.hpp"
 #include <deque>
 #include <functional>
-#include <vulkan/vulkan_core.h>
+#include <vector>
+#include <cassert>
+
 namespace real {
 
 #define VK_CHECK(cond) if(cond != VK_SUCCESS) { assert(false); }
@@ -156,6 +162,41 @@ static inline VkSubmitInfo2 submit_info(VkCommandBufferSubmitInfo* cmd, VkSemaph
     info.pCommandBufferInfos = cmd;
 
     return info;
+}
+
+static inline VkDescriptorSetLayout make_descriptor_set_array(
+    std::vector<ShaderField> fields,
+    VkDevice device, VkShaderStageFlags shaderStages, void* pNext, VkDescriptorSetLayoutCreateFlags flags) {
+
+    std::vector<VkDescriptorSetLayoutBinding> bindings;
+    for (auto field : fields) {
+        VkDescriptorSetLayoutBinding newbind {};
+        newbind.binding = field.location;
+        newbind.descriptorCount = 1;
+        newbind.stageFlags = 0;
+        newbind.stageFlags |= shaderStages;
+
+        switch (field.type) {
+        case ShaderFieldType::STORAGE_IMAGE:
+            newbind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+            break;
+        default:
+            break;
+        }
+
+        bindings.push_back(newbind);
+    }
+
+    VkDescriptorSetLayoutCreateInfo info = {.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO};
+    info.pNext = pNext;
+    info.pBindings = bindings.data();
+    info.bindingCount = (uint32_t)bindings.size();
+    info.flags = flags;
+
+    VkDescriptorSetLayout set;
+    VK_CHECK(vkCreateDescriptorSetLayout(device, &info, nullptr, &set));
+
+    return set;
 }
 
 }

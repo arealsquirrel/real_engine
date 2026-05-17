@@ -12,12 +12,6 @@ namespace real {
 static GraphicsBackendVulkan backend;
 
 void Graphics::init_backend(const GraphicsInfo &info) {
-    auto system_info_ret = vkb::SystemInfo::get_system_info();
-    auto system_info = system_info_ret.value();
-    for (auto &str : system_info.available_layers) {
-        std::cout << str.layerName << ": " << str.description << std::endl;
-    }
-
     vkb::InstanceBuilder builder;
     auto inst_ret = builder.set_app_name("Example Vulkan Application")
 		.request_validation_layers(true)

@@ -5,7 +5,6 @@
 
 #include <VkBootstrap.h>
 #include "vulkan_backend.hpp"
-#include <vulkan/vulkan_core.h>
 
 #include <real/graphics/window.hpp>
 #include <real/core/instance.hpp>
@@ -95,12 +94,21 @@ Window::Window(Instance *_instance, const WindowInfo &info)
 		window_backend->render_semaphore.push_back(s);
 	}
 
+	std::vector<DescriptorAllocator::PoolSizeRatio> sizes = {
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1 }
+	};
+
+	window_backend->descriptor_allocator.init_pool(
+		window_backend->device, 10, sizes);
+
     backend = window_backend;
 }
 
 Window::~Window() {
     WindowBackendVulkan *window_backend = (WindowBackendVulkan*)backend;
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+
+	window_backend->descriptor_allocator.destroy_pool(window_backend->device);
 
     vkDestroySwapchainKHR(window_backend->device, window_backend->swapchain, nullptr);
 
