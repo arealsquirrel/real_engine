@@ -3,8 +3,6 @@
 #include "real/core/logging.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/graphics/window.hpp"
-#include "real/resource/resource.hpp"
-#include <GLFW/glfw3.h>
 #include <real/core/core.hpp>
 
 int main(void) {
@@ -18,6 +16,9 @@ int main(void) {
     instance->log.log_level = real::LogLevel_Trace;
     instance->log.sinks.push_back(new real::LogSink_Console());
 
+    /* -------- STATIC ENGINE LEVEL THINGS --------- */
+    Graphics::init_backend({});
+
     /* -------- SETTING UP FOR INIT -------- */
     WindowInfo window_info {
         .width = 500,
@@ -25,12 +26,10 @@ int main(void) {
         .title="hello"
     };
 
-    Graphics::init_backend({});
     instance->init(window_info);
 
-    while (!instance->window->should_exit()) {
-        instance->renderer->draw();
-        glfwPollEvents();
+    while (instance->update() == false) {
+        
     }
 
     delete instance;

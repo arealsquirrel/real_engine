@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <iostream>
 #include <real/graphics/graphics.hpp>
 #include <real/core/instance.hpp>
 #include "vulkan_backend.hpp"
@@ -11,9 +12,16 @@ namespace real {
 static GraphicsBackendVulkan backend;
 
 void Graphics::init_backend(const GraphicsInfo &info) {
+    auto system_info_ret = vkb::SystemInfo::get_system_info();
+    auto system_info = system_info_ret.value();
+    for (auto &str : system_info.available_layers) {
+        std::cout << str.layerName << ": " << str.description << std::endl;
+    }
+
     vkb::InstanceBuilder builder;
     auto inst_ret = builder.set_app_name("Example Vulkan Application")
 		.request_validation_layers(true)
+        // .enable_layer("VK_LAYER_LUNARG_monitor")
 		.use_default_debug_messenger()
 		.require_api_version(1, 3, 0)
 		.build();

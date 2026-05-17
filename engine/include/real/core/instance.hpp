@@ -18,6 +18,13 @@ public:
 
     void init(const WindowInfo &window_info);
 
+    /**
+     * @brief updates the instance of the enging
+     * 
+     * @returns if the engine should close
+     */
+    bool update();
+
 public:
     Log log;
     Window *window;

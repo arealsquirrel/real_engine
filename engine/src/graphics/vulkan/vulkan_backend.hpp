@@ -4,6 +4,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
+#include "vulkan_util.hpp"
 #include <VkBootstrap.h>
 
 namespace real {
@@ -46,10 +47,12 @@ struct FrameDataVulkan {
     VkCommandBuffer main_command_buffer;
     VkSemaphore swapchain_semaphores;
 	VkFence render_fence;
+    vkinit::DeletionQueue delete_queue;
 };
 
 struct RendererDataVulkan {
     FrameDataVulkan frame_data[VULKAN_FRAME_OVERLAP];
+    vkinit::DeletionQueue delete_queue;
 };
 
 }

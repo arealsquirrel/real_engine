@@ -1,6 +1,8 @@
 #ifndef REALLIB_VULKAN_UTIL_HPP
 #define REALLIB_VULKAN_UTIL_HPP
 
+#include <deque>
+#include <functional>
 #include <vulkan/vulkan_core.h>
 namespace real {
 
@@ -8,6 +10,23 @@ namespace real {
 
 // as recommended by vk guide
 namespace vkinit {
+
+struct DeletionQueue {
+	std::deque<std::function<void()>> deletors;
+
+	void push_function(std::function<void()>&& function) {
+		deletors.push_back(function);
+	}
+
+	void flush() {
+		for (auto it = deletors.rbegin(); it != deletors.rend(); it++) {
+			(*it)();
+		}
+
+		deletors.clear();
+	}
+};
+
 
 static inline VkCommandPoolCreateInfo command_pool_create_info(uint32_t queueFamilyIndex,
     VkCommandPoolCreateFlags flags /*= 0*/) {
