@@ -18,4 +18,5 @@ target_link_libraries(${PROJECT_NAME}
 	vk-bootstrap
 	GPUOpen::VulkanMemoryAllocator
 	glfw
+	imgui_cmake_wrapper
 )

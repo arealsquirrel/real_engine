@@ -7,8 +7,10 @@
 #include <optional>
 #include <real/graphics/renderer.hpp>
 #include <vulkan/vulkan_core.h>
-#include "vulkan_descriptor_allocator.hpp"
 #include "vulkan_util.hpp"
+#include <imgui.h>
+#include <backends/imgui_impl_vulkan.h>
+#include <backends/imgui_impl_glfw.h>
 
 namespace real {
 
@@ -49,6 +51,69 @@ Renderer::Renderer(Instance *_instance, Window *_window)
     }
 
     rdata->render_image = new ResourceImage(instance, std::nullopt, 500, 500, ColorFormat::RGB_FLOAT);
+
+    VK_CHECK(vkCreateCommandPool(window_backend->device, &commandPoolInfo, nullptr, &rdata->imm_command_pool));
+	VkCommandBufferAllocateInfo cmdAllocInfo = vkutil::command_buffer_allocate_info(rdata->imm_command_pool, 1);
+	VK_CHECK(vkAllocateCommandBuffers(window_backend->device, &cmdAllocInfo, &rdata->imm_command_buffer));
+    VK_CHECK(vkCreateFence(window_backend->device, &fenceCreateInfo, nullptr, &rdata->imm_fence));
+
+    /* ----- init imgui ----- */
+    VkDescriptorPoolSize pool_sizes[] = 
+      { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+		{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+		{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+	   { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 } };
+
+	VkDescriptorPoolCreateInfo pool_info = {};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+	pool_info.maxSets = 1000;
+	pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
+	pool_info.pPoolSizes = pool_sizes;
+
+	// VkDescriptorPool imguiPool;
+	VK_CHECK(vkCreateDescriptorPool(window_backend->device, &pool_info, nullptr, &rdata->imgui_descriptor_pool));
+
+	// 2: initialize imgui library
+
+	// this initializes the core structures of imgui
+	ImGui::CreateContext();
+
+	// this initializes imgui for SDL
+	// ImGui_ImplSDL2_InitForVulkan(_window);
+    ImGui_ImplGlfw_InitForVulkan(window->glfw_window(), true);
+
+	// this initializes imgui for Vulkan
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = backend->instance;
+	init_info.PhysicalDevice = window_backend->chosenGPU;
+	init_info.Device = window_backend->device;
+	init_info.Queue = window_backend->graphics_queue;
+	init_info.DescriptorPool = rdata->imgui_descriptor_pool;
+	init_info.MinImageCount = 3;
+	init_info.ImageCount = 3;
+	init_info.UseDynamicRendering = true;
+    // init_info.PipelineInfoMain
+
+    ImGui_ImplVulkan_PipelineInfo pipe_info = {};
+	pipe_info.PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
+	pipe_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+	pipe_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &window_backend->swapchain_image_format;
+	pipe_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.PipelineInfoMain = pipe_info;
+
+	ImGui_ImplVulkan_Init(&init_info);
+
+	// ImGui_ImplVulkan_CreateFontsTexture();
+
+	// add the destroy the imgui created structures
 }
 
 Renderer::~Renderer() {
@@ -56,6 +121,9 @@ Renderer::~Renderer() {
     RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
 
     vkDeviceWaitIdle(window_backend->device);
+
+    ImGui_ImplVulkan_Shutdown();
+	vkDestroyDescriptorPool(window_backend->device, rdata->imgui_descriptor_pool, nullptr);
 
     delete rdata->render_image;
 
@@ -67,6 +135,9 @@ Renderer::~Renderer() {
     
         rdata->frame_data[i].delete_queue.flush();
     }
+
+	vkDestroyFence(window_backend->device, rdata->imm_fence, nullptr);
+    vkDestroyCommandPool(window_backend->device, rdata->imm_command_pool, nullptr);
 
     rdata->delete_queue.flush();
 
@@ -82,7 +153,6 @@ FrameContext Renderer::start_frame() {
 
     frame->draw_extent.width = render_image_handle->imageExtent.width;
     frame->draw_extent.height = render_image_handle->imageExtent.height;
-
 
     VK_CHECK(vkWaitForFences(
         window_backend->device, 1,
@@ -106,6 +176,10 @@ FrameContext Renderer::start_frame() {
 	// we will overwrite it all so we dont care about what was the older layout
 	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    
     return frame;
 }
 
@@ -116,13 +190,22 @@ void Renderer::end_frame(FrameContext context) {
     FrameDataVulkan *frame = (FrameDataVulkan*)context;
     VkCommandBuffer cmd = frame->main_command_buffer;
     ImageVulkan *render_image_handle = (ImageVulkan*) rdata->render_image->get_handle();
+    ImGui::Render();
 
 
 	//transition the draw image and the swapchain image into their correct transfer layouts
 	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	vkutil::transition_image(cmd, window_backend->swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	vkutil::copy_image_to_image(cmd, render_image_handle->image, window_backend->swapchain_images[frame->swapchain_index], frame->draw_extent, window_backend->swapchain_extent);
-	vkutil::transition_image(cmd, window_backend->swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	vkutil::transition_image(cmd, window_backend->swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+    VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(window_backend->swapchain_views[frame->swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	VkRenderingInfo renderInfo = vkutil::rendering_info(window_backend->swapchain_extent, &colorAttachment, nullptr);
+	vkCmdBeginRendering(cmd, &renderInfo);
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+	vkCmdEndRendering(cmd);
+
+    vkutil::transition_image(cmd, window_backend->swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     VK_CHECK(vkEndCommandBuffer(cmd));
     
     VkCommandBufferSubmitInfo cmdinfo = vkutil::command_buffer_submit_info(cmd);	

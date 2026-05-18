@@ -72,6 +72,10 @@ struct RendererDataVulkan {
     FrameDataVulkan frame_data[VULKAN_FRAME_OVERLAP];
     vkutil::DeletionQueue delete_queue;
     ResourceImage *render_image;
+    VkFence imm_fence;
+    VkCommandBuffer imm_command_buffer;
+    VkCommandPool imm_command_pool;
+    VkDescriptorPool imgui_descriptor_pool;
 };
 
 struct ShaderVulkan {

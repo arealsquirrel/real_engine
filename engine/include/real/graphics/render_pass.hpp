@@ -23,7 +23,8 @@ public:
 
     virtual ~RenderPass() = default;
 
-    virtual void draw(Renderer *attached_renderer, FrameContext context) = 0;
+    virtual void bind(FrameContext context) = 0;
+    virtual void draw(FrameContext context) = 0;
 
 protected:
     RenderPassData data;

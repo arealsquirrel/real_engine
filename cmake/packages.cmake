@@ -15,8 +15,6 @@ CPMAddPackage(
 
 CPMAddPackage("gh:charles-lunarg/vk-bootstrap@1.4.349")
 
-# Vulkan-Headers defines a header target but not one for the module.
-# fucking huge
 CPMAddPackage(
     Name VulkanMemoryAllocator
     GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
@@ -24,4 +22,3 @@ CPMAddPackage(
     OPTIONS
         "VMA_BUILD_SAMPLES OFF" # Prevents building internal test apps
 )
-

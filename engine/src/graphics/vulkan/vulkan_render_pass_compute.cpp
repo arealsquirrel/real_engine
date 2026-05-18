@@ -91,17 +91,20 @@ RenderPassCompute::~RenderPassCompute() {
     delete pass;
 }
 
-void RenderPassCompute::draw(Renderer *attached_renderer, FrameContext context) {
+void RenderPassCompute::bind(FrameContext context) {
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
 	RenderPassVulkan *pass = (RenderPassVulkan*)data;
-
-    // bind the gradient drawing compute pipeline
 	vkCmdBindPipeline(
 		frame->main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pass->pipeline);
 
-	// bind the descriptor set containing the draw image for the compute pipeline
 	vkCmdBindDescriptorSets(
 		frame->main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pass->layout, 0, 1, &pass->descriptor_set, 0, nullptr);
+
+}
+
+void RenderPassCompute::draw(FrameContext context) {
+	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+	RenderPassVulkan *pass = (RenderPassVulkan*)data;
 
 	// execute the compute pipeline dispatch. We are using 16x16 workgroup size so we need to divide by it
 	vkCmdDispatch(

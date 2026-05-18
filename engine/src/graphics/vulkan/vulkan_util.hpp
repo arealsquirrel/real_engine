@@ -1,6 +1,7 @@
 #ifndef REALLIB_VULKAN_UTIL_HPP
 #define REALLIB_VULKAN_UTIL_HPP
 
+#include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -276,6 +277,61 @@ static inline void copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkIm
 	vkCmdBlitImage2(cmd, &blitInfo);
 }
 
+static void immediate_submit(VkFence imm_fence, VkCommandBuffer imm_command_buffer, VkDevice device, VkQueue graphicsQueue, std::function<void(VkCommandBuffer cmd)>&& function) {
+	VK_CHECK(vkResetFences(device, 1, &imm_fence));
+	VK_CHECK(vkResetCommandBuffer(imm_command_buffer, 0));
+
+	VkCommandBuffer cmd = imm_command_buffer;
+
+	VkCommandBufferBeginInfo cmdBeginInfo = vkutil::command_buffer_begin_info(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+	function(cmd);
+
+	VK_CHECK(vkEndCommandBuffer(cmd));
+
+	VkCommandBufferSubmitInfo cmdinfo = vkutil::command_buffer_submit_info(cmd);
+	VkSubmitInfo2 submit = vkutil::submit_info(&cmdinfo, nullptr, nullptr);
+	VK_CHECK(vkQueueSubmit2(graphicsQueue, 1, &submit, imm_fence));
+
+	VK_CHECK(vkWaitForFences(device, 1, &imm_fence, true, 9999999999));
+}
+
+static inline VkRenderingAttachmentInfo attachment_info(
+    VkImageView view, VkClearValue* clear ,VkImageLayout layout /*= VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL*/)
+{
+    VkRenderingAttachmentInfo colorAttachment {};
+    colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    colorAttachment.pNext = nullptr;
+
+    colorAttachment.imageView = view;
+    colorAttachment.imageLayout = layout;
+    colorAttachment.loadOp = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    if (clear) {
+        colorAttachment.clearValue = *clear;
+    }
+
+    return colorAttachment;
+}
+
+static inline VkRenderingInfo rendering_info(VkExtent2D renderExtent, VkRenderingAttachmentInfo* colorAttachment,
+    VkRenderingAttachmentInfo* depthAttachment)
+{
+    VkRenderingInfo renderInfo {};
+    renderInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    renderInfo.pNext = nullptr;
+
+    renderInfo.renderArea = VkRect2D { VkOffset2D { 0, 0 }, renderExtent };
+    renderInfo.layerCount = 1;
+    renderInfo.colorAttachmentCount = 1;
+    renderInfo.pColorAttachments = colorAttachment;
+    renderInfo.pDepthAttachment = depthAttachment;
+    renderInfo.pStencilAttachment = nullptr;
+
+    return renderInfo;
+}
 
 }
 

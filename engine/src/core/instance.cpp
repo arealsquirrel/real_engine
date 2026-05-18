@@ -20,7 +20,6 @@ void Instance::init(const WindowInfo &window_info) {
 }
 
 bool Instance::update() {
-    // renderer->draw();
     glfwPollEvents();
     return window->should_exit();
 }

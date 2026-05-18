@@ -29,6 +29,7 @@ public:
     void swap_buffers();
 
     WindowBackend backend_handle();
+    GLFWwindow *glfw_window() { return window; }
 
 private:
     Instance *instance;
