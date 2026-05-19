@@ -16,13 +16,11 @@ set(IMGUI_PLATFORM_BACKEND
       "Allows useres to choose which platform(e.g. glfw,SDL2,SDL3) they want to build imgui for"
 )
 
-cpmaddpackage(
-  NAME
-  imgui
-  GITHUB_REPOSITORY
-  ocornut/imgui
-  VERSION
-  1.92.4
+CPMAddPackage(
+  NAME imgui
+  GITHUB_REPOSITORY ocornut/imgui
+  GIT_TAG "docking"  # Specify your branch here
+  VERSION 1.92.4
   DOWNLOAD_ONLY)
 
 add_library(imgui_cmake_wrapper STATIC)

@@ -27,8 +27,8 @@ int main(void) {
 
     /* -------- SETTING UP FOR INIT -------- */
     WindowInfo window_info {
-        .width = 500,
-        .height = 500,
+        .width = 800,
+        .height = 800,
         .title="hello"
     };
 
@@ -39,7 +39,9 @@ int main(void) {
         .type=ShaderType::COMPUTE,
         .window=instance->window->backend_handle()
     };
-    ResourceShader *shader = ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceShader>(instance, "../engine/resources/shaders/gradient.comp.spv", &load_shader);
+    ResourceShader *shader = ResourceSerializer<ResourceSerializerType::Disk>::
+		load<ResourceShader>(instance,
+				"../engine/resources/shaders/test_compute.slang.spv", &load_shader);
     
     RenderPassCompute *computePass = new RenderPassCompute(instance, shader);
 
