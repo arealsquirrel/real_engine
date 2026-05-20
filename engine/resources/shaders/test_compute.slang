@@ -12,15 +12,11 @@ void main(
     uint width, height;
     image.GetDimensions(width, height);
 
-    if (texelCoord.x < width && texelCoord.y < height)
-    {
-        float4 color = float4(0.5, 0.5, 0.5, 1.0);
-
-        if (groupThreadID.x != 0 && groupThreadID.y != 0)
-        {
-            color.x = float(texelCoord.x) / float(width);
-            color.y = float(texelCoord.y) / float(height);
-        }
+    if (texelCoord.x < width && texelCoord.y < height) {
+        float4 color = float4(0, 0, 0, 1);
+		
+		color.x = float(texelCoord.x) / float(width);
+		color.y = float(texelCoord.y) / float(height);
 
         image[texelCoord] = color;
     }

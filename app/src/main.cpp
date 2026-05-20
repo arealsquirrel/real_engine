@@ -35,13 +35,13 @@ int main(void) {
     instance->init(window_info);
 
     ShaderLoadStruct load_shader {
-        .fields={{.type=ShaderFieldType::STORAGE_IMAGE, .name="image what", .location=0}},
+        .fields={{.type=ShaderFieldType::STORAGE_IMAGE, .name="image", .location=0}},
         .type=ShaderType::COMPUTE,
         .window=instance->window->backend_handle()
     };
-    ResourceShader *shader = ResourceSerializer<ResourceSerializerType::Disk>::
-		load<ResourceShader>(instance,
-				"../engine/resources/shaders/test_compute.slang.spv", &load_shader);
+
+    ResourceShader *shader = ResourceSerializer<ResourceSerializerType::Disk>
+		::load<ResourceShader>(instance, "../engine/resources/shaders/test_compute.slang.spv", &load_shader);
     
     RenderPassCompute *computePass = new RenderPassCompute(instance, shader);
 

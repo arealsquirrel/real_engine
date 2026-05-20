@@ -1,0 +1,36 @@
+
+TODO list before sinking into meshes
+
+turn a lot of these things into an abstract factory for the rendering backends
+one big oll abstract factory for instantiating these things.
+	- Shaders
+	- Images
+	- Render Pipeline
+	- Render Subpasses
+
+resource refactors
+	- databasing them, query them by a name or id
+	- status of loading and unloading
+	- unload resources that are not in use
+	- a per frame deletion queue for resources
+	- resource handles that notify when a resource is deleted
+	- possibly some sort of slab allocator for resources and common objects
+	- resource reloading function
+
+improved logging
+	- more logs so we can see what is going on
+	- logging ring buffer so we can see it in the imgui
+	- profiling would be nice
+	- I think render doc has some things for debug coloring in the renderdoc
+	  editor so we are deffinitly going to do that.
+
+infrastructure for making imgui debug menus
+	- CVARS system-ish
+		- its going to be compile time global editor basicly
+	- I would like it to be macros so we can just put it in and out
+
+misc
+	- See if shared and unique pointers are faster
+	- get slang reflection going to some capacity
+	- find out if its worth it to shed vk-bootstrap
+
