@@ -15,14 +15,15 @@ enum class ColorFormat {
 };
 
 class ResourceImage : public Resource {
+protected:
+    ResourceImage(
+			Instance *_instance, std::optional<Path> _path,
+			u32 width, u32 height, ColorFormat format, void *data=nullptr);
+    
 public:
-    ResourceImage(Instance *_instance, std::optional<Path> path, u32 width, u32 height, ColorFormat format, void *data=nullptr);
     ~ResourceImage();
 
-    ImageHandle get_handle() { return handle; }
-
-private:
-    ImageHandle handle;
+    virtual ImageHandle get_handle() = 0;
 };
 
 }

@@ -8,6 +8,8 @@
 
 namespace real {
 
+/*
+
 class RenderPassCompute : public RenderPass {
 public:
     RenderPassCompute(
@@ -18,6 +20,8 @@ public:
     void draw(FrameContext context) override;
     void bind(FrameContext context) override;
 };
+
+*/
 
 };
 

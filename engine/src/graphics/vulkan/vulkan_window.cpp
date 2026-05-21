@@ -24,6 +24,8 @@
 
 namespace real {
 
+/*
+
 u32 Window::s_window_count = 0;
 
 Window::Window(Instance *_instance, const WindowInfo &info) 
@@ -39,7 +41,6 @@ Window::Window(Instance *_instance, const WindowInfo &info)
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     window = glfwCreateWindow(info.width, info.height, info.title, NULL, NULL);
 
-    /* now we can set up the swapchain and whatever for this window */
     WindowBackendVulkan *window_backend = new WindowBackendVulkan;
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     glfwCreateWindowSurface(vulkan_backend->instance, window, NULL, &window_backend->surface);   
@@ -69,7 +70,6 @@ Window::Window(Instance *_instance, const WindowInfo &info)
 	window_backend->device = vkbDevice.device;
 	window_backend->chosenGPU = physicalDevice.physical_device;
 
-    /* ----------- CREATE SWAPCHAIN ----------- */
     vkb::SwapchainBuilder swapchainBuilder{ window_backend->chosenGPU, window_backend->device, window_backend->surface };
 
 	window_backend->swapchain_image_format = VK_FORMAT_B8G8R8A8_UNORM;
@@ -158,5 +158,7 @@ bool Window::should_exit() {
 void Window::swap_buffers() {
     return glfwSwapBuffers(window);
 }
+
+*/
 
 }

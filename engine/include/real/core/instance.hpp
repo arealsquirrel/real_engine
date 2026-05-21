@@ -27,8 +27,9 @@ public:
 
 public:
     Log log;
-    Window *window;
-    Renderer *renderer;
+    // Window *window;
+	Shared<Window> window;
+    Shared<Renderer> renderer;
 };
 
 }

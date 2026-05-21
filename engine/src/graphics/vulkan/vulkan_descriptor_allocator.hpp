@@ -1,8 +1,11 @@
 #ifndef REALLIB_VULKAN_DESCRIPTOR_ALLOCATOR_HPP
 #define REALLIB_VULKAN_DESCRIPTOR_ALLOCATOR_HPP
 
-#include <span>
-#include <vulkan/vulkan.h>
+#include <initializer_list>
+#include <vector>
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
 
 namespace real {
 
@@ -14,7 +17,7 @@ struct DescriptorAllocator {
 
     VkDescriptorPool pool;
 
-    void init_pool(VkDevice device, uint32_t maxSets, std::span<PoolSizeRatio> poolRatios);
+    void init_pool(VkDevice device, uint32_t maxSets, std::initializer_list<PoolSizeRatio> poolRatios);
     void clear_descriptors(VkDevice device);
     void destroy_pool(VkDevice device);
 

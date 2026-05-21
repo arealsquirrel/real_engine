@@ -1,11 +1,12 @@
 
 #include "vulkan_descriptor_allocator.hpp"
 #include "vulkan_util.hpp"
+#include <initializer_list>
 #include <vector>
 
 namespace real {
 
-void DescriptorAllocator::init_pool(VkDevice device, uint32_t maxSets, std::span<PoolSizeRatio> poolRatios) {
+void DescriptorAllocator::init_pool(VkDevice device, uint32_t maxSets, std::initializer_list<PoolSizeRatio> poolRatios) {
     std::vector<VkDescriptorPoolSize> poolSizes;
     for (PoolSizeRatio ratio : poolRatios) {
         poolSizes.push_back(VkDescriptorPoolSize{

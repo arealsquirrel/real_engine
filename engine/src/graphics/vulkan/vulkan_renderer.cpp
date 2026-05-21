@@ -1,65 +1,76 @@
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include "real/core/types.hpp"
+#include "vulkan_resource_image.hpp"
+
 #include "real/graphics/graphics.hpp"
-#include "real/resource/resource_image.hpp"
 #include "vulkan_backend.hpp"
 #include <cassert>
-#include <cmath>
-#include <optional>
+#include "vulkan_resource_image.hpp"
 #include <real/graphics/renderer.hpp>
 #include <vulkan/vulkan_core.h>
 #include "vulkan_util.hpp"
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_glfw.h>
+#include "vulkan_renderer.hpp"
+#include "vulkan_resource_image.hpp"
 
 namespace real {
 
 void style_imgui();
 
-Renderer::Renderer(Instance *_instance, Window *_window)
-    : window(_window), instance(_instance) {
-    render_data = new RendererDataVulkan;
-    RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
-    WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
-    GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
+    : Renderer(_instance, _window) {
+
+	instance->log.trace("Creating vulkan renderer");
+	auto [width, height] = window->get_glfw_window_dimensions();
+
+	create_device();
+	create_swapchain(width, height);
+	create_queues();
+	create_vma();
+	create_frame_objects();
+	create_descriptors();
+	create_imgui();
+}
+
+VulkanRenderer::~VulkanRenderer() {
+	instance->log.trace("destroying vulkan renderer");
+    vkDeviceWaitIdle(device);
+
+    ImGui_ImplVulkan_Shutdown();
+	vkDestroyDescriptorPool(device, imgui_descriptor_pool, nullptr);
+
+    delete_queue.flush();
+
+    for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
+        vkDestroyCommandPool(device, frame_data[i].command_pool, nullptr);
+
+	    vkDestroyFence(device, frame_data[i].render_fence, nullptr);
+	    vkDestroySemaphore(device, frame_data[i].swapchain_semaphores, nullptr);
     
-    VkCommandPoolCreateInfo commandPoolInfo = vkutil::command_pool_create_info(window_backend->graphics_queue_family, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-    VkFenceCreateInfo fenceCreateInfo = vkutil::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
-	VkSemaphoreCreateInfo semaphoreCreateInfo = vkutil::semaphore_create_info();
-
-	for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
-        /* COMMAND POOLS AND BUFFERS */
-		VK_CHECK(vkCreateCommandPool(
-            window_backend->device,
-            &commandPoolInfo,
-            nullptr, &rdata->frame_data[i].command_pool));
-		VkCommandBufferAllocateInfo cmdAllocInfo = vkutil::command_buffer_allocate_info(
-            rdata->frame_data[i].command_pool, 1);
-		VK_CHECK(vkAllocateCommandBuffers(
-            window_backend->device, &cmdAllocInfo,
-             &rdata->frame_data[i].main_command_buffer));
-	
-
-        /* SYNC OBJECTS */
-        VK_CHECK(vkCreateFence(
-            window_backend->device,
-            &fenceCreateInfo, nullptr,
-            &rdata->frame_data[i].render_fence));
-	
-		VK_CHECK(vkCreateSemaphore(
-            window_backend->device,
-            &semaphoreCreateInfo,
-            nullptr, &rdata->frame_data[i].swapchain_semaphores));
+        frame_data[i].delete_queue.flush();
     }
 
-    rdata->render_image = new ResourceImage(instance, std::nullopt, 500, 500, ColorFormat::RGB_FLOAT);
+	vkDestroyFence(device, imm_fence, nullptr);
+    vkDestroyCommandPool(device, imm_command_pool, nullptr);
 
-    VK_CHECK(vkCreateCommandPool(window_backend->device, &commandPoolInfo, nullptr, &rdata->imm_command_pool));
-	VkCommandBufferAllocateInfo cmdAllocInfo = vkutil::command_buffer_allocate_info(rdata->imm_command_pool, 1);
-	VK_CHECK(vkAllocateCommandBuffers(window_backend->device, &cmdAllocInfo, &rdata->imm_command_buffer));
-    VK_CHECK(vkCreateFence(window_backend->device, &fenceCreateInfo, nullptr, &rdata->imm_fence));
+	destroy_swapchain();
 
-    /* ----- init imgui ----- */
+	descriptor_allocator.destroy_pool(device);
+
+	vmaDestroyAllocator(allocator);
+
+	vkDestroyDevice(device, nullptr);
+}
+
+void VulkanRenderer::create_imgui() {
+	instance->log.trace("Vulkan renderer creating imgui");
+    GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+
     VkDescriptorPoolSize pool_sizes[] = 
       { { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
 		{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
@@ -80,7 +91,7 @@ Renderer::Renderer(Instance *_instance, Window *_window)
 	pool_info.poolSizeCount = (uint32_t)std::size(pool_sizes);
 	pool_info.pPoolSizes = pool_sizes;
 
-	VK_CHECK(vkCreateDescriptorPool(window_backend->device, &pool_info, nullptr, &rdata->imgui_descriptor_pool));
+	VK_CHECK(vkCreateDescriptorPool(device, &pool_info, nullptr, &imgui_descriptor_pool));
 
 	ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
@@ -90,79 +101,181 @@ Renderer::Renderer(Instance *_instance, Window *_window)
 
     ImGui_ImplGlfw_InitForVulkan(window->glfw_window(), true);
 
-	// this initializes imgui for Vulkan
 	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = backend->instance;
-	init_info.PhysicalDevice = window_backend->chosenGPU;
-	init_info.Device = window_backend->device;
-	init_info.Queue = window_backend->graphics_queue;
-	init_info.DescriptorPool = rdata->imgui_descriptor_pool;
+	init_info.Instance = vulkan_backend->instance;
+	init_info.PhysicalDevice = chosenGPU;
+	init_info.Device = device;
+	init_info.Queue = graphics_queue;
+	init_info.DescriptorPool = imgui_descriptor_pool;
 	init_info.MinImageCount = 3;
 	init_info.ImageCount = 3;
 	init_info.UseDynamicRendering = true;
-    // init_info.PipelineInfoMain
 
     ImGui_ImplVulkan_PipelineInfo pipe_info = {};
 	pipe_info.PipelineRenderingCreateInfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
 	pipe_info.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-	pipe_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &window_backend->swapchain_image_format;
+	pipe_info.PipelineRenderingCreateInfo.pColorAttachmentFormats = &swapchain_image_format;
 	pipe_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
     init_info.PipelineInfoMain = pipe_info;
 
 	ImGui_ImplVulkan_Init(&init_info);
-
-	// ImGui_ImplVulkan_CreateFontsTexture();
-
-	// add the destroy the imgui created structures
 }
 
-Renderer::~Renderer() {
-    WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
-    RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
+void VulkanRenderer::create_descriptors() {
+	instance->log.trace("Vulkan renderer creating descriptors");
+	descriptor_allocator.init_pool(device, 10,{
+		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1 } 
+	});
+}
 
-    vkDeviceWaitIdle(window_backend->device);
+void VulkanRenderer::create_vma() {
+	instance->log.trace("Vulkan renderer creating vma");
+    GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+	VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.physicalDevice = chosenGPU;
+    allocatorInfo.device = device;
+    allocatorInfo.instance = vulkan_backend->instance;
+    allocatorInfo.flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+    vmaCreateAllocator(&allocatorInfo, &allocator);
+}
 
-    ImGui_ImplVulkan_Shutdown();
-	vkDestroyDescriptorPool(window_backend->device, rdata->imgui_descriptor_pool, nullptr);
+void VulkanRenderer::create_queues() {
+	instance->log.trace("Vulkan renderer creating queues");
+    graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
+	graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+}
 
-    delete rdata->render_image;
+void VulkanRenderer::create_frame_objects() {
+	instance->log.trace("Vulkan renderer creating frame objects");
+    VkFenceCreateInfo fenceCreateInfo = vkutil::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
+	VkSemaphoreCreateInfo semaphoreCreateInfo = vkutil::semaphore_create_info();
+    VkCommandPoolCreateInfo commandPoolInfo = vkutil::command_pool_create_info(graphics_queue_family, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-    for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
-        vkDestroyCommandPool(window_backend->device, rdata->frame_data[i].command_pool, nullptr);
+    VK_CHECK(vkCreateCommandPool(device, &commandPoolInfo, nullptr, &imm_command_pool));
+	VkCommandBufferAllocateInfo cmdAllocInfo = vkutil::command_buffer_allocate_info(imm_command_pool, 1);
+	VK_CHECK(vkAllocateCommandBuffers(device, &cmdAllocInfo, &imm_command_buffer));
 
-	    vkDestroyFence(window_backend->device, rdata->frame_data[i].render_fence, nullptr);
-	    vkDestroySemaphore(window_backend->device, rdata->frame_data[i].swapchain_semaphores, nullptr);
-    
-        rdata->frame_data[i].delete_queue.flush();
+	for (int i = 0; i < swapchain_images.size(); i++) {
+		VkSemaphore s;
+		VK_CHECK(vkCreateSemaphore(
+            device,
+            &semaphoreCreateInfo,
+            nullptr, &s));
+		render_semaphore.push_back(s);
+	}
+
+	for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
+        /* COMMAND POOLS AND BUFFERS */
+		VK_CHECK(vkCreateCommandPool(
+            device,
+            &commandPoolInfo,
+            nullptr, &frame_data[i].command_pool));
+		VkCommandBufferAllocateInfo cmdAllocInfo = vkutil::command_buffer_allocate_info(
+            frame_data[i].command_pool, 1);
+
+		VK_CHECK(vkAllocateCommandBuffers(
+            device, &cmdAllocInfo,
+             &frame_data[i].main_command_buffer));
+	
+
+        /* SYNC OBJECTS */
+        VK_CHECK(vkCreateFence(
+            device,
+            &fenceCreateInfo, nullptr,
+            &frame_data[i].render_fence));
+	
+		VK_CHECK(vkCreateSemaphore(
+            device,
+            &semaphoreCreateInfo,
+            nullptr, &frame_data[i].swapchain_semaphores));
     }
 
-	vkDestroyFence(window_backend->device, rdata->imm_fence, nullptr);
-    vkDestroyCommandPool(window_backend->device, rdata->imm_command_pool, nullptr);
-
-    rdata->delete_queue.flush();
-
-    delete (RendererDataVulkan*)render_data;
+    VK_CHECK(vkCreateFence(device, &fenceCreateInfo, nullptr, &imm_fence));
 }
 
-FrameContext Renderer::start_frame() {
-    RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
-    WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
-    GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
-    FrameDataVulkan *frame = &rdata->frame_data[frame_number % VULKAN_FRAME_OVERLAP];
-    ImageVulkan *render_image_handle = (ImageVulkan*) rdata->render_image->get_handle();
+void VulkanRenderer::create_swapchain(u32 width, u32 height) {
+	instance->log.trace("Vulkan renderer creating swapchain");
+    vkb::SwapchainBuilder swapchainBuilder{ chosenGPU, device, surface };
 
-    frame->draw_extent.width = render_image_handle->imageExtent.width;
-    frame->draw_extent.height = render_image_handle->imageExtent.height;
+	swapchain_image_format = VK_FORMAT_B8G8R8A8_UNORM;
+
+	vkb::Swapchain vkbSwapchain = swapchainBuilder
+		.set_desired_format(VkSurfaceFormatKHR{ .format = swapchain_image_format, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR })
+		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+		.set_desired_extent(width, height)
+		.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
+		.build()
+		.value();
+
+	swapchain_extent = vkbSwapchain.extent;
+	swapchain = vkbSwapchain.swapchain;
+	swapchain_images = vkbSwapchain.get_images().value();
+	swapchain_views = vkbSwapchain.get_image_views().value();
+}
+
+void VulkanRenderer::destroy_swapchain() {
+    GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+    vkDestroySwapchainKHR(device, swapchain, nullptr);
+
+	for (int i = 0; i < swapchain_views.size(); i++) {
+		vkDestroySemaphore(device, render_semaphore[i], nullptr);
+		vkDestroyImageView(device, swapchain_views[i], nullptr);
+	}
+    
+    vkDestroySurfaceKHR(vulkan_backend->instance, surface, nullptr);
+}
+
+void VulkanRenderer::create_device() {
+	instance->log.trace("Vulkan renderer creating device");
+    GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+
+    GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+    glfwCreateWindowSurface(vulkan_backend->instance, window->glfw_window(), NULL, &surface);   
+    
+    VkPhysicalDeviceVulkan13Features features{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES };
+	features.dynamicRendering = true;
+	features.synchronization2 = true;
+
+	VkPhysicalDeviceVulkan12Features features12{ .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES };
+	features12.bufferDeviceAddress = true;
+	features12.descriptorIndexing = true;
+
+	vkb::PhysicalDeviceSelector selector { vulkan_backend->vkbInstance };
+	vkb::PhysicalDevice physicalDevice = selector
+		.set_minimum_version(1, 3)
+		.set_required_features_13(features)
+		.set_required_features_12(features12)
+		.set_surface(surface)
+		.select()
+		.value();
+
+    instance->log.info("vulkan rendering device found: {}", physicalDevice.name);
+
+    vkb::DeviceBuilder deviceBuilder{ physicalDevice };
+	vkbDevice = deviceBuilder.build().value();
+	device = vkbDevice.device;
+	chosenGPU = physicalDevice.physical_device;
+}
+
+FrameContext VulkanRenderer::start_frame() {
+    // RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
+    // WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
+    GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+    FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
+    // ImageVulkan *render_image_handle = (ImageVulkan*) render_image->get_handle();
+
+    // frame->draw_extent.width = render_image->imageExtent.width; //render_image_handle->imageExtent.width;
+    // frame->draw_extent.height = render_image->imageExtent.height; //render_image_handle->imageExtent.height;
 
     VK_CHECK(vkWaitForFences(
-        window_backend->device, 1,
+        device, 1,
         &frame->render_fence, true, 1000000000));
 	VK_CHECK(vkResetFences(
-        window_backend->device, 1,
+        device, 1,
         &frame->render_fence));
 	VK_CHECK(vkAcquireNextImageKHR(
-        window_backend->device,
-        window_backend->swapchain,
+        device,
+        swapchain,
         1000000000, frame->swapchain_semaphores,
         nullptr, &frame->swapchain_index));
 
@@ -174,7 +287,7 @@ FrameContext Renderer::start_frame() {
 
     // transition our main draw image into general layout so we can write into it
 	// we will overwrite it all so we dont care about what was the older layout
-	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+	// vkutil::transition_image(cmd, render_image->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -183,29 +296,29 @@ FrameContext Renderer::start_frame() {
     return frame;
 }
 
-void Renderer::end_frame(FrameContext context) {
-    RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
-    WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
+void VulkanRenderer::end_frame(FrameContext context) {
+    // RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
+    // WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = (FrameDataVulkan*)context;
     VkCommandBuffer cmd = frame->main_command_buffer;
-    ImageVulkan *render_image_handle = (ImageVulkan*) rdata->render_image->get_handle();
+    // ImageVulkan *render_image_handle = (ImageVulkan*) render_image->get_handle();
     ImGui::Render();
 
 
 	//transition the draw image and the swapchain image into their correct transfer layouts
-	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	vkutil::transition_image(cmd, window_backend->swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	vkutil::copy_image_to_image(cmd, render_image_handle->image, window_backend->swapchain_images[frame->swapchain_index], frame->draw_extent, window_backend->swapchain_extent);
-	vkutil::transition_image(cmd, window_backend->swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	// vkutil::transition_image(cmd, render_image->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	// vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	// vkutil::copy_image_to_image(cmd, render_image->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);
+	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-    VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(window_backend->swapchain_views[frame->swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	VkRenderingInfo renderInfo = vkutil::rendering_info(window_backend->swapchain_extent, &colorAttachment, nullptr);
+    VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame->swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	VkRenderingInfo renderInfo = vkutil::rendering_info(swapchain_extent, &colorAttachment, nullptr);
 	vkCmdBeginRendering(cmd, &renderInfo);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 	vkCmdEndRendering(cmd);
 
-    vkutil::transition_image(cmd, window_backend->swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     VK_CHECK(vkEndCommandBuffer(cmd));
     
     VkCommandBufferSubmitInfo cmdinfo = vkutil::command_buffer_submit_info(cmd);	
@@ -214,25 +327,25 @@ void Renderer::end_frame(FrameContext context) {
         frame->swapchain_semaphores);
     VkSemaphoreSubmitInfo signalInfo = vkutil::semaphore_submit_info(
         VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
-                window_backend->render_semaphore[frame->swapchain_index]);	
+            	render_semaphore[frame->swapchain_index]);	
     VkSubmitInfo2 submit = vkutil::submit_info(
         &cmdinfo,&signalInfo
         ,&waitInfo);	
     VK_CHECK(vkQueueSubmit2(
-        window_backend->graphics_queue, 1,
+        graphics_queue, 1,
         &submit, frame->render_fence));
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.pNext = nullptr;
-    presentInfo.pSwapchains = &window_backend->swapchain;
+    presentInfo.pSwapchains = &swapchain;
     presentInfo.swapchainCount = 1;
-    presentInfo.pWaitSemaphores = &window_backend->render_semaphore[frame->swapchain_index];
+    presentInfo.pWaitSemaphores = &render_semaphore[frame->swapchain_index];
     presentInfo.waitSemaphoreCount = 1;
 
     presentInfo.pImageIndices = &frame->swapchain_index;
 
-    VK_CHECK(vkQueuePresentKHR(window_backend->graphics_queue, &presentInfo));
+    VK_CHECK(vkQueuePresentKHR(graphics_queue, &presentInfo));
     frame->delete_queue.flush();
     frame_number++;
 }

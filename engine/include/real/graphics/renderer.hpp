@@ -6,7 +6,7 @@
 
 namespace real {
 
-typedef void* RendererData;
+// typedef void* RendererData;
 typedef void* FrameContext;
 
 class Instance;
@@ -19,20 +19,15 @@ class Instance;
  */
 class Renderer {
 public:
-    Renderer(Instance *_instance, Window *_window);
-    ~Renderer();
+    Renderer(Instance *_instance, Shared<Window> _window);
+    virtual ~Renderer();
 
-    FrameContext start_frame();
-    void end_frame(FrameContext context);
+    virtual FrameContext start_frame() = 0;
+    virtual void end_frame(FrameContext context) = 0;
 
-    RendererData get_handle() { return render_data; };
-
-private:
-    RendererData render_data;
+protected:
     Instance *instance;
-    Window *window;
-
-    u32 frame_number=0;
+    Shared<Window> window;
 };
 
 }

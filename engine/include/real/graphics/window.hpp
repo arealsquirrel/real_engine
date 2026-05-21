@@ -2,6 +2,7 @@
 #define REALLIB_WINDOW_HPP
 
 #include "real/core/types.hpp"
+#include <utility>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -15,8 +16,6 @@ struct WindowInfo {
     const char *title;
 };
 
-typedef void* WindowBackend;
-
 /**
  * @brief makes and manages a window
  */
@@ -28,13 +27,14 @@ public:
     bool should_exit();
     void swap_buffers();
 
-    WindowBackend backend_handle();
     GLFWwindow *glfw_window() { return window; }
+
+	/* this makes an API call so please dont call it a bunch */
+	std::pair<u32, u32> get_glfw_window_dimensions();
 
 private:
     Instance *instance;
     GLFWwindow *window;
-    WindowBackend backend;
     static u32 s_window_count;
 };
 

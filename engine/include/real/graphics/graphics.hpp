@@ -1,7 +1,9 @@
 #ifndef REALLIB_GRAPHICS_HPP
 #define REALLIB_GRAPHICS_HPP
 
+#include "real/core/instance.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 
 namespace real {
@@ -9,7 +11,8 @@ namespace real {
 typedef void* GraphicsBackend;
 
 struct GraphicsInfo {
-
+	bool debug;
+	const char *name;
 };
 
 /**
@@ -18,13 +21,16 @@ struct GraphicsInfo {
  */
 class Graphics {
 public:
+	/* -------- PLATFORM METHODS -------- */
     static void init_backend(const GraphicsInfo &info);
     static GraphicsBackend get_backend();
-
     static void destroy_backend();
 
-	template<typename ...Args>
-	static Shared<Window> create_window(Args&&... args);
+public:
+	/* -------- BUILDER METHODS -------- */
+	static Shared<Window> create_window(Instance *instance, const WindowInfo &info);
+
+	static Shared<Renderer> create_renderer(Instance *instance, Shared<Window> window);
 };
 
 }

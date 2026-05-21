@@ -6,7 +6,6 @@
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
-#include <initializer_list>
 #include <vector>
 
 namespace real {
@@ -31,34 +30,25 @@ struct ShaderField {
 };
 
 struct ShaderLoadStruct {
-    std::initializer_list<ShaderField> fields;
     ShaderType type;
-    WindowBackend window;
 };
 
 typedef void* ShaderHandle;
 
 /**
- * @brief the backend is entierly in the render folder of the API in use
+ * @brief the backend is entirly in the render folder of the API in use
  */
 class ResourceShader : public Resource {
-public:
+protected:
     ResourceShader(
         Instance *_instance, Optional<Path> _path,
-        WindowBackend _window, ShaderHandle _handle,
-        std::initializer_list<ShaderField> _fields, ShaderType _type);
-
-    ~ResourceShader();
-
-    ShaderHandle get_handle() { return handle; }
+		std::vector<char> data, ShaderType _type);
 
 public:
-    const std::vector<ShaderField> fields;
-    const ShaderType type;
+    ~ResourceShader();
 
-private:
-    ShaderHandle handle;
-    WindowBackend window;
+public:
+    const ShaderType type;
 };
 
 }

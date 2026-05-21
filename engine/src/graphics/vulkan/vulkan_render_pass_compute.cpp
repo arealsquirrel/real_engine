@@ -12,6 +12,8 @@
 
 namespace real {
 
+/*
+
 RenderPassCompute::RenderPassCompute(
     Instance *_instance,
     ResourceShader* shader)
@@ -21,7 +23,6 @@ RenderPassCompute::RenderPassCompute(
 	RendererDataVulkan *render_data = (RendererDataVulkan*)instance->renderer->get_handle();
     WindowBackendVulkan *wind = (WindowBackendVulkan*)(instance->window->backend_handle());
 
-	/* ----- DESCRIPTORS ----- */
 	if(shader->type != ShaderType::COMPUTE) {
 		instance->log.warn("why are you passing a shader that isnt a compute shader to a compute pipeline. dumb ass");
 	}
@@ -49,7 +50,6 @@ RenderPassCompute::RenderPassCompute(
 	vkUpdateDescriptorSets(wind->device, 1, &drawImageWrite, 0, nullptr);
 
 
-    /* ----- MAKING THE PIPELINE LAYOUT ----- */
 	VkPipelineLayoutCreateInfo computeLayout{};
 	computeLayout.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	computeLayout.pNext = nullptr;
@@ -112,4 +112,6 @@ void RenderPassCompute::draw(FrameContext context) {
 
 }
     
+*/
+
 }
