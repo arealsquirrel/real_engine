@@ -1,44 +1,31 @@
 
-#include "real/core/instance.hpp"
-#include "real/core/logging.hpp"
-#include "real/graphics/graphics.hpp"
 #include "real/graphics/window.hpp"
 #include <real/core/core.hpp>
 #include <real/graphics/render_pass_compute.hpp>
 #include <imgui.h>
 
-int main(void) {
-    real::print_version();
 
-    using namespace real;
-    Instance *instance = new Instance;
+using namespace real;
 
-    /* -------- LOGGING -------- */
-    instance->log.name = "game engine";
-    instance->log.log_level = real::LogLevel_Trace;
-    instance->log.sinks.push_back(new real::LogSink_Console());
+constexpr u32 WINDOW_WIDTH = 500;
+constexpr u32 WINDOW_HEIGHT = 500;
+constexpr const char* APPLICATION_NAME = "game engine wahoo";
 
-    /* -------- STATIC ENGINE LEVEL THINGS --------- */
-    Graphics::init_backend({true, "Engine"});
+static inline void init_instance(Shared<Instance> instance) {
+	WindowInfo window_info {
+		.width = WINDOW_WIDTH,
+		.height = WINDOW_HEIGHT,
+		.title = APPLICATION_NAME
+	};
 
-    /* -------- SETTING UP FOR INIT -------- */
-    WindowInfo window_info {
-        .width = 800,
-        .height = 800,
-        .title="hello"
-    };
-
-    instance->init(window_info);
-
-    instance->log.info("starting");
-
-    while (instance->update() == false) {
-        auto frame = instance->renderer->start_frame();
-        ImGui::ShowDemoWindow();
-        instance->renderer->end_frame(frame);
-    }
-
-	delete instance;
-
-    Graphics::destroy_backend();
+	instance->init(window_info);
 }
+
+void game_main(Shared<Instance> instance) {
+	init_instance(instance);
+
+	while(instance->update() == false) {
+		
+	}
+}
+

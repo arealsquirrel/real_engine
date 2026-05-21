@@ -34,3 +34,6 @@ misc
 	- get slang reflection going to some capacity
 	- find out if its worth it to shed vk-bootstrap
 
+DLL injection loading application and whatnot
+	- so improving the launcher
+
