@@ -10,5 +10,5 @@ target_link_libraries(app
     reallib
 )
 
-target_compile_options(app PRIVATE -fsanitize=address)
-target_link_options(app PRIVATE -fsanitize=address)
+# target_compile_options(app PRIVATE -fsanitize=address)
+# target_link_options(app PRIVATE -fsanitize=address)

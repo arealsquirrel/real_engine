@@ -18,6 +18,9 @@
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 
+#define VMA_IMPLEMENTATION
+#include "vk_mem_alloc.h"
+
 namespace real {
 
 void style_imgui();
