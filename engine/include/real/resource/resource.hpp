@@ -18,11 +18,10 @@ enum class ResourceSerializerType {
  */
 class Resource {
 public:
-    Resource(Instance *_instance, Optional<Path> _path);
+    Resource(Instance *_instance);
     virtual ~Resource();
 
 protected:
-    Optional<Path> path;
     uint32_t size;
     Instance *instance;
 };

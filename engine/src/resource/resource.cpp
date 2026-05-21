@@ -4,8 +4,8 @@
 
 namespace real {
 
-Resource::Resource(Instance *_instance, Optional<Path> _path) 
-    : instance(_instance), path(_path) {}
+Resource::Resource(Instance *_instance) 
+    : instance(_instance) {}
 
 Resource::~Resource() {}
 

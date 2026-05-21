@@ -13,7 +13,7 @@ class VulkanRenderer;
 class VulkanResourceImage : public ResourceImage {
 public:
     VulkanResourceImage(
-        Instance *_instance, std::optional<Path> path,
+        Instance *_instance,
         u32 width, u32 height,
         ColorFormat format, void *data=nullptr);
 

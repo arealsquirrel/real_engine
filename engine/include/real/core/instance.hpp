@@ -2,10 +2,13 @@
 #define REALLIB_CORE_INSTANCE
 
 #include "real/core/logging.hpp"
+#include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 
 namespace real {
+
+class ResourceDatabase;
 
 /**
  * @brief defines an instance of the engine that manages
@@ -27,7 +30,7 @@ public:
 
 public:
     Log log;
-    // Window *window;
+	Unique<ResourceDatabase> resource_database;
 	Shared<Window> window;
     Shared<Renderer> renderer;
 };

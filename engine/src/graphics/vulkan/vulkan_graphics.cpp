@@ -36,7 +36,6 @@ void Graphics::destroy_backend() {
     vkDestroyInstance(backend.instance, nullptr);
 }
 
-
 Shared<Window> Graphics::create_window(Instance *instance, const WindowInfo &info) {
 	return std::make_shared<Window>(instance, info);
 }

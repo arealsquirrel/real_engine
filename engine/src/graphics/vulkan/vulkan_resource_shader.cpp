@@ -12,9 +12,9 @@
 namespace real {
 
 VulkanResourceShader::VulkanResourceShader(
-		Instance *_instance, Optional<Path> _path,
+		Instance *_instance,
         std::vector<char> data, ShaderType _type) 
-	: ResourceShader(_instance, _path, data, _type), 
+	: ResourceShader(_instance, data, _type), 
 		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
 	
     VkShaderModuleCreateInfo createInfo = {};
@@ -24,7 +24,7 @@ VulkanResourceShader::VulkanResourceShader(
     createInfo.pCode = (uint32_t*)data.data();
 
     if (vkCreateShaderModule(renderer->device, &createInfo, nullptr, &module) != VK_SUCCESS) {
-        instance->log.error("VkCreateShaderModule failed on shader {}", path->c_str());
+        instance->log.error("VkCreateShaderModule failed on shader womp womp");
     }
 }
 
@@ -59,7 +59,7 @@ ResourceShader *ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceS
     file.read((char*)buffer.data(), fileSize);
     file.close();
 
-    return (ResourceShader*)(new VulkanResourceShader(instance, path, buffer, ld->type));
+    return (ResourceShader*)(new VulkanResourceShader(instance, buffer, ld->type));
 }
 
 }

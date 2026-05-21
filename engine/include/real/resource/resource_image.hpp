@@ -4,7 +4,6 @@
 #include "real/core/instance.hpp"
 #include "real/core/types.hpp"
 #include "real/resource/resource.hpp"
-#include <optional>
 
 namespace real {
 
@@ -17,7 +16,7 @@ enum class ColorFormat {
 class ResourceImage : public Resource {
 protected:
     ResourceImage(
-			Instance *_instance, std::optional<Path> _path,
+			Instance *_instance,
 			u32 width, u32 height, ColorFormat format, void *data=nullptr);
     
 public:

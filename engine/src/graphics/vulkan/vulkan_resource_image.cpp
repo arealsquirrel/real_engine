@@ -10,9 +10,9 @@
 namespace real {
 
 VulkanResourceImage::VulkanResourceImage(
-    Instance *_instance, Optional<Path> _path,
+    Instance *_instance,
     u32 width, u32 height, ColorFormat format, void *data) 
-    : ResourceImage(_instance, _path, width, height, format, data) {
+    : ResourceImage(_instance, width, height, format, data) {
 
 	renderer = (VulkanRenderer*)(instance->renderer.get());
 

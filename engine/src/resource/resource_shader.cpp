@@ -5,9 +5,9 @@
 namespace real {
 
 ResourceShader::ResourceShader(
-        Instance *_instance, Optional<Path> _path,
+        Instance *_instance,
 		std::vector<char> data, ShaderType _type) 
-	: Resource(_instance, _path), type(_type) {}
+	: Resource(_instance), type(_type) {}
 
 ResourceShader::~ResourceShader() = default;
 

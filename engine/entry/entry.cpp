@@ -7,6 +7,10 @@
 
 using namespace real;
 
+constexpr u32 WINDOW_WIDTH = 500;
+constexpr u32 WINDOW_HEIGHT = 500;
+constexpr const char* APPLICATION_NAME = "game engine wahoo";
+
 extern void game_main(Shared<Instance> instance);
 
 int main() {
@@ -16,6 +20,14 @@ int main() {
     instance->log.sinks.push_back(new real::LogSink_Console());
 
 	Graphics::init_backend({true, "Engine"});
+
+	WindowInfo window_info {
+		.width = WINDOW_WIDTH,
+		.height = WINDOW_HEIGHT,
+		.title = APPLICATION_NAME
+	};
+
+	instance->init(window_info);
 
 	instance->log.info("passing to game main!");
 	game_main(instance);

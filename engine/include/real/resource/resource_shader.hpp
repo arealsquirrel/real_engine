@@ -41,7 +41,7 @@ typedef void* ShaderHandle;
 class ResourceShader : public Resource {
 protected:
     ResourceShader(
-        Instance *_instance, Optional<Path> _path,
+        Instance *_instance,
 		std::vector<char> data, ShaderType _type);
 
 public:
