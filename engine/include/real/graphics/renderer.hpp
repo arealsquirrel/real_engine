@@ -22,6 +22,9 @@ public:
     Renderer(Instance *_instance, Shared<Window> _window);
     virtual ~Renderer();
 
+	// some of the constructors need instance things to be initilized
+	virtual void init() = 0;
+
     virtual FrameContext start_frame() = 0;
     virtual void end_frame(FrameContext context) = 0;
 

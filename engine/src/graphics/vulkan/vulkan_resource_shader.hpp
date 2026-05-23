@@ -12,8 +12,8 @@ class VulkanRenderer;
 class VulkanResourceShader : public ResourceShader {
 public:
 	VulkanResourceShader(
-			Instance *_instance,
-			 std::vector<char> data, ShaderType _type);
+			Instance *_instance, std::vector<char> data,
+			std::vector<ShaderField> fields, ShaderType _type);
 
 	~VulkanResourceShader();
 

@@ -21,13 +21,19 @@
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
 
+#include <real/real.hpp>
+
+
+#include "real/resource/resource_image.hpp"
+
 namespace real {
 
 void style_imgui();
 
 VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
-    : Renderer(_instance, _window) {
+    : Renderer(_instance, _window) {}
 
+void VulkanRenderer::init() {
 	instance->log.trace("Creating vulkan renderer");
 	auto [width, height] = window->get_glfw_window_dimensions();
 
@@ -38,6 +44,11 @@ VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
 	create_frame_objects();
 	create_descriptors();
 	create_imgui();
+
+	instance->resource_database->register_resource(
+ 		ResourceImage::create(instance, width, height, ColorFormat::RGB_FLOAT), "_render_texture");
+	
+	renderImage = instance->resource_database->get_resource<ResourceImage>("_render_texture");
 }
 
 VulkanRenderer::~VulkanRenderer() {

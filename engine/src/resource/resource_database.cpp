@@ -7,16 +7,9 @@ namespace real {
 ResourceDatabase::ResourceDatabase() {}
 
 ResourceDatabase::~ResourceDatabase() {
-
-}
-
-void ResourceDatabase::unload_resource(std::string name) {
-	unload_resource(name_to_resource_UUID.find(name)->second);
-}
-
-void ResourceDatabase::unload_resource(UUID hash) {
-	ResourceHandle<Resource> handle = resource_array[uuid_to_entry.find(hash)->second.arr_index];
-	handle.set_state(ResourceState::Unloaded);
+	for (auto &resource : resource_array) {
+		resource.unload();
+	}
 }
 
 ResourceDatabase::Entry ResourceDatabase::get_entry(std::string name) {
@@ -25,6 +18,14 @@ ResourceDatabase::Entry ResourceDatabase::get_entry(std::string name) {
 
 ResourceDatabase::Entry ResourceDatabase::get_entry(UUID id) {
 	return uuid_to_entry.find(id)->second;
+}
+
+void ResourceDatabase::clean_non_references() {
+
+}
+
+void ResourceDatabase::clean_unloaded() {
+	
 }
 
 }

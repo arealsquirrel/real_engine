@@ -19,13 +19,6 @@ struct GraphicsBackendVulkan {
     VkDebugUtilsMessengerEXT debug_messenger;
 };
 
-struct RenderPassVulkan {
-    VkPipeline pipeline;
-    VkPipelineLayout layout;
-    VkDescriptorSet descriptor_set;
-    VkDescriptorSetLayout descriptor_set_layout;
-};
-
 }
 
 #endif

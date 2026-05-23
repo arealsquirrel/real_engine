@@ -10,12 +10,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(IMGUI_RENDERER_BACKEND "vulkan")
 set(IMGUI_PLATFORM_BACKEND "glfw")
 
-
 include("cmake/get_cpm.cmake")
 include("cmake/packages.cmake")
 include("cmake/imgui_cmake.cmake")
 
 enable_testing()
+
+add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+add_link_options(-fsanitize=address)
 
 add_subdirectory(engine)
 add_subdirectory(app)

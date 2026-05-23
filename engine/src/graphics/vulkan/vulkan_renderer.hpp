@@ -4,6 +4,8 @@
 #include "real/core/instance.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
+#include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_image.hpp"
 #include "vulkan_backend.hpp"
 #include "vulkan_descriptor_allocator.hpp"
 #include "vulkan_util.hpp"
@@ -33,6 +35,7 @@ public:
 
 	FrameContext start_frame() override;
 	void end_frame(FrameContext context) override;
+	void init() override;
 
 private:
 	void create_imgui();
@@ -66,7 +69,7 @@ private:
 
     FrameDataVulkan frame_data[VULKAN_FRAME_OVERLAP];
     vkutil::DeletionQueue delete_queue;
-    // VulkanResourceImage *render_image;
+	ResourceHandle<ResourceImage> renderImage;
     VkFence imm_fence;
     VkCommandBuffer imm_command_buffer;
     VkCommandPool imm_command_pool;

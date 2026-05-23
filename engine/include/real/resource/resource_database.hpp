@@ -55,10 +55,7 @@ public:
 		return get_resource<T>(name_to_resource_UUID.find(name)->second);
 	}
 
-    void unload_resource(std::string name);
-    void unload_resource(UUID hash);
-
-	void clean_non_referances();
+	void clean_non_references();
 	void clean_unloaded();
 
 	Entry get_entry(std::string name);

@@ -4,7 +4,6 @@
 #include "real/core/instance.hpp"
 #include "real/graphics/window.hpp"
 #include <real/graphics/graphics.hpp>
-#include <string>
 
 namespace real {
 
@@ -19,15 +18,14 @@ class Renderer;
 class RenderPass {
 public:
     RenderPass(Instance *_instance)
-        : instance(_instance) {}
+		: instance(_instance) {};
 
     virtual ~RenderPass() = default;
 
-    virtual void bind(FrameContext context) = 0;
-    virtual void draw(FrameContext context) = 0;
+    virtual void begin_pass(FrameContext context) = 0;
+    virtual void end_pass(FrameContext context) = 0;
 
 protected:
-    RenderPassData data;
     Instance *instance;
 };
 

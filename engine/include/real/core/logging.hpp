@@ -1,6 +1,7 @@
 #ifndef REALLIB_LOGGING_HPP
 #define REALLIB_LOGGING_HPP
 
+#include "fmt/color.h"
 #include <filesystem>
 #include <fmt/base.h>
 #include <fstream>
@@ -71,7 +72,7 @@ public:
     ~Log();
 
     template<typename ...Args>
-    void log(LogLevel level, std::string_view in, Args&& ...args) { 
+    void log(LogLevel level, std::string_view in, Args&& ...args) {
         if(level < log_level) {
             return;
         }

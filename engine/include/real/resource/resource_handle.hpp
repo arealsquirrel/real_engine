@@ -15,7 +15,13 @@ enum class ResourceState {
 	Unloaded,
 
 	// this resource does not delete when the referance count goes to zero
-	NeverDelete
+	NeverDelete,
+
+	// the handle does not exist.
+	DoesNotExist,
+
+	// count = 1 and that count should be from resource database
+	Unreferenced
 };
 
 struct ResourceHandleControlBlock {
@@ -27,6 +33,14 @@ struct ResourceHandleControlBlock {
 template<typename T>
 class ResourceHandle {
 public:
+	ResourceHandle() {
+		block = new ResourceHandleControlBlock();
+		block->count = 1;
+		block->state = ResourceState::DoesNotExist;
+		block->id = 0;
+		db = nullptr;
+	}
+
 	ResourceHandle(
 			ResourceDatabase *_db, T *_resource,
 			ResourceState _state, UUID uuid)
@@ -54,14 +68,15 @@ public:
 	}
 
 	~ResourceHandle() {
-		block->count -= 1;
-		if(block->count == 0) {
-			if(block->state != ResourceState::Unloaded) {
-				delete resource;
-			}
+		destroy();
+	}
 
-			delete block;
-		}
+	void operator =(const ResourceHandle &rh) {
+		destroy();
+		block = rh.block;
+		resource = rh.resource;
+		db = rh.db;
+		block->count++;
 	}
 
 public:
@@ -81,6 +96,26 @@ public:
 	void unload() {
 		block->state = ResourceState::Unloaded;
 		delete resource;
+	}
+
+private:
+	void destroy() {
+		block->count -= 1;
+
+		if( block->count == 1 &&
+			block->state != ResourceState::Unloaded &&
+			block->state != ResourceState::DoesNotExist) {
+
+			block->state = ResourceState::Unreferenced;
+		}
+
+		if(block->count == 0) {
+			if(block->state != ResourceState::Unloaded && block->state != ResourceState::DoesNotExist) {
+				delete resource;
+			}
+
+			delete block;
+		}
 	}
 
 protected:

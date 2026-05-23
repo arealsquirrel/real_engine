@@ -6,6 +6,8 @@
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
+#include <functional>
+#include <set>
 #include <vector>
 
 namespace real {
@@ -24,14 +26,11 @@ enum class ShaderFieldType {
 };
 
 struct ShaderField {
-    ShaderFieldType type;
-    std::string name;
-    int location;
+    const ShaderFieldType type;
+    const std::string name;
+    const int location;
 };
 
-struct ShaderLoadStruct {
-    ShaderType type;
-};
 
 typedef void* ShaderHandle;
 
@@ -41,13 +40,14 @@ typedef void* ShaderHandle;
 class ResourceShader : public Resource {
 protected:
     ResourceShader(
-        Instance *_instance,
-		std::vector<char> data, ShaderType _type);
+        Instance *_instance, std::vector<char> data, 
+		std::vector<ShaderField> fields, ShaderType _type);
 
 public:
     ~ResourceShader();
 
 public:
+	const std::vector<ShaderField> fields;
     const ShaderType type;
 };
 

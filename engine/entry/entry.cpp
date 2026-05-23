@@ -30,6 +30,7 @@ int main() {
 	instance->init(window_info);
 
 	instance->log.info("passing to game main!");
+
 	game_main(instance);
 
 	instance.reset();

@@ -22,3 +22,4 @@ CPMAddPackage(
     OPTIONS
         "VMA_BUILD_SAMPLES OFF" # Prevents building internal test apps
 )
+

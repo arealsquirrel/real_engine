@@ -1,5 +1,6 @@
 
 #include "vulkan_resource_shader.hpp"
+#include "fmt/color.h"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
@@ -12,15 +13,15 @@
 namespace real {
 
 VulkanResourceShader::VulkanResourceShader(
-		Instance *_instance,
-        std::vector<char> data, ShaderType _type) 
-	: ResourceShader(_instance, data, _type), 
+		Instance *_instance, std::vector<char> data, 
+		std::vector<ShaderField> fields, ShaderType _type) 
+	: ResourceShader(_instance, data, fields, _type), 
 		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
 	
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.pNext = nullptr;
-    createInfo.codeSize = data.size() * sizeof(uint32_t);
+    createInfo.codeSize = data.size();
     createInfo.pCode = (uint32_t*)data.data();
 
     if (vkCreateShaderModule(renderer->device, &createInfo, nullptr, &module) != VK_SUCCESS) {
@@ -28,18 +29,14 @@ VulkanResourceShader::VulkanResourceShader(
     }
 }
 
-
 VulkanResourceShader::~VulkanResourceShader() {
     vkDestroyShaderModule(renderer->device, module, nullptr);
 }
 
-template<> template<>
-ResourceShader *ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceShader>(
+template<>
+ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
         Instance *instance,
-        Optional<Path> path,
-        const LoadStruct loadstruct) {
-
-    ShaderLoadStruct *ld = (ShaderLoadStruct*)loadstruct;
+        Optional<Path> path) {
 
     if(path.has_value() == false) {
         instance->log.warn("resource shader vulkan std::optional path does not have value");
@@ -59,7 +56,10 @@ ResourceShader *ResourceSerializer<ResourceSerializerType::Disk>::load<ResourceS
     file.read((char*)buffer.data(), fileSize);
     file.close();
 
-    return (ResourceShader*)(new VulkanResourceShader(instance, buffer, ld->type));
+    return (ResourceShader*)(new VulkanResourceShader(
+				instance, buffer,
+				{{ShaderFieldType::STORAGE_IMAGE, "image", 0}},
+				ShaderType::COMPUTE));
 }
 
 }

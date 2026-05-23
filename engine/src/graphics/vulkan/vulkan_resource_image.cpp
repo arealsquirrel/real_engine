@@ -3,20 +3,27 @@
 #include "real/resource/resource.hpp"
 #include "vulkan_backend.hpp"
 #include <real/resource/resource_image.hpp>
+#include <utility>
 #include "vulkan_resource_image.hpp"
 #include "vulkan_util.hpp"
 #include "vulkan_renderer.hpp"
 
 namespace real {
 
+VulkanResourceImage::VulkanResourceImage(Instance *_instance,
+		VkImage _image, VkImageView _view,
+		VkExtent3D _extent, VkFormat _format,
+		bool _internaly_managed)
+	: ResourceImage(instance, _extent.width, _extent.height,
+			ColorFormat::UNKNOWN, nullptr), internaly_managed(_internaly_managed),
+		image(_image), imageView(_view), imageExtent(_extent), imageFormat(_format) {}
+
 VulkanResourceImage::VulkanResourceImage(
     Instance *_instance,
     u32 width, u32 height, ColorFormat format, void *data) 
-    : ResourceImage(_instance, width, height, format, data) {
+    : ResourceImage(_instance, width, height, format, data), internaly_managed(false) {
 
 	renderer = (VulkanRenderer*)(instance->renderer.get());
-
-	instance->log.trace("making image ");
 
 	VkExtent3D drawImageExtent = {
 		width,
@@ -24,7 +31,7 @@ VulkanResourceImage::VulkanResourceImage(
 		1
 	};
 
-	//hardcoding the draw format to 32 bit float
+	// hardcoding the draw format to 32 bit float
 	imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
 	imageExtent = drawImageExtent;
 
@@ -42,9 +49,7 @@ VulkanResourceImage::VulkanResourceImage(
 	rimg_allocinfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	//allocate and create the image
-	instance->log.trace("making image");
 	vmaCreateImage(renderer->allocator, &rimg_info, &rimg_allocinfo, &image, &allocation, nullptr);
-	instance->log.trace("making image");
 
 	//build a image-view for the draw image to use for rendering
 	VkImageViewCreateInfo rview_info = vkutil::imageview_create_info(
@@ -54,15 +59,21 @@ VulkanResourceImage::VulkanResourceImage(
 }
 
 VulkanResourceImage::~VulkanResourceImage() {
-    // WindowBackendVulkan *window_backend = (WindowBackendVulkan*)instance->window->backend_handle();
-    // ImageVulkan *image =  (ImageVulkan*)handle;
-
-    vkDestroyImageView(renderer->device, imageView, nullptr);
-	vmaDestroyImage(renderer->allocator, image, allocation);
+	if(internaly_managed == false) {
+    	vkDestroyImageView(renderer->device, imageView, nullptr);
+		vmaDestroyImage(renderer->allocator, image, allocation);
+	}
 }
 
 ImageHandle VulkanResourceImage::get_handle() {
 	return imageView;
+}
+
+ResourceImage *ResourceImage::create(
+		Instance *_instance,
+		u32 width, u32 height, ColorFormat format, void *data) {
+
+	return new VulkanResourceImage(_instance, width, height, format, data);
 }
 
 }
