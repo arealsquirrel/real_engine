@@ -22,8 +22,6 @@ public:
 };
 
 TEST(Resources, ResourceHandleMemoryLeaks) {
-	ResourceDatabase *db = new ResourceDatabase();
-
 	ResourceHandle<TestResource> r(nullptr, new TestResource(), ResourceState::Loaded, UUID());
 
 	{
@@ -33,9 +31,7 @@ TEST(Resources, ResourceHandleMemoryLeaks) {
 	}
 
 	EXPECT_EQ(r.get_count(), 1);
-	EXPECT_EQ(r.get_state(), ResourceState::NeverDelete);
-
-	delete db;
+	EXPECT_EQ(r.get_state(), ResourceState::Unreferenced);
 }
 
 TEST(Resources, ResourceHandleArray) {
@@ -78,7 +74,6 @@ TEST(Resources, ResourceDatabase) {
 		EXPECT_EQ(handle.get_state(), ResourceState::Unloaded);
 		EXPECT_EQ(db->get_entry(handle.get_uuid()).name, "80");
 	}
-
 	delete db;
 }
 

@@ -16,9 +16,6 @@ include("cmake/imgui_cmake.cmake")
 
 enable_testing()
 
-add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
-add_link_options(-fsanitize=address)
-
 add_subdirectory(engine)
 add_subdirectory(app)
 add_subdirectory(tests)

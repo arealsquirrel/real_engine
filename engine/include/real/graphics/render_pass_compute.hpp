@@ -2,7 +2,6 @@
 #define REALLIB_RENDER_PASS_COMPUTE_HPP
 
 #include <real/graphics/render_pass.hpp>
-#include "real/resource/resource_shader.hpp"
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_image.hpp>
 
@@ -17,14 +16,14 @@ public:
 	 */
     RenderPassCompute(
 		Instance *_instance,
-        ResourceShader* shader,
-		std::vector<ResourceHandle<ResourceImage>> inResources,
-		std::vector<ResourceHandle<ResourceImage>> outResources);
+		std::vector<ResourceHandle<ResourceImage>> _inResources,
+		std::vector<ResourceHandle<ResourceImage>> _outResources)
+		: RenderPass(_instance, _inResources, _outResources) {};
 
     ~RenderPassCompute();
 
-    void begin_pass(FrameContext context) override;
-    void end_pass(FrameContext context) override;
+    void begin_pass(FrameContext context) = 0;
+    void end_pass(FrameContext context) = 0;
 };
 
 

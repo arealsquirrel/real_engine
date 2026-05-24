@@ -254,11 +254,15 @@ void VulkanRenderer::create_device() {
 	features12.bufferDeviceAddress = true;
 	features12.descriptorIndexing = true;
 
+	VkPhysicalDeviceVulkan11Features features11 = {};
+	features11.shaderDrawParameters = true;
+
 	vkb::PhysicalDeviceSelector selector { vulkan_backend->vkbInstance };
 	vkb::PhysicalDevice physicalDevice = selector
 		.set_minimum_version(1, 3)
 		.set_required_features_13(features)
 		.set_required_features_12(features12)
+		.set_required_features_11(features11)
 		.set_surface(surface)
 		.select()
 		.value();

@@ -16,7 +16,7 @@ namespace real {
 
 constexpr int VULKAN_FRAME_OVERLAP = 2;
 
-class VulkanResourceImage;
+// class VulkanResourceImage;
 
 struct FrameDataVulkan {
     VkCommandPool command_pool;

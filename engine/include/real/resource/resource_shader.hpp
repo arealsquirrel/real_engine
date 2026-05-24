@@ -2,37 +2,29 @@
 #define REALLIB_RESOURCE_SHADER_HPP
 
 #include "real/core/instance.hpp"
-#include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
-#include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
-#include <functional>
-#include <set>
 #include <vector>
 
 namespace real {
 
 enum class ShaderType {
+	INFER,
     COMPUTE,
-    VERETEX,
-    FRAGMENT
-};
-
-enum class ShaderFieldType {
-    STORAGE_IMAGE,
-    VECTOR_2,
-    VECTOR_3,
-    VECTOR_4
+    VERTEX,
+    FRAGMENT,
+	VERTEX_FRAGMENT // it has both
 };
 
 struct ShaderField {
-    const ShaderFieldType type;
+    // const ShaderFieldType type;
     const std::string name;
     const int location;
 };
 
+// const char *ShaderFieldType_to_string(const ShaderFieldType type);
+const char *ShaderType_to_string(const ShaderType type);
 
-typedef void* ShaderHandle;
 
 /**
  * @brief the backend is entirly in the render folder of the API in use
@@ -47,8 +39,8 @@ public:
     ~ResourceShader();
 
 public:
-	const std::vector<ShaderField> fields;
-    const ShaderType type;
+	std::vector<ShaderField> fields;
+	ShaderType type;
 };
 
 }

@@ -175,15 +175,6 @@ static inline VkDescriptorSetLayout make_descriptor_set_array(
         newbind.descriptorCount = 1;
         newbind.stageFlags = 0;
         newbind.stageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
-
-        switch (field.type) {
-        case ShaderFieldType::STORAGE_IMAGE:
-            newbind.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-            break;
-        default:
-            break;
-        }
-
         bindings.push_back(newbind);
     }
 

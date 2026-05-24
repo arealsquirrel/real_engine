@@ -7,8 +7,8 @@
 
 using namespace real;
 
-constexpr u32 WINDOW_WIDTH = 500;
-constexpr u32 WINDOW_HEIGHT = 500;
+constexpr u32 WINDOW_WIDTH = 800;
+constexpr u32 WINDOW_HEIGHT = 800;
 constexpr const char* APPLICATION_NAME = "game engine wahoo";
 
 extern void game_main(Shared<Instance> instance);
@@ -19,7 +19,7 @@ int main() {
     instance->log.log_level = real::LogLevel_Trace;
     instance->log.sinks.push_back(new real::LogSink_Console());
 
-	Graphics::init_backend({true, "Engine"});
+	Graphics::init_backend({true, APPLICATION_NAME});
 
 	WindowInfo window_info {
 		.width = WINDOW_WIDTH,

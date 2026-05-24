@@ -1,19 +1,13 @@
 
 TODO list before sinking into meshes
 
-turn a lot of these things into an abstract factory for the rendering backends
-one big oll abstract factory for instantiating these things.
-	- Shaders
-	- Images
-	- Render Pipeline
-	- Render Subpasses
+Pipelines
+	- figure out how we are passing in data
+	- figure out how we are transitioning images
+	- abstract descriptor sets
+	- abstract the swapchain in a way that is quick
 
 resource refactors
-	- databasing them, query them by a name or id
-	- status of loading and unloading
-	- unload resources that are not in use
-	- a per frame deletion queue for resources
-	- resource handles that notify when a resource is deleted
 	- possibly some sort of slab allocator for resources and common objects
 	- resource reloading function
 
@@ -30,9 +24,6 @@ infrastructure for making imgui debug menus
 	- I would like it to be macros so we can just put it in and out
 
 misc
-	- See if shared and unique pointers are faster
-	- get slang reflection going to some capacity
-	- find out if its worth it to shed vk-bootstrap
 	- adding command line args for configuring the instance
 
 DLL injection loading application and whatnot

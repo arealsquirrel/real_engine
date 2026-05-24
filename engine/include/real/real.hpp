@@ -11,6 +11,7 @@
 #include <real/resource/resource_image.hpp>
 #include <real/resource/resource_shader.hpp>
 #include <real/resource/resource_database.hpp>
+#include <real/resource/resource_handle.hpp>
 
 #include <real/graphics/graphics.hpp>
 #include <real/graphics/renderer.hpp>

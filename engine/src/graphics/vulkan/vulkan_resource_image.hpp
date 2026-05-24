@@ -1,5 +1,5 @@
-#ifndef REALLIB_VUKLAN_RESOURCE_SHADER_HPP
-#define REALLIB_VUKLAN_RESOURCE_SHADER_HPP
+#ifndef REALLIB_VULKAN_RESOURCE_IMAGE_HPP
+#define REALLIB_VULKAN_RESOURCE_IMAGE_HPP
 
 #include "real/core/instance.hpp"
 #include "real/resource/resource_image.hpp"

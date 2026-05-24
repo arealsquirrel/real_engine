@@ -94,8 +94,10 @@ public:
 	UUID get_uuid() { return block->id; }
 
 	void unload() {
-		block->state = ResourceState::Unloaded;
-		delete resource;
+		if(block->state != ResourceState::Unloaded) {
+			block->state = ResourceState::Unloaded;
+			delete resource;
+		}
 	}
 
 private:

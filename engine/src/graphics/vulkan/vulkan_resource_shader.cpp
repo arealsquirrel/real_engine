@@ -5,10 +5,14 @@
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
 #include "vulkan_renderer.hpp"
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <real/resource/resource_shader.hpp>
 #include <vulkan/vulkan_core.h>
+#include <spirv_reflect.h>
+
+#define CHECK_FLAG(x, n) ((x & n) != 0)
 
 namespace real {
 
@@ -18,6 +22,37 @@ VulkanResourceShader::VulkanResourceShader(
 	: ResourceShader(_instance, data, fields, _type), 
 		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
 	
+	SpvReflectShaderModule spvmodule;
+	SpvReflectResult result = spvReflectCreateShaderModule(data.size(), (uint32_t*)data.data(), &spvmodule);
+	assert(result == SPV_REFLECT_RESULT_SUCCESS);
+
+	if(CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_COMPUTE_BIT)) {
+		type = ShaderType::COMPUTE;
+	} else if (CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_VERTEX_BIT)) {
+		type = ShaderType::VERTEX;
+	} else if (CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT)) {
+		type = ShaderType::FRAGMENT;
+	} else if (
+			CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT) &&
+			CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_VERTEX_BIT)) {
+		type = ShaderType::VERTEX_FRAGMENT;
+	}
+
+	/* ---------- DESCRIPTOR BINDINGS ---------- */
+	uint32_t var_count = 0;
+	result = spvReflectEnumerateDescriptorBindings(&spvmodule, &var_count, NULL);
+	assert(result == SPV_REFLECT_RESULT_SUCCESS);
+	SpvReflectDescriptorBinding** input_vars = (SpvReflectDescriptorBinding**)malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
+	result = spvReflectEnumerateDescriptorBindings(&spvmodule, &var_count, input_vars);
+	assert(result == SPV_REFLECT_RESULT_SUCCESS);
+
+	for(size_t i = 0; i < var_count; i++) {
+		SpvReflectDescriptorBinding *var = input_vars[i];
+		instance->log.trace("Shader input {}", var->name);
+	}
+
+	spvReflectDestroyShaderModule(&spvmodule);
+
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.pNext = nullptr;
@@ -56,10 +91,10 @@ ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
     file.read((char*)buffer.data(), fileSize);
     file.close();
 
+	ShaderType type;
+
     return (ResourceShader*)(new VulkanResourceShader(
-				instance, buffer,
-				{{ShaderFieldType::STORAGE_IMAGE, "image", 0}},
-				ShaderType::COMPUTE));
+				instance, buffer, {}, ShaderType::INFER));
 }
 
 }

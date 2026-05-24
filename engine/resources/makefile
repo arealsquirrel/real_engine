@@ -17,16 +17,16 @@ SLANG_BIN := $(addsuffix .spv, $(SLANG_SOURCE))
 all: $(COMPUTE_BIN) $(FRAGMENT_BIN) $(VERTEX_BIN) $(SLANG_BIN)
 
 %.comp.spv: %.comp
-	$(GLSLC) $< -o $@
+	$(SLANGC) $< -target spirv -entry main -o $@
 
 %.vert.spv: %.vert
-	$(GLSLC) $< -o $@
+	$(SLANGC) $< -target spirv -entry main -o $@
 
 %.frag.spv: %.frag
-	$(GLSLC) $< -o $@
+	$(SLANGC) $< -target spirv -entry main -o $@
 
 %.slang.spv: %.slang
-	$(SLANGC) $< -target spirv -entry main -o $@
+	$(SLANGC) $< -target spirv -o $@
 
 clean:
 	rm $(COMPUTE_BIN)
