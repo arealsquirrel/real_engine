@@ -5,10 +5,15 @@
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
+#include <real/resource/resource_handle.hpp>
 
 namespace real {
 
 typedef void* GraphicsBackend;
+
+class RenderPassCompute;
+class ResourceShader;
+class ResourceImage;
 
 struct GraphicsInfo {
 	bool debug;
@@ -31,6 +36,11 @@ public:
 	static Shared<Window> create_window(Instance *instance, const WindowInfo &info);
 
 	static Shared<Renderer> create_renderer(Instance *instance, Shared<Window> window);
+
+	static Shared<RenderPassCompute> create_render_pass_compute(
+		Instance *_instance, ResourceHandle<ResourceShader> shader,
+		std::vector<ResourceHandle<ResourceImage>> _inResources,
+		std::vector<ResourceHandle<ResourceImage>> _outResources);
 };
 
 }

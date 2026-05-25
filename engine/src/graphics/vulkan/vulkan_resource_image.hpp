@@ -2,6 +2,7 @@
 #define REALLIB_VULKAN_RESOURCE_IMAGE_HPP
 
 #include "real/core/instance.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/resource/resource_image.hpp"
 #include "vulkan_backend.hpp"
 #include <utility>
@@ -26,8 +27,10 @@ public:
     ~VulkanResourceImage();
 
 	ImageHandle get_handle() override;
-	ColorFormat get_format() override { return ColorFormat::UNKNOWN; }
+	ColorFormat get_color_format() override { return ColorFormat::UNKNOWN; }
 	std::pair<u32, u32> get_image_extent() override { return std::make_pair(imageExtent.width, imageExtent.height); }
+	void transition_image(FrameContext context, ImageFormat to) override;
+	ImageFormat get_image_format() override { return engineFormat; };
 
 public:
 	const bool internaly_managed;
@@ -36,6 +39,7 @@ public:
     VmaAllocation allocation;
     VkExtent3D imageExtent;
     VkFormat imageFormat;
+	ImageFormat engineFormat;
 
 	VulkanRenderer *renderer;
 };

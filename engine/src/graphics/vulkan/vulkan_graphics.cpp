@@ -2,12 +2,14 @@
 #include <cassert>
 #include <real/graphics/graphics.hpp>
 #include <real/core/instance.hpp>
-#include "fmt/base.h"
+#include "real/graphics/render_pass_compute.hpp"
 #include "real/graphics/window.hpp"
 #include "vulkan_backend.hpp"
 #include "vulkan_renderer.hpp"
+#include "vulkan_renderpass_compute.hpp"
 #include <VkBootstrap.h>
 #include <vulkan/vulkan_core.h>
+#include <real/resource/resource_shader.hpp>
 
 namespace real {
 
@@ -42,6 +44,14 @@ Shared<Window> Graphics::create_window(Instance *instance, const WindowInfo &inf
 
 Shared<Renderer> Graphics::create_renderer(Instance *instance, Shared<Window> window) {
 	return std::make_shared<VulkanRenderer>(instance, window);
+}
+
+Shared<RenderPassCompute> Graphics::create_render_pass_compute(
+	Instance *_instance, ResourceHandle<ResourceShader> shader,
+	std::vector<ResourceHandle<ResourceImage>> _inResources,
+	std::vector<ResourceHandle<ResourceImage>> _outResources) {
+
+	return std::make_shared<VulkanRenderPassCompute>(_instance, shader, _inResources, _outResources);
 }
 
 }

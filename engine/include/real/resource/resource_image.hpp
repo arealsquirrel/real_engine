@@ -3,6 +3,7 @@
 
 #include "real/core/instance.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
 
 namespace real {
@@ -12,6 +13,12 @@ typedef void* ImageHandle;
 enum class ColorFormat {
 	UNKNOWN,
     RGB_FLOAT,
+	RGBA_FLOAT,
+	MONOCHROME,
+};
+
+enum class ImageFormat {
+	
 };
 
 class ResourceImage : public Resource {
@@ -28,8 +35,10 @@ public:
 public:
     ~ResourceImage();
 
+	virtual ImageFormat get_image_format() = 0;
+	virtual void transition_image(FrameContext context, ImageFormat to) = 0;
     virtual ImageHandle get_handle() = 0;
-	virtual ColorFormat get_format() = 0;
+	virtual ColorFormat get_color_format() = 0;
 	virtual std::pair<u32, u32> get_image_extent() = 0;
 };
 

@@ -4,6 +4,7 @@
 
 #include "real/core/types.hpp"
 #include "vulkan_resource_image.hpp"
+#include "real/resource/resource_image.hpp"
 
 #include "real/graphics/graphics.hpp"
 #include "vulkan_backend.hpp"
@@ -15,6 +16,7 @@
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_glfw.h>
+
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 
@@ -280,10 +282,9 @@ FrameContext VulkanRenderer::start_frame() {
     // WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
-    // ImageVulkan *render_image_handle = (ImageVulkan*) render_image->get_handle();
-
-    // frame->draw_extent.width = render_image->imageExtent.width; //render_image_handle->imageExtent.width;
-    // frame->draw_extent.height = render_image->imageExtent.height; //render_image_handle->imageExtent.height;
+	VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
+    frame->draw_extent.width = render_image_handle->imageExtent.width;
+    frame->draw_extent.height = render_image_handle->imageExtent.height;
 
     VK_CHECK(vkWaitForFences(
         device, 1,
@@ -305,7 +306,7 @@ FrameContext VulkanRenderer::start_frame() {
 
     // transition our main draw image into general layout so we can write into it
 	// we will overwrite it all so we dont care about what was the older layout
-	// vkutil::transition_image(cmd, render_image->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -320,14 +321,15 @@ void VulkanRenderer::end_frame(FrameContext context) {
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = (FrameDataVulkan*)context;
     VkCommandBuffer cmd = frame->main_command_buffer;
-    // ImageVulkan *render_image_handle = (ImageVulkan*) render_image->get_handle();
-    ImGui::Render();
+	VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
+ 
+	ImGui::Render();
 
 
 	//transition the draw image and the swapchain image into their correct transfer layouts
-	// vkutil::transition_image(cmd, render_image->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	// vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	// vkutil::copy_image_to_image(cmd, render_image->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);
+	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	vkutil::copy_image_to_image(cmd, render_image_handle->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);
 	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
     VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame->swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);

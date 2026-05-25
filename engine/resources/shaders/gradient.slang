@@ -1,4 +1,5 @@
 
+[vk::binding(0,0)]
 RWTexture2D<float4> image;
 
 [shader("compute")]

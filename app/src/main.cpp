@@ -1,5 +1,6 @@
 
 #include "real/core/instance.hpp"
+#include "real/graphics/render_pass_compute.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_shader.hpp"
 #include <real/real.hpp>
@@ -21,8 +22,18 @@ static void create_resources(Shared<Instance> instance) {
 void game_main(Shared<Instance> instance) {
 	create_resources(instance);
 
+	auto renderImage = instance->resource_database->get_resource<ResourceImage>("_render_texture");
+	Shared<RenderPassCompute> compute_pass = Graphics::create_render_pass_compute(
+			instance.get(),
+			instance->resource_database->get_resource<ResourceShader>("gradient.comp"), 
+			{ renderImage }, 
+			{ renderImage });
+
 	while(instance->update() == false) {
 		auto frame = instance->renderer->start_frame();
+
+		compute_pass->begin_pass(frame);
+		compute_pass->end_pass(frame);
 
 		ImGui::ShowDemoWindow();
 

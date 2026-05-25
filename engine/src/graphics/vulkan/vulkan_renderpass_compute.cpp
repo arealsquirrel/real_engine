@@ -6,6 +6,7 @@
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_shader.hpp"
+#include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_renderpass_compute.hpp"
 #include "vulkan_renderer.hpp"
@@ -23,15 +24,21 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 		std::vector<ResourceHandle<ResourceImage>> _outResources)
 	: RenderPassCompute(_instance, _inResources, _outResources) {
 
+	instance->log.trace("making a compute renderpass");
 
 	if(shader.get()->type != ShaderType::COMPUTE) {
 		instance->log.warn("why are you passing a shader that isnt a compute shader to a compute pipeline. dumb ass");
 	}
 
-	// pass->descriptor_set_layout = vkutil::make_descriptor_set_array(
-	// shader->fields, wind->device, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, nullptr, 0);
-
 	VulkanRenderer *renderer = (VulkanRenderer*)_instance->renderer.get();
+
+	DescriptorLayoutBuilder lb;
+	VulkanResourceShader *vshader = (VulkanResourceShader*)shader.get();
+	for(size_t i = 0; i < vshader->descriptor_types.size(); i++) {
+		lb.add_binding(i, vshader->descriptor_types[i]);
+	}
+
+	descriptor_set_layout = lb.build(renderer->device, VK_SHADER_STAGE_COMPUTE_BIT);
 	descriptor_set = renderer->descriptor_allocator.allocate(renderer->device, descriptor_set_layout);	
 
 	VkDescriptorImageInfo imgInfo{};
@@ -53,6 +60,8 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 	computeLayout.pNext = nullptr;
 	computeLayout.pSetLayouts = &descriptor_set_layout;
 	computeLayout.setLayoutCount = 1;
+
+	vkUpdateDescriptorSets(renderer->device, 1, &drawImageWrite, 0, nullptr);
 
 	VK_CHECK(vkCreatePipelineLayout(renderer->device, &computeLayout, nullptr, &layout));
 

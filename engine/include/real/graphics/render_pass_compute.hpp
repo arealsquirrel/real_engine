@@ -1,6 +1,7 @@
 #ifndef REALLIB_RENDER_PASS_COMPUTE_HPP
 #define REALLIB_RENDER_PASS_COMPUTE_HPP
 
+#include "real/resource/resource_handle.hpp"
 #include <real/graphics/render_pass.hpp>
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_image.hpp>
@@ -8,7 +9,7 @@
 namespace real {
 
 class RenderPassCompute : public RenderPass {
-public:
+protected:
 
 	/*
 	 * ok so the shader is going to have uniforms and whatnot
@@ -20,7 +21,8 @@ public:
 		std::vector<ResourceHandle<ResourceImage>> _outResources)
 		: RenderPass(_instance, _inResources, _outResources) {};
 
-    ~RenderPassCompute();
+public:
+    ~RenderPassCompute() = default;
 
     void begin_pass(FrameContext context) = 0;
     void end_pass(FrameContext context) = 0;

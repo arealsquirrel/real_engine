@@ -65,6 +65,12 @@ VulkanResourceImage::~VulkanResourceImage() {
 	}
 }
 
+void VulkanResourceImage::transition_image(FrameContext context, ImageFormat to) {
+	FrameDataVulkan *data = (FrameDataVulkan*)context;
+	
+
+}
+
 ImageHandle VulkanResourceImage::get_handle() {
 	return imageView;
 }

@@ -21,8 +21,6 @@ public:
     VkShaderModule module;
 	Shared<VulkanRenderer> renderer;
 	std::vector<VkDescriptorType> descriptor_types;
-
-
 };
 
 }

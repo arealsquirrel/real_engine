@@ -49,6 +49,8 @@ VulkanResourceShader::VulkanResourceShader(
 	for(size_t i = 0; i < var_count; i++) {
 		SpvReflectDescriptorBinding *var = input_vars[i];
 		instance->log.trace("Shader input {}", var->name);
+		SpvReflectDescriptorType t = var->descriptor_type;
+		descriptor_types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 	}
 
 	spvReflectDestroyShaderModule(&spvmodule);
