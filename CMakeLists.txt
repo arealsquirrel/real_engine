@@ -21,9 +21,16 @@ add_subdirectory(app)
 add_subdirectory(tests)
 
 add_custom_target(
-    Shaders
+    shaders
     COMMAND make
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/engine/resources/"
+    COMMENT "compiling engine resources"
+)
+
+add_custom_target(
+    stats
+    COMMAND onefetch
+	# WORKING_DIRECTORY "${PROJECT_S"
     COMMENT "compiling engine resources"
 )
 
