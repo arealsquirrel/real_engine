@@ -7,7 +7,7 @@
 #include <string_view>
 #include <utility>
 
-namespace real {
+// namespace real {
 
 // type sizes as defined by this
 // https://en.cppreference.com/w/cpp/language/types.html
@@ -44,6 +44,6 @@ using Path = std::filesystem::path;
 template<typename T>
 using Optional = std::optional<T>;
 
-}
+// }
 
 #endif

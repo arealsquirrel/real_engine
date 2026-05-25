@@ -29,3 +29,6 @@ misc
 DLL injection loading application and whatnot
 	- so improving the launcher
 
+the game should be a shared library
+the laucher starts up the engine either in editor or runtime
+

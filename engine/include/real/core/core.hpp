@@ -3,6 +3,8 @@
 
 namespace real {
 
+#define REAL_ENTRY extern Unique<Game> game_entrypoint(Shared<Instance> instance);
+
 /**
  * @brief basic sanity check for the library.
  */

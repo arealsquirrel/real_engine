@@ -10,6 +10,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(IMGUI_RENDERER_BACKEND "vulkan")
 set(IMGUI_PLATFORM_BACKEND "glfw")
 
+add_compile_options(-fPIC)
+
 include("cmake/get_cpm.cmake")
 include("cmake/packages.cmake")
 include("cmake/imgui_cmake.cmake")
@@ -19,6 +21,8 @@ enable_testing()
 add_subdirectory(engine)
 add_subdirectory(app)
 add_subdirectory(tests)
+add_subdirectory(runtime)
+add_subdirectory(editor)
 
 add_custom_target(
     shaders
@@ -30,7 +34,6 @@ add_custom_target(
 add_custom_target(
     stats
     COMMAND onefetch
-	# WORKING_DIRECTORY "${PROJECT_S"
     COMMENT "compiling engine resources"
 )
 
