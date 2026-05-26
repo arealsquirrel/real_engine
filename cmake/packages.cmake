@@ -23,3 +23,9 @@ CPMAddPackage(
         "VMA_BUILD_SAMPLES OFF" # Prevents building internal test apps
 )
 
+CPMAddPackage(
+    NAME glm
+    GITHUB_REPOSITORY g-truc/glm
+    GIT_TAG 1.0.1  # Specify a stable version or "master"
+)
+

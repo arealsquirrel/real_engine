@@ -2,6 +2,7 @@
 #define REALLIB_RENDER_PASS_COMPUTE_HPP
 
 #include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_shader.hpp"
 #include <real/graphics/render_pass.hpp>
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_image.hpp>
@@ -16,10 +17,10 @@ protected:
 	 * that that get read in by the render pass
 	 */
     RenderPassCompute(
-		Instance *_instance,
+		Instance *_instance, ShaderLayout layout,
 		std::vector<ResourceHandle<ResourceImage>> _inResources,
 		std::vector<ResourceHandle<ResourceImage>> _outResources)
-		: RenderPass(_instance, _inResources, _outResources) {};
+		: RenderPass(_instance, layout, _inResources, _outResources) {};
 
 public:
     ~RenderPassCompute() = default;

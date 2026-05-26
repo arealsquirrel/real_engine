@@ -1,4 +1,5 @@
 
+#include "glm/ext/vector_float4.hpp"
 #include "real/core/instance.hpp"
 #include "real/graphics/render_pass_compute.hpp"
 #include "real/resource/resource.hpp"
@@ -7,6 +8,7 @@
 #include <real/real.hpp>
 #include <imgui.h>
 #include "game.hpp"
+#include <glm/glm.hpp>
 
 using namespace real;
 
@@ -35,6 +37,26 @@ void AppGame::start() {
 
 void AppGame::render(real::FrameContext frame) {
 	compute_pass->begin_pass(frame);
+
+	ImGui::Begin("game menu");
+
+	static glm::vec4 oneCol; //(0.0f, 0.0f, 0.0f, 0.0f);
+	static glm::vec4 twoCol; //(0.0f, 0.0f, 0.0f, 0.0f);
+	// static glm::vec4 threeCol; //(0.0f, 0.0f, 0.0f, 0.0f);
+	// static glm::vec4 fourCol; //(0.0f, 0.0f, 0.0f, 0.0f);
+
+	ImGui::ColorEdit4("col one", &oneCol.r);
+	ImGui::ColorEdit4("col two", &twoCol.r);
+	// ImGui::ColorEdit4("col three", &threeCol.r);
+	// ImGui::ColorEdit4("col four", &fourCol.r);
+
+	ImGui::End();
+
+	compute_pass->set_variable("data1", oneCol);
+	compute_pass->set_variable("data2", twoCol);
+	// compute_pass->set_variable("data3", threeCol);
+	// compute_pass->set_variable("data4", fourCol);
+
 	compute_pass->end_pass(frame);
 
 	ImGui::ShowDemoWindow();

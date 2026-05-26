@@ -11,6 +11,8 @@ set(IMGUI_RENDERER_BACKEND "vulkan")
 set(IMGUI_PLATFORM_BACKEND "glfw")
 
 add_compile_options(-fPIC)
+# add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+# add_link_options(-fsanitize=address)
 
 include("cmake/get_cpm.cmake")
 include("cmake/packages.cmake")

@@ -2,6 +2,7 @@
 #define REALLIB_VUKLAN_RESOURCE_SHADER_HPP
 
 #include "real/core/types.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/resource/resource_shader.hpp"
 #include <vulkan/vulkan_core.h>
 
@@ -17,6 +18,8 @@ public:
 			std::optional<Path> _path=std::nullopt);
 
 	~VulkanResourceShader();
+
+	// void write_to_field(ShaderField field, void *buffer, size_t size, FrameContext frame) override;
 
 public:
     VkShaderModule module;

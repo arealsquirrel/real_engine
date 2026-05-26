@@ -1,4 +1,6 @@
 
+#include <cstdlib>
+#include <cstring>
 #include <real/graphics/render_pass_compute.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -22,13 +24,9 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
         ResourceHandle<ResourceShader> shader,
 		std::vector<ResourceHandle<ResourceImage>> _inResources,
 		std::vector<ResourceHandle<ResourceImage>> _outResources)
-	: RenderPassCompute(_instance, _inResources, _outResources) {
+	: RenderPassCompute(_instance, shader.get()->get_layout(), _inResources, _outResources) {
 
 	instance->log.trace("making a compute renderpass");
-
-	if(shader.get()->type != ShaderType::COMPUTE) {
-		instance->log.warn("why are you passing a shader that isnt a compute shader to a compute pipeline. dumb ass");
-	}
 
 	VulkanRenderer *renderer = (VulkanRenderer*)_instance->renderer.get();
 
@@ -55,11 +53,18 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 	drawImageWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 	drawImageWrite.pImageInfo = &imgInfo;
 
+	VkPushConstantRange pushConstant{};
+	pushConstant.offset = 0;
+	pushConstant.size = 128;
+	pushConstant.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+	
 	VkPipelineLayoutCreateInfo computeLayout{};
 	computeLayout.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	computeLayout.pNext = nullptr;
 	computeLayout.pSetLayouts = &descriptor_set_layout;
 	computeLayout.setLayoutCount = 1;
+	computeLayout.pPushConstantRanges = &pushConstant;
+	computeLayout.pushConstantRangeCount = 1;
 
 	vkUpdateDescriptorSets(renderer->device, 1, &drawImageWrite, 0, nullptr);
 
@@ -79,6 +84,8 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 	computePipelineCreateInfo.stage = stageinfo;
 	
 	VK_CHECK(vkCreateComputePipelines(renderer->device, VK_NULL_HANDLE,1,&computePipelineCreateInfo, nullptr, &pipeline));
+	push_constant_buffer = (char*)malloc(128);
+	memset(push_constant_buffer, 0, 128);
 }
 
 VulkanRenderPassCompute::~VulkanRenderPassCompute() {
@@ -99,13 +106,31 @@ void VulkanRenderPassCompute::begin_pass(FrameContext context) {
 
 	vkCmdBindDescriptorSets(
 		frame->main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, 0, 1, &descriptor_set, 0, nullptr);
-
 }
 
 void VulkanRenderPassCompute::end_pass(FrameContext context) {
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+
+	vkCmdPushConstants(
+			frame->main_command_buffer, layout,
+			VK_SHADER_STAGE_COMPUTE_BIT, 0, 128, push_constant_buffer);
+
 	vkCmdDispatch(
 			frame->main_command_buffer, std::ceil(frame->draw_extent.width / 16.0), std::ceil(frame->draw_extent.height / 16.0), 1);
+}
+
+void VulkanRenderPassCompute::set_variable(
+		ShaderField field, char *data, size_t size) {
+	switch (field.type) {
+	case(ShaderFieldType::PUSH_CONSTANT): {
+		char *write_pointer = (char*)(push_constant_buffer+field.offset);
+		memcpy(write_pointer, data, size);
+		return; 
+	}
+
+	default:
+		break;
+	}
 }
 
 }

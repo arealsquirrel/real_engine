@@ -25,12 +25,14 @@ namespace editor {
 class Panel;
 class Editor;
 class PanelResourceDatabase;
+class PanelResourceViewer;
 }
 
 #define EXPOSE_TO_EDITOR \
 	friend editor::Panel; \
 	friend editor::Editor; \
-	friend editor::PanelResourceDatabase
+	friend editor::PanelResourceDatabase; \
+	friend editor::PanelResourceViewer;
 
 
 #else

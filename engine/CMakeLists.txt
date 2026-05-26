@@ -36,11 +36,12 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    fmt
-	Vulkan::Vulkan
-	vk-bootstrap
-	GPUOpen::VulkanMemoryAllocator
-	glfw
-	imgui_cmake_wrapper
+	PRIVATE GPUOpen::VulkanMemoryAllocator
+	PUBLIC fmt
+	PRIVATE Vulkan::Vulkan
+	PRIVATE vk-bootstrap
+	PUBLIC glfw
+	PUBLIC imgui_cmake_wrapper
+	PUBLIC glm::glm
 )
 

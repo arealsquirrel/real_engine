@@ -12,7 +12,6 @@ resource refactors
 	- resource reloading function
 
 improved logging
-	- more logs so we can see what is going on
 	- logging ring buffer so we can see it in the imgui
 	- profiling would be nice
 	- I think render doc has some things for debug coloring in the renderdoc
@@ -28,7 +27,4 @@ misc
 
 DLL injection loading application and whatnot
 	- so improving the launcher
-
-the game should be a shared library
-the laucher starts up the engine either in editor or runtime
 

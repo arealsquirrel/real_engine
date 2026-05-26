@@ -1,9 +1,25 @@
 
 #include "panel_resource_viewer.hpp"
 #include "imgui.h"
+#include "real/resource/resource.hpp"
 #include "real/resource/resource_database.hpp"
+#include "real/resource/resource_shader.hpp"
 
 namespace editor {
+
+template<>
+void PanelResourceViewer::display(real::ResourceShader *resource) {
+	ImGui::Text("%s", real::ShaderType_to_string(resource->type));
+
+	ImGui::Text("fields");
+	for(auto &field : resource->layout.fields) {
+		ImGui::Text("%s %s %s %lu", 
+				field.name.c_str(),
+				real::ShaderFieldType_to_string(field.type),
+				real::ShaderDataType_to_string(field.data),
+				field.offset);
+	}
+}
 
 PanelResourceViewer::PanelResourceViewer(
 		Shared<real::Instance> _instance, 
@@ -43,6 +59,13 @@ void PanelResourceViewer::draw() {
 	ImGui::Text("uuid: %llu", entry.id.uuid);
 	ImGui::Text("type: %s", current_handle->get()->get_class_name());
 	ImGui::Separator();
+
+	std::string cn = current_handle->get()->get_class_name();
+	if(cn == "ResourceShader") {
+		display<ResourceShader>((ResourceShader*)current_handle->get());
+	} else {
+		ImGui::Text("unknown resource");
+	}
 
 	ImGui::End();
 }

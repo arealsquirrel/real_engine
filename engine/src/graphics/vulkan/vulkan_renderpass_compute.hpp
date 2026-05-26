@@ -2,6 +2,7 @@
 #define REALLIB_VUKLAN_RENDERPASS_COMPUTE
 
 #include "real/resource/resource_shader.hpp"
+#include "vulkan_resource_shader.hpp"
 
 #include <vulkan/vulkan_core.h>
 #include <real/graphics/render_pass_compute.hpp>
@@ -21,8 +22,10 @@ public:
 public:
     void begin_pass(FrameContext context) override;
     void end_pass(FrameContext context) override;
+	void set_variable(ShaderField field, char *data, size_t size) override;
 
 private:
+	PushConstantBuffer push_constant_buffer;
     VkPipeline pipeline;
     VkPipelineLayout layout;
     VkDescriptorSet descriptor_set;

@@ -1,12 +1,12 @@
 
 #include "vulkan_resource_shader.hpp"
-#include "fmt/color.h"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
 #include "vulkan_renderer.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
 #include <real/resource/resource_shader.hpp>
 #include <vulkan/vulkan_core.h>
@@ -15,6 +15,21 @@
 #define CHECK_FLAG(x, n) ((x & n) != 0)
 
 namespace real {
+
+static ShaderDataType reflect_to_datatype(SpvReflectTypeDescription* type) {
+	SpvReflectTypeFlags tf = type->type_flags;
+	if(CHECK_FLAG(tf, SPV_REFLECT_TYPE_FLAG_VECTOR)) {
+		if(CHECK_FLAG(tf, SPV_REFLECT_TYPE_FLAG_FLOAT)) {
+			switch (type->traits.numeric.vector.component_count) {
+			case(4): return ShaderDataType::FLOAT4;
+			case(3): return ShaderDataType::FLOAT3;
+			case(2): return ShaderDataType::FLOAT2;
+			}
+		}
+	}
+
+	return ShaderDataType::NONE;
+}
 
 VulkanResourceShader::VulkanResourceShader(
 		Instance *_instance, std::vector<char> data, 
@@ -40,18 +55,39 @@ VulkanResourceShader::VulkanResourceShader(
 	}
 
 	/* ---------- DESCRIPTOR BINDINGS ---------- */
-	uint32_t var_count = 0;
-	result = spvReflectEnumerateDescriptorBindings(&spvmodule, &var_count, NULL);
+	uint32_t count = 0;
+	result = spvReflectEnumerateDescriptorBindings(&spvmodule, &count, NULL);
 	assert(result == SPV_REFLECT_RESULT_SUCCESS);
-	SpvReflectDescriptorBinding** input_vars = (SpvReflectDescriptorBinding**)malloc(var_count * sizeof(SpvReflectDescriptorBinding*));
-	result = spvReflectEnumerateDescriptorBindings(&spvmodule, &var_count, input_vars);
+	std::vector<SpvReflectDescriptorBinding*> bindings(count);
+	result = spvReflectEnumerateDescriptorBindings(&spvmodule, &count, bindings.data());
 	assert(result == SPV_REFLECT_RESULT_SUCCESS);
-
-	for(size_t i = 0; i < var_count; i++) {
-		SpvReflectDescriptorBinding *var = input_vars[i];
-		instance->log.trace("Shader input {}", var->name);
+	for(size_t i = 0; i < count; i++) {
+		SpvReflectDescriptorBinding *var = bindings[i];
 		SpvReflectDescriptorType t = var->descriptor_type;
 		descriptor_types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+		layout.add_field_entry({ShaderFieldType::STORAGE_IMAGE, ShaderDataType::NONE, var->name, i, 0});
+	}
+
+	/* ---------- PUSH CONSTANTS ---------- */	
+	result = spvReflectEnumeratePushConstantBlocks(&spvmodule, &count, NULL);
+	assert(result == SPV_REFLECT_RESULT_SUCCESS);
+	std::vector<SpvReflectBlockVariable*> push_constant(count);
+	result = spvReflectEnumeratePushConstantBlocks(&spvmodule, &count, push_constant.data());
+	assert(result == SPV_REFLECT_RESULT_SUCCESS);
+	for (size_t i = 0; i < count; i++) {
+		SpvReflectBlockVariable *block = push_constant[i];
+		size_t offset = 0;
+		
+		for (size_t j = 0; j < block->member_count; j++) {
+			layout.add_field_entry({
+					ShaderFieldType::PUSH_CONSTANT, 
+					reflect_to_datatype(block->members[j].type_description),
+					block->members[j].name, i, block->members[j].offset});
+		}
+	}
+
+	if(count >= 1) {
+		// pushConstants = (char*)malloc(128);
 	}
 
 	spvReflectDestroyShaderModule(&spvmodule);
@@ -68,6 +104,7 @@ VulkanResourceShader::VulkanResourceShader(
 }
 
 VulkanResourceShader::~VulkanResourceShader() {
+	// free(pushConstants);
     vkDestroyShaderModule(renderer->device, module, nullptr);
 }
 

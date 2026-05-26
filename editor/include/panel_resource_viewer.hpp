@@ -17,6 +17,10 @@ public:
 
 	void draw();
 
+private:
+	template<typename T>
+	void display(T *resource);
+
 public:
 	// what a wonderful language
 	std::optional<real::ResourceHandle<real::Resource>> current_handle = std::nullopt;

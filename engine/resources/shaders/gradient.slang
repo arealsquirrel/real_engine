@@ -2,28 +2,29 @@
 [vk::binding(0,0)]
 RWTexture2D<float4> image;
 
+[vk::push_constant]
+cbuffer PushConstants {
+	float4 data1;
+	float4 data2;
+};
+
 [shader("compute")]
 [numthreads(16, 16, 1)]
 void compute_main(
 	uint3 globalID : SV_DispatchThreadID,
     uint3 localID  : SV_GroupThreadID) {
 
-    int2 texelCoord = int2(globalID.xy);
-
     uint width, height;
     image.GetDimensions(width, height);
 
-    int2 size = int2(width, height);
+    int2 texelCoord = int2(globalID.xy);
 
-    // Bounds check
-    if (texelCoord.x < size.x && texelCoord.y < size.y) {
-        float4 color = float4(0.0, 0.0, 0.0, 1.0);
+	float4 topColor = data1;
+    float4 bottomColor = data2;
 
-        if (localID.x != 0 && localID.y != 0) {
-            color.x = float(texelCoord.x) / float(size.x);
-            color.y = float(texelCoord.y) / float(size.y);
-        }
-
-        image[texelCoord] = color;
+    if(texelCoord.x < width && texelCoord.y < height) {
+        float blend = float(texelCoord.y)/(height); 
+    
+        image[texelCoord] = lerp(topColor, bottomColor, blend);
     }
 }
