@@ -33,9 +33,3 @@ add_custom_target(
     COMMENT "compiling engine resources"
 )
 
-add_custom_target(
-    stats
-    COMMAND onefetch
-    COMMENT "compiling engine resources"
-)
-

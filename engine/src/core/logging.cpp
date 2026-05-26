@@ -3,6 +3,8 @@
 #include <real/core/logging.hpp>
 #include <string_view>
 #include <fmt/color.h>
+#include <strings.h>
+#include <utility>
 
 namespace real {
 
@@ -17,26 +19,25 @@ void LogSink_Console::log_to_sink(LogData data, std::string_view str) {
         return;
     } 
 
+	std::stringstream buf;
+	buf << "[" << LogLevel_to_string[data.level] << "]";
+	buf << "[" << data.file << ":" << data.line << "] " << str << "\n";
+
     switch (data.level) {
     case LogLevel_Trace:
-        fmt::print(fg(fmt::terminal_color::white), fmt::runtime(str));
-		fmt::print("\n");
+        fmt::print(fg(fmt::terminal_color::white), fmt::runtime(buf.str()));
         break;
     case LogLevel_Info:
-        fmt::print(fg(fmt::terminal_color::bright_blue), fmt::runtime(str));
-		fmt::print("\n");
+        fmt::print(fg(fmt::terminal_color::blue), fmt::runtime(buf.str()));
         break;
     case LogLevel_Warn:
-        fmt::print(fg(fmt::terminal_color::bright_yellow), fmt::runtime(str));
-		fmt::print("\n");
+        fmt::print(fg(fmt::terminal_color::yellow), fmt::runtime(buf.str()));
         break;
     case LogLevel_Error:
-        fmt::print(fg(fmt::terminal_color::bright_red), fmt::runtime(str));
-		fmt::print("\n");
+        fmt::print(fg(fmt::terminal_color::red), fmt::runtime(buf.str()));
         break;
     case LogLevel_Fatal:
-        fmt::print(fg(fmt::terminal_color::bright_red) | fmt::emphasis::bold, fmt::runtime(str));
-		fmt::print("\n");
+        fmt::print(fg(fmt::terminal_color::red), fmt::runtime(buf.str()));
         break;
     }
 }
@@ -48,9 +49,16 @@ LogSink_File::~LogSink_File() {
     out_file.close();
 }
 
-void LogSink_File::log_to_sink(LogData level, std::string_view str) {
+void LogSink_File::log_to_sink(LogData data, std::string_view str) {
     out_file << str;
     out_file.flush();
+}
+
+LogSink_Buffer::LogSink_Buffer()
+	: buffer(1000) {}
+
+void LogSink_Buffer::log_to_sink(LogData data, std::string_view str) {
+	buffer.data()[index++ % 1000] = std::make_pair(str, data);
 }
 
 

@@ -49,10 +49,8 @@ void AppGame::render(real::FrameContext frame) {
 
 	ImGui::End();
 
-	RL_LOG_TRACE("hi");
-
 	compute_pass->set_variable("topColor", oneCol);
-	compute_pass->set_variable("data2", twoCol);
+	compute_pass->set_variable("bottomColor", twoCol);
 
 	compute_pass->end_pass(frame);
 }

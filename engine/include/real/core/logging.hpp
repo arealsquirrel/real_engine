@@ -2,6 +2,7 @@
 #define REALLIB_LOGGING_HPP
 
 #include "fmt/color.h"
+#include <cstdint>
 #include <filesystem>
 #include <fmt/base.h>
 #include <fstream>
@@ -52,7 +53,7 @@ public:
     LogSink_Console(bool _color=true);
 
 public:
-    void log_to_sink(LogData level, std::string_view str);
+    void log_to_sink(LogData data, std::string_view str);
 
 private:
     bool color;
@@ -66,7 +67,7 @@ public:
     ~LogSink_File();
 
 public:
-    void log_to_sink(LogData level, std::string_view str);
+    void log_to_sink(LogData data, std::string_view str);
 
 private:
     std::ofstream out_file;
@@ -75,11 +76,14 @@ private:
 class LogSink_Buffer : public LogSink {
 public:
     LogSink_Buffer();
+	~LogSink_Buffer() = default;
 
 public:
-    void log_to_sink(LogLevel level, std::string_view str);
+    void log_to_sink(LogData data, std::string_view str);
 
-private:
+public:
+	uint32_t index = 0;
+	std::vector<std::pair<std::string, LogData>> buffer;
 };
 
 /**
@@ -96,11 +100,6 @@ public:
             return;
         }
         
-        std::stringstream buf;
-        buf << "[" << name << "]";
-        buf << "[" << LogLevel_to_string[data.level] << "]";
-        buf << "[" << data.time << "] ";
-
         for(auto *sink : sinks)
             sink->log_to_sink(data,
 					fmt::format(fmt::runtime(in), std::forward<Args>(args)...).c_str());
@@ -124,9 +123,9 @@ private:
 
 }
 
-#define RL_LOG_TRACE(...) ::real::Log::get()->log({LogLevel_Trace,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
-#define RL_LOG_INFO(...) ::real::Log::get()->log({LogLevel_Info,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
-#define RL_LOG_WARN(...) ::real::Log::get()->log({LogLevel_Warn,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
-#define RL_LOG_ERROR(...) ::real::Log::get()->log({LogLevel_Fatal,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_TRACE(...) ::real::Log::get()->log({LogLevel_Trace,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_INFO(...) ::real::Log::get()->log({LogLevel_Info,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_WARN(...) ::real::Log::get()->log({LogLevel_Warn,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_ERROR(...) ::real::Log::get()->log({LogLevel_Fatal,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
 
 #endif
