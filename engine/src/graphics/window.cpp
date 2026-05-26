@@ -1,4 +1,5 @@
 
+#include "real/core/logging.hpp"
 #include <GLFW/glfw3.h>
 #include <real/graphics/window.hpp>
 #include <real/core/instance.hpp>
@@ -11,9 +12,8 @@ u32 Window::s_window_count = 0;
 
 Window::Window(Instance *_instance, const WindowInfo &info)
 	: instance(_instance) {
-    instance->log.info("Creating window");
     if(s_window_count++ == 0) {
-        instance->log.info("initilizing GLFW {}:{}", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR);
+        RL_LOG_INFO("initilizing GLFW {}:{}", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR);
         glfwSetErrorCallback(real_glfw_error_callback);
         assert(glfwInit());
     }
@@ -24,11 +24,10 @@ Window::Window(Instance *_instance, const WindowInfo &info)
 }
 
 Window::~Window() {
-    instance->log.info("destroying window");
     glfwDestroyWindow(window);
 
     if(--s_window_count == 0) {
-        instance->log.info("killing GLFW");
+        RL_LOG_INFO("killing GLFW");
         glfwTerminate();
     }
 }

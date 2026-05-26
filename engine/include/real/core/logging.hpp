@@ -26,6 +26,13 @@ static const char *LogLevel_to_string[5] = {
     "trace", "info", "warn", "error", "fatal"
 };
 
+struct LogData {
+	LogLevel level;
+	const char *time;
+	const char *file;
+	int line;
+};
+
 /**
  * @brief abstract class for log sinks
  */
@@ -34,7 +41,7 @@ public:
     virtual ~LogSink() = default;
 
 public:
-    virtual void log_to_sink(LogLevel level, std::string_view str) = 0;
+    virtual void log_to_sink(LogData level, std::string_view str) = 0;
 };
 
 /**
@@ -45,7 +52,7 @@ public:
     LogSink_Console(bool _color=true);
 
 public:
-    void log_to_sink(LogLevel level, std::string_view str);
+    void log_to_sink(LogData level, std::string_view str);
 
 private:
     bool color;
@@ -54,13 +61,25 @@ private:
 class LogSink_File : public LogSink {
 public:
     LogSink_File(std::filesystem::path path);
+
+public:
     ~LogSink_File();
+
+public:
+    void log_to_sink(LogData level, std::string_view str);
+
+private:
+    std::ofstream out_file;
+};
+
+class LogSink_Buffer : public LogSink {
+public:
+    LogSink_Buffer();
 
 public:
     void log_to_sink(LogLevel level, std::string_view str);
 
 private:
-    std::ofstream out_file;
 };
 
 /**
@@ -72,52 +91,42 @@ public:
     ~Log();
 
     template<typename ...Args>
-    void log(LogLevel level, std::string_view in, Args&& ...args) {
-        if(level < log_level) {
+    void log(LogData data, std::string_view in, Args&& ...args) {
+        if(data.level < log_level) {
             return;
         }
         
         std::stringstream buf;
         buf << "[" << name << "]";
-        buf << "[" << LogLevel_to_string[level] << "]";
-        buf << "[" << __TIME__ << "] ";
-        buf << fmt::format(fmt::runtime(in), std::forward<Args>(args)...) << "\n";
+        buf << "[" << LogLevel_to_string[data.level] << "]";
+        buf << "[" << data.time << "] ";
 
         for(auto *sink : sinks)
-            sink->log_to_sink(level, buf.str());
+            sink->log_to_sink(data,
+					fmt::format(fmt::runtime(in), std::forward<Args>(args)...).c_str());
     }
 
-    template<typename ...Args>
-    void info(std::string_view in, Args&& ...args) {
-        log(LogLevel_Info, in, std::forward<Args>(args)...);
-    }
-
-    template<typename ...Args>
-    void trace(std::string_view in, Args&& ...args) {
-        log(LogLevel_Trace, in, std::forward<Args>(args)...);
-    }
-
-    template<typename ...Args>
-    void warn(std::string_view in, Args&& ...args) {
-        log(LogLevel_Warn, in, std::forward<Args>(args)...);
-    }
-
-    template<typename ...Args>
-    void error(std::string_view in, Args&& ...args) {
-        log(LogLevel_Error, in, std::forward<Args>(args)...);
-    }
-
-    template<typename ...Args>
-    void fatal(std::string_view in, Args&& ...args) {
-        log(LogLevel_Fatal, in, std::forward<Args>(args)...);
-    }
+	static Log *get() {
+		if(s_log == nullptr)
+			s_log = new Log("engine_log.txt");
+		
+		return s_log;
+	}
 
 public:
     std::vector<LogSink*> sinks;
     std::string name = "LOG";
     LogLevel log_level;
+
+private:
+	static Log *s_log;
 };
 
 }
+
+#define RL_LOG_TRACE(...) ::real::Log::get()->log({LogLevel_Trace,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_INFO(...) ::real::Log::get()->log({LogLevel_Info,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_WARN(...) ::real::Log::get()->log({LogLevel_Warn,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_ERROR(...) ::real::Log::get()->log({LogLevel_Fatal,__TIME__,__FILE__,__LINE__}, __VA_ARGS__)
 
 #endif

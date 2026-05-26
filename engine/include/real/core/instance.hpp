@@ -29,7 +29,7 @@ public:
     bool update();
 
 public:
-    Log log;
+    // Log log;
 	Unique<ResourceDatabase> resource_database;
 	Shared<Window> window;
     Shared<Renderer> renderer;

@@ -1,6 +1,7 @@
 
 #include "glm/ext/vector_float4.hpp"
 #include "real/core/instance.hpp"
+#include "real/core/logging.hpp"
 #include "real/graphics/render_pass_compute.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_shader.hpp"
@@ -40,27 +41,20 @@ void AppGame::render(real::FrameContext frame) {
 
 	ImGui::Begin("game menu");
 
-	static glm::vec4 oneCol; //(0.0f, 0.0f, 0.0f, 0.0f);
-	static glm::vec4 twoCol; //(0.0f, 0.0f, 0.0f, 0.0f);
-	// static glm::vec4 threeCol; //(0.0f, 0.0f, 0.0f, 0.0f);
-	// static glm::vec4 fourCol; //(0.0f, 0.0f, 0.0f, 0.0f);
+	static glm::vec4 oneCol {0.0f, 0.0f, 0.0f, 1.0f};
+	static glm::vec4 twoCol {0.0f, 0.0f, 0.0f, 1.0f};
 
 	ImGui::ColorEdit4("col one", &oneCol.r);
 	ImGui::ColorEdit4("col two", &twoCol.r);
-	// ImGui::ColorEdit4("col three", &threeCol.r);
-	// ImGui::ColorEdit4("col four", &fourCol.r);
 
 	ImGui::End();
 
-	compute_pass->set_variable("data1", oneCol);
+	RL_LOG_TRACE("hi");
+
+	compute_pass->set_variable("topColor", oneCol);
 	compute_pass->set_variable("data2", twoCol);
-	// compute_pass->set_variable("data3", threeCol);
-	// compute_pass->set_variable("data4", fourCol);
 
 	compute_pass->end_pass(frame);
-
-	ImGui::ShowDemoWindow();
-
 }
 
 void AppGame::update(u32 delta_time) {

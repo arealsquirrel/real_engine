@@ -4,8 +4,8 @@ RWTexture2D<float4> image;
 
 [vk::push_constant]
 cbuffer PushConstants {
-	float4 data1;
-	float4 data2;
+	float4 topColor;
+	float4 bottomColor;
 };
 
 [shader("compute")]
@@ -18,9 +18,6 @@ void compute_main(
     image.GetDimensions(width, height);
 
     int2 texelCoord = int2(globalID.xy);
-
-	float4 topColor = data1;
-    float4 bottomColor = data2;
 
     if(texelCoord.x < width && texelCoord.y < height) {
         float blend = float(texelCoord.y)/(height); 

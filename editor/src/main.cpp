@@ -5,7 +5,6 @@
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
-#include <optional>
 #include <real/real.hpp>
 
 using namespace real;
@@ -14,9 +13,13 @@ REAL_ENTRY
 
 int main() {
 	Shared<Instance> instance = std::make_shared<Instance>();
-    instance->log.name = "game engine";
-    instance->log.log_level = real::LogLevel_Trace;
-    instance->log.sinks.push_back(new real::LogSink_Console());
+	
+	{
+		Log *log = Log::get();
+		log->name = "game engine";
+		log->log_level = real::LogLevel_Trace;
+		log->sinks.push_back(new real::LogSink_Console());
+	}
 
 	Graphics::init_backend({});
 

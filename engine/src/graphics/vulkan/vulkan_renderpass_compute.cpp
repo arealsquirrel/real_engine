@@ -26,8 +26,6 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 		std::vector<ResourceHandle<ResourceImage>> _outResources)
 	: RenderPassCompute(_instance, shader.get()->get_layout(), _inResources, _outResources) {
 
-	instance->log.trace("making a compute renderpass");
-
 	VulkanRenderer *renderer = (VulkanRenderer*)_instance->renderer.get();
 
 	DescriptorLayoutBuilder lb;

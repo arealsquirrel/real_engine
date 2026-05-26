@@ -19,7 +19,7 @@ Instance::~Instance() {
 }
 
 void Instance::init(const WindowInfo &window_info) {
-    log.trace("initilizing instance");
+    RL_LOG_INFO("initilizing instance");
 	window = Graphics::create_window(this, window_info);
 	resource_database = std::make_unique<ResourceDatabase>();
 	renderer = Graphics::create_renderer(this, window);
