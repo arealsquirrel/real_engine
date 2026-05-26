@@ -20,8 +20,8 @@ VulkanResourceImage::VulkanResourceImage(Instance *_instance,
 
 VulkanResourceImage::VulkanResourceImage(
     Instance *_instance,
-    u32 width, u32 height, ColorFormat format, void *data) 
-    : ResourceImage(_instance, width, height, format, data), internaly_managed(false) {
+    u32 width, u32 height, ColorFormat format, void *data, std::optional<Path> _path)  
+    : ResourceImage(_instance, width, height, format, data, _path), internaly_managed(false) {
 
 	renderer = (VulkanRenderer*)(instance->renderer.get());
 

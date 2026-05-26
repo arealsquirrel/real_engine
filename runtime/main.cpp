@@ -17,7 +17,7 @@ int main() {
 
 	WindowInfo info;
 	info.width = 1200;
-	info.height = 1200;
+	info.height = 800;
 	info.title = "my engine :3";
 	instance->init(info);
 
@@ -25,6 +25,10 @@ int main() {
 	game->start();
 	while(instance->update() == false) {
 		game->update(0);
+
+		auto frame = instance->renderer->start_frame();
+		game->render(frame);
+		instance->renderer->end_frame(frame);
 	}
 
 	game.reset();

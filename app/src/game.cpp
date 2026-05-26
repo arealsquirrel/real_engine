@@ -33,14 +33,14 @@ void AppGame::start() {
 			{ renderImage });
 }
 
-void AppGame::update(u32 delta_time) {
-	auto frame = instance->renderer->start_frame();
-
+void AppGame::render(real::FrameContext frame) {
 	compute_pass->begin_pass(frame);
 	compute_pass->end_pass(frame);
 
 	ImGui::ShowDemoWindow();
 
-	instance->renderer->end_frame(frame);
+}
+
+void AppGame::update(u32 delta_time) {
 }
 

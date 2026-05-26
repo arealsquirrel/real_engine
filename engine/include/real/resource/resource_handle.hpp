@@ -84,6 +84,8 @@ public:
 	template <typename U>
     friend class ResourceHandle;
 
+	friend ResourceDatabase;
+
 public:
 	T *get() { return resource; }
 	const T *get() const { return resource; }

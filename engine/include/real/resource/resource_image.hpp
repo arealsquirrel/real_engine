@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_IMAGE_HPP
 #define REALLIB_RESOURCE_IMAGE_HPP
 
+#include "real/core/core.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
@@ -22,10 +23,13 @@ enum class ImageFormat {
 };
 
 class ResourceImage : public Resource {
+RL_CLASS(ResourceImage)
+
 protected:
     ResourceImage(
 			Instance *_instance,
-			u32 width, u32 height, ColorFormat format, void *data=nullptr);
+			u32 width, u32 height, ColorFormat format, void *data=nullptr,
+			std::optional<Path> _path=std::nullopt);
 
 public:
 	static ResourceImage *create(

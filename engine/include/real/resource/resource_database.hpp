@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_DATABASE_HPP
 #define REALLIB_RESOURCE_DATABASE_HPP
 
+#include "real/core/instance.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/resource/resource.hpp"
@@ -10,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <real/core/core.hpp>
 
 namespace real {
 
@@ -25,7 +27,6 @@ public:
 
 	struct Entry {
 		u32 arr_index;
-		std::optional<Path> load_path;
 		UUID id;
 		std::string name;
 	};
@@ -34,12 +35,12 @@ public:
 	template<typename T>
 	ResourceHandle<T> register_resource(
 			T *resource, std::string name,
-			std::optional<Path> path=std::nullopt, UUID id=UUID()) {
+			UUID id=UUID()) {
 
 		u32 i = resource_array.size();
 		ResourceHandle<T> handle(this, resource, ResourceState::Loaded, id);
 		resource_array.push_back(handle);
-		uuid_to_entry.emplace(id, Entry{i, path, id, name});
+		uuid_to_entry.emplace(id, Entry{i, id, name});
 		name_to_resource_UUID.emplace(name, id);
 		return handle;
 	}
@@ -55,6 +56,20 @@ public:
 		return get_resource<T>(name_to_resource_UUID.find(name)->second);
 	}
 
+	/*
+	template<typename T, ResourceSerializerType ST>
+	void reload(std::string name) {
+		ResourceHandle<T> r = get_resource<T>(name);
+		Entry e = uuid_to_entry.at(r.get_uuid());
+
+		ResourceHandle<T> newResource(
+				this, Resource::load<ST, T>(instance.get()),
+				ResourceState::Loaded, r.get_uuid());
+
+		resource_array.at(e.arr_index) = newResource;
+	}
+	*/
+
 	void clean_non_references();
 	void clean_unloaded();
 
@@ -62,6 +77,9 @@ public:
 	Entry get_entry(UUID id);
 
 private:
+	EXPOSE_TO_EDITOR;	
+
+	Shared<Instance> instance;
 	std::vector<ResourceHandle<Resource>> resource_array;
 	std::unordered_map<UUID, Entry> uuid_to_entry;
 	std::unordered_map<std::string, UUID> name_to_resource_UUID;

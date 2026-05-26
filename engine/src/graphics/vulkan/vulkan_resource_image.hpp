@@ -17,7 +17,8 @@ public:
     VulkanResourceImage(
         Instance *_instance,
         u32 width, u32 height,
-        ColorFormat format, void *data=nullptr);
+        ColorFormat format, void *data=nullptr,
+		std::optional<Path> _path=std::nullopt);
 
 	VulkanResourceImage(Instance *_instance,
 			VkImage _image, VkImageView _view,

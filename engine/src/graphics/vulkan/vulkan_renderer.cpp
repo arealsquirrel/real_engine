@@ -429,7 +429,8 @@ void style_imgui() {
     style->Colors[ImGuiCol_TitleBgCollapsed] = background3;
     style->Colors[ImGuiCol_TitleBgActive] = active;
 
-    style->Colors[ImGuiCol_MenuBarBg] = background3;
+    style->Colors[ImGuiCol_MenuBarBg] = darkWindowBackground;
+
     style->Colors[ImGuiCol_ScrollbarBg] = background1;
     style->Colors[ImGuiCol_ScrollbarGrab] = darkWindowBackground;
     style->Colors[ImGuiCol_ScrollbarGrabHovered] = hovered2;

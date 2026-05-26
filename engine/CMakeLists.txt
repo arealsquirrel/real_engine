@@ -23,8 +23,8 @@ file(DOWNLOAD
 
 file(GLOB_RECURSE SRCS src/*.cpp vendor/*.cpp)
 
-configure_file(${PROJECT_SOURCE_DIR}/config/config.hpp.in
-			   ${PROJECT_SOURCE_DIR}/config/config.hpp)
+configure_file(${PROJECT_SOURCE_DIR}/include/real/config/config.hpp.in
+			   ${PROJECT_SOURCE_DIR}/include/real/config/config.hpp)
 
 add_library(${PROJECT_NAME} ${SRCS})
 

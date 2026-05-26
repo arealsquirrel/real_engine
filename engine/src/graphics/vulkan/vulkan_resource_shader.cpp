@@ -18,8 +18,9 @@ namespace real {
 
 VulkanResourceShader::VulkanResourceShader(
 		Instance *_instance, std::vector<char> data, 
-		std::vector<ShaderField> fields, ShaderType _type) 
-	: ResourceShader(_instance, data, fields, _type), 
+		std::vector<ShaderField> fields, ShaderType _type,
+		std::optional<Path> _path) 
+	: ResourceShader(_instance, data, fields, _type, _path), 
 		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
 	
 	SpvReflectShaderModule spvmodule;
@@ -96,7 +97,7 @@ ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
 	ShaderType type;
 
     return (ResourceShader*)(new VulkanResourceShader(
-				instance, buffer, {}, ShaderType::INFER));
+				instance, buffer, {}, ShaderType::INFER, path));
 }
 
 }

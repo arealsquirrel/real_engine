@@ -12,8 +12,9 @@ const char *ShaderType_to_string(const ShaderType type) {
 
 ResourceShader::ResourceShader(
         Instance *_instance, std::vector<char> data,
-		std::vector<ShaderField> fields, ShaderType _type) 
-	: Resource(_instance), type(_type) {}
+		std::vector<ShaderField> fields, ShaderType _type,
+		std::optional<Path> _path) 
+	: Resource(_instance, _path), type(_type) {}
 
 ResourceShader::~ResourceShader() = default;
 

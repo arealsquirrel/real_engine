@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_SHADER_HPP
 #define REALLIB_RESOURCE_SHADER_HPP
 
+#include "real/core/core.hpp"
 #include "real/core/instance.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
@@ -30,10 +31,13 @@ const char *ShaderType_to_string(const ShaderType type);
  * @brief the backend is entirly in the render folder of the API in use
  */
 class ResourceShader : public Resource {
+RL_CLASS(ResourceShader)
+
 protected:
     ResourceShader(
         Instance *_instance, std::vector<char> data, 
-		std::vector<ShaderField> fields, ShaderType _type);
+		std::vector<ShaderField> fields, ShaderType _type,
+		std::optional<Path> _path);
 
 public:
     ~ResourceShader();

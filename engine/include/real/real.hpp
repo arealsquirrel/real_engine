@@ -6,6 +6,7 @@
 #include <real/core/logging.hpp>
 #include <real/core/types.hpp>
 #include <real/core/uuid.hpp>
+#include <real/core/game.hpp>
 
 #include <real/resource/resource.hpp>
 #include <real/resource/resource_image.hpp>
