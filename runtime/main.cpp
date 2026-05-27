@@ -1,5 +1,4 @@
 
-#include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/graphics/window.hpp"
 #include <real/real.hpp>
@@ -28,6 +27,7 @@ int main() {
 
 	auto game = game_entrypoint(instance);
 	game->start();
+
 	while(instance->update() == false) {
 		game->update(0);
 

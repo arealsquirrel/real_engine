@@ -1,8 +1,6 @@
 
 #include "glm/ext/vector_float4.hpp"
 #include "real/core/instance.hpp"
-#include "real/core/logging.hpp"
-#include "real/graphics/render_pass_compute.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_shader.hpp"
 #include <memory>

@@ -1,5 +1,6 @@
 
 #include "real/core/instance.hpp"
+#include "real/debug/instrumentation.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
@@ -19,7 +20,6 @@ Instance::~Instance() {
 }
 
 void Instance::init(const WindowInfo &window_info) {
-    RL_LOG_INFO("initilizing instance");
 	window = Graphics::create_window(this, window_info);
 	resource_database = std::make_unique<ResourceDatabase>();
 	renderer = Graphics::create_renderer(this, window);

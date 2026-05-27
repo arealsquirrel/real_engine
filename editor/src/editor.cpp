@@ -28,14 +28,9 @@ void Editor::render() {
 	  	ImGui::EndMainMenuBar();
 	}
 
-
-	ImGui::Begin("editor");
-
 	for(auto p : panels) {
 		p->draw();
 	}
-
-	ImGui::End();
 }
 
 }

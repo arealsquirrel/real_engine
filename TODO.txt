@@ -4,18 +4,10 @@ TODO list before sinking into meshes
 Pipelines
 	- figure out how we are passing in data
 	- figure out how we are transitioning images
-	- abstract descriptor sets
-	- abstract the swapchain in a way that is quick
 
 resource refactors
 	- possibly some sort of slab allocator for resources and common objects
 	- resource reloading function
-
-improved logging
-	- logging ring buffer so we can see it in the imgui
-	- profiling would be nice
-	- I think render doc has some things for debug coloring in the renderdoc
-	  editor so we are deffinitly going to do that.
 
 infrastructure for making imgui debug menus
 	- CVARS system-ish

@@ -4,6 +4,7 @@
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
 #include "real/core/logging.hpp"
+#include "real/debug/instrumentation.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"

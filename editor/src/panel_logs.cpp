@@ -6,6 +6,10 @@
 
 namespace editor {
 
+ImVec4 ImGuiIntRGBToFloatRGB(int r, int g, int b){
+    return ImVec4(r / 256.0f, g / 256.0f, b / 256.0f, 1.0f);
+}
+
 PanelLogs::PanelLogs(
 		Shared<real::Instance> _instance, real::LogSink_Buffer *lb) 
 	: Panel(_instance), log_buffer(lb) {}
@@ -29,32 +33,33 @@ void PanelLogs::draw() {
 
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 		
-		static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+		static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 		ImVec2 avail_size = ImGui::GetContentRegionAvail();
 		ImVec2 outer_size = ImVec2(0.0f, avail_size.y);
 
-		if (ImGui::BeginTable("Log Entries", 4, flags, outer_size)) {
-			ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-			ImGui::TableSetupColumn("Level", ImGuiTableColumnFlags_WidthFixed, 50);
-			ImGui::TableSetupColumn("Time", ImGuiTableColumnFlags_WidthFixed, 80);
-			ImGui::TableSetupColumn("File", ImGuiTableColumnFlags_WidthFixed, 150);
-			ImGui::TableSetupColumn("Log", ImGuiTableColumnFlags_None);
-			ImGui::TableHeadersRow();
+		if (ImGui::BeginTable("Log Entries", 2, flags, outer_size)) {
+			ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, 20);
+			ImGui::TableSetupColumn("Logs", ImGuiTableColumnFlags_None);
 			
 			ImGuiListClipper clipper;
 			clipper.Begin(log_buffer->index);
 			while (clipper.Step()) {
 				for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
-					auto [str,data] = log_buffer->buffer[row];
+					auto [str,data] = log_buffer->buffer[log_buffer->index-row-1];
+					ImColor col(1.0f, 1.0f, 1.0f, 1.0f);
+					switch (data.level) {
+					case real::LogLevel_Trace: col = ImGuiIntRGBToFloatRGB(152,151,26); break;
+					case real::LogLevel_Info:  col = ImGuiIntRGBToFloatRGB(69,133,136); break;
+					case real::LogLevel_Warn:  col = ImGuiIntRGBToFloatRGB(215,153,33); break;
+					case real::LogLevel_Error: col = ImGuiIntRGBToFloatRGB(69,133,136); break;
+					default: break;
+					}
 					ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
-					ImGui::Text("%s", real::LogLevel_to_string[data.level]);
+					ImGui::TextColored(col, "%s", real::LogLevel_to_string[data.level]);
 					ImGui::TableSetColumnIndex(1);
-					ImGui::Text("%s", data.time);
-					ImGui::TableSetColumnIndex(2);
-					ImGui::Text("%s:%i", data.file, data.line);
-					ImGui::TableSetColumnIndex(3);
-					ImGui::Text("%s", str.c_str());
+					ImGui::TextColored(col, "%s", str.c_str());
+					ImGui::TextColored(col, "%s %s:%i", data.time, data.file, data.line);
 				}
 			}
 			ImGui::EndTable();

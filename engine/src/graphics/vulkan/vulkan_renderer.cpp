@@ -375,7 +375,6 @@ ImVec4 ImGuiIntRGBToFloatRGB(int r, int g, int b){
     return ImVec4(r / 256.0f, g / 256.0f, b / 256.0f, 1.0f);
 }
 
-
 void style_imgui() {      
     ImGuiStyle *style = &ImGui::GetStyle();
     style->WindowMinSize = ImVec2(160, 20);
