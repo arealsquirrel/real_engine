@@ -16,8 +16,6 @@ namespace real {
 
 constexpr int VULKAN_FRAME_OVERLAP = 2;
 
-// class VulkanResourceImage;
-
 struct FrameDataVulkan {
     VkCommandPool command_pool;
     VkCommandBuffer main_command_buffer;
@@ -52,12 +50,15 @@ public:
 	VkDevice device;
     DescriptorAllocator descriptor_allocator;
     VmaAllocator allocator;
-
+    VkFence imm_fence;
+    VkCommandBuffer imm_command_buffer;
+    VkCommandPool imm_command_pool;
+    VkQueue graphics_queue;
+	
 private:
 	vkb::Device vkbDevice;
     VkPhysicalDevice chosenGPU;
 	VkSurfaceKHR surface;
-    VkQueue graphics_queue;
     uint32_t graphics_queue_family;
 
     std::vector<VkImage> swapchain_images;
@@ -70,9 +71,6 @@ private:
     FrameDataVulkan frame_data[VULKAN_FRAME_OVERLAP];
     vkutil::DeletionQueue delete_queue;
 	ResourceHandle<ResourceImage> renderImage;
-    VkFence imm_fence;
-    VkCommandBuffer imm_command_buffer;
-    VkCommandPool imm_command_pool;
     VkDescriptorPool imgui_descriptor_pool;
     u32 frame_number=0;
 };

@@ -1,10 +1,12 @@
 
 #include <cassert>
 #include <real/graphics/graphics.hpp>
+#include "real/graphics/render_pass_geometry.hpp"
 #include <real/core/instance.hpp>
 #include "real/graphics/render_pass_compute.hpp"
 #include "real/graphics/window.hpp"
 #include "vulkan_backend.hpp"
+#include "vulkan_renderpass_geometry.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_renderpass_compute.hpp"
 #include <VkBootstrap.h>
@@ -48,10 +50,18 @@ Shared<Renderer> Graphics::create_renderer(Instance *instance, Shared<Window> wi
 
 Shared<RenderPassCompute> Graphics::create_render_pass_compute(
 	Instance *_instance, ResourceHandle<ResourceShader> shader,
-	std::vector<ResourceHandle<ResourceImage>> _inResources,
-	std::vector<ResourceHandle<ResourceImage>> _outResources) {
+	std::vector<RenderPassResource> _resources) {
 
-	return std::make_shared<VulkanRenderPassCompute>(_instance, shader, _inResources, _outResources);
+	return std::make_shared<VulkanRenderPassCompute>(_instance, shader, _resources);
+}
+
+Shared<RenderPassGeometry> Graphics::create_render_pass_geometry(
+		Instance *_instance, RenderPassGeometryInfo info,
+		std::vector<ResourceHandle<ResourceShader>> shaders,
+		std::vector<RenderPassResource> _resources) {
+	
+	return std::make_shared<VulkanRenderPassGeometry>(
+			_instance, info, shaders, _resources);
 }
 
 }

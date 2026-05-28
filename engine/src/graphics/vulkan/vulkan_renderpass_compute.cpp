@@ -22,9 +22,8 @@ namespace real {
 VulkanRenderPassCompute::VulkanRenderPassCompute(
 		Instance *_instance,
         ResourceHandle<ResourceShader> shader,
-		std::vector<ResourceHandle<ResourceImage>> _inResources,
-		std::vector<ResourceHandle<ResourceImage>> _outResources)
-	: RenderPassCompute(_instance, shader.get()->get_layout(), _inResources, _outResources) {
+		std::vector<RenderPassResource> _resources)
+	: RenderPassCompute(_instance, shader.get()->get_layout(), _resources) {
 
 	VulkanRenderer *renderer = (VulkanRenderer*)_instance->renderer.get();
 
@@ -39,7 +38,7 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 
 	VkDescriptorImageInfo imgInfo{};
 	imgInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-	imgInfo.imageView = ((VulkanResourceImage*)_inResources[0].get())->imageView;
+	imgInfo.imageView = ((VulkanResourceImage*)_resources[0].texture.get())->imageView;
 	
 	VkWriteDescriptorSet drawImageWrite = {};
 	drawImageWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

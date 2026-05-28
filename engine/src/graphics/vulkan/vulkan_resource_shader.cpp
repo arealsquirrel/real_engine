@@ -1,6 +1,7 @@
 
 #include "vulkan_resource_shader.hpp"
 #include "real/core/logging.hpp"
+#include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
@@ -12,8 +13,6 @@
 #include <real/resource/resource_shader.hpp>
 #include <vulkan/vulkan_core.h>
 #include <spirv_reflect.h>
-
-#define CHECK_FLAG(x, n) ((x & n) != 0)
 
 namespace real {
 
@@ -34,7 +33,7 @@ static ShaderDataType reflect_to_datatype(SpvReflectTypeDescription* type) {
 
 VulkanResourceShader::VulkanResourceShader(
 		Instance *_instance, std::vector<char> data, 
-		std::vector<ShaderField> fields, ShaderType _type,
+		std::vector<ShaderField> fields, u32 _type,
 		std::optional<Path> _path) 
 	: ResourceShader(_instance, data, fields, _type, _path), 
 		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
@@ -43,17 +42,19 @@ VulkanResourceShader::VulkanResourceShader(
 	SpvReflectResult result = spvReflectCreateShaderModule(data.size(), (uint32_t*)data.data(), &spvmodule);
 	assert(result == SPV_REFLECT_RESULT_SUCCESS);
 
-	if(CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_COMPUTE_BIT)) {
-		type = ShaderType::COMPUTE;
-	} else if (CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_VERTEX_BIT)) {
-		type = ShaderType::VERTEX;
-	} else if (CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT)) {
-		type = ShaderType::FRAGMENT;
-	} else if (
-			CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT) &&
-			CHECK_FLAG(spvmodule.shader_stage,SPV_REFLECT_SHADER_STAGE_VERTEX_BIT)) {
-		type = ShaderType::VERTEX_FRAGMENT;
+	if(CHECK_FLAG(spvmodule.shader_stage, SPV_REFLECT_SHADER_STAGE_COMPUTE_BIT)) {
+		type |= ShaderType_COMPUTE;
 	}
+
+	if (CHECK_FLAG(spvmodule.shader_stage, SPV_REFLECT_SHADER_STAGE_VERTEX_BIT)) {
+		RL_LOG_WARN("fix this at some point");
+		type |= ShaderType_VERTEX;
+		type |= ShaderType_FRAGMENT;
+	}
+
+	if (CHECK_FLAG(spvmodule.shader_stage ,SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT)) {
+		type |= ShaderType_FRAGMENT;
+	} 
 
 	/* ---------- DESCRIPTOR BINDINGS ---------- */
 	uint32_t count = 0;
@@ -85,10 +86,6 @@ VulkanResourceShader::VulkanResourceShader(
 					reflect_to_datatype(block->members[j].type_description),
 					block->members[j].name, i, block->members[j].offset});
 		}
-	}
-
-	if(count >= 1) {
-		// pushConstants = (char*)malloc(128);
 	}
 
 	spvReflectDestroyShaderModule(&spvmodule);
@@ -135,7 +132,7 @@ ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
 	ShaderType type;
 
     return (ResourceShader*)(new VulkanResourceShader(
-				instance, buffer, {}, ShaderType::INFER, path));
+				instance, buffer, {}, ShaderType_INFER, path));
 }
 
 }

@@ -4,6 +4,7 @@
 #include "real/core/game.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/render_pass_compute.hpp"
+#include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
 
 class AppGame : public real::Game {
@@ -18,6 +19,7 @@ public:
 
 private:
 	Shared<real::RenderPassCompute> compute_pass;
+	Shared<real::RenderPassGeometry> geometry_pass;
 };
 
 #endif

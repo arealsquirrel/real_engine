@@ -3,6 +3,7 @@
 
 #include "real/core/core.hpp"
 #include "real/core/instance.hpp"
+#include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
 #include <cstddef>
@@ -12,12 +13,11 @@
 
 namespace real {
 
-enum class ShaderType {
-	INFER,
-    COMPUTE,
-    VERTEX,
-    FRAGMENT,
-	VERTEX_FRAGMENT // it has both
+enum ShaderType : u32 {
+	ShaderType_INFER 		= 0,
+    ShaderType_COMPUTE 		= 1,
+    ShaderType_VERTEX 		= 2,
+    ShaderType_FRAGMENT 	= 4,
 };
 
 enum class ShaderFieldType {
@@ -69,17 +69,18 @@ EXPOSE_TO_EDITOR
 protected:
     ResourceShader(
         Instance *_instance, std::vector<char> data, 
-		std::vector<ShaderField> fields, ShaderType _type,
+		std::vector<ShaderField> fields, u32 _type,
 		std::optional<Path> _path);
 
 public:
     ~ResourceShader();
 
-	ShaderLayout get_layout() { return layout; }
+	ShaderLayout get_layout() const { return layout; }
+	u32 get_type() const { return type; }
 
 protected:
 	ShaderLayout layout;
-	ShaderType type;
+	u32 type;
 };
 
 }

@@ -13,6 +13,9 @@ void print_version();
 
 }
 
+#define BIT(n) 1<<n
+#define CHECK_FLAG(x, n) ((((u32)x) & ((u32)n)) != 0)
+
 
 #define STRINGIFY(x) #x
 #define STRINGIFY_EXP(x) STRINGIFY(x)

@@ -9,7 +9,7 @@ namespace editor {
 
 template<>
 void PanelResourceViewer::display(real::ResourceShader *resource) {
-	ImGui::Text("%s", real::ShaderType_to_string(resource->type));
+	// ImGui::Text("%s", real::ShaderType_to_string(resource->type));
 
 	ImGui::Text("fields");
 	for(auto &field : resource->layout.fields) {

@@ -12,8 +12,11 @@ namespace real {
 typedef void* GraphicsBackend;
 
 class RenderPassCompute;
+class RenderPassGeometry;
+class RenderPassGeometryInfo;
 class ResourceShader;
 class ResourceImage;
+class RenderPassResource;
 
 struct GraphicsInfo {
 	bool debug;
@@ -39,8 +42,12 @@ public:
 
 	static Shared<RenderPassCompute> create_render_pass_compute(
 		Instance *_instance, ResourceHandle<ResourceShader> shader,
-		std::vector<ResourceHandle<ResourceImage>> _inResources,
-		std::vector<ResourceHandle<ResourceImage>> _outResources);
+		std::vector<RenderPassResource> _resources);
+
+	static Shared<RenderPassGeometry> create_render_pass_geometry(
+		Instance *_instance, RenderPassGeometryInfo info,
+		std::vector<ResourceHandle<ResourceShader>> shaders,
+		std::vector<RenderPassResource> _resources);
 };
 
 }

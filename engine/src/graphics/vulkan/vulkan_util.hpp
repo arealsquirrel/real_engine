@@ -1,6 +1,7 @@
 #ifndef REALLIB_VULKAN_UTIL_HPP
 #define REALLIB_VULKAN_UTIL_HPP
 
+#include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -32,7 +33,6 @@ struct DeletionQueue {
 		deletors.clear();
 	}
 };
-
 
 static inline VkCommandPoolCreateInfo command_pool_create_info(uint32_t queueFamilyIndex,
     VkCommandPoolCreateFlags flags /*= 0*/) {
@@ -267,7 +267,12 @@ static inline void copy_image_to_image(VkCommandBuffer cmd, VkImage source, VkIm
 	vkCmdBlitImage2(cmd, &blitInfo);
 }
 
-static void immediate_submit(VkFence imm_fence, VkCommandBuffer imm_command_buffer, VkDevice device, VkQueue graphicsQueue, std::function<void(VkCommandBuffer cmd)>&& function) {
+static void immediate_submit(
+		VkFence imm_fence,
+		VkCommandBuffer imm_command_buffer,
+		VkDevice device, VkQueue graphicsQueue,
+		std::function<void(VkCommandBuffer cmd)>&& function) {
+
 	VK_CHECK(vkResetFences(device, 1, &imm_fence));
 	VK_CHECK(vkResetCommandBuffer(imm_command_buffer, 0));
 

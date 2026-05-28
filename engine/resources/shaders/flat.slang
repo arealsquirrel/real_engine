@@ -1,7 +1,6 @@
 
 // Slang vertex shader equivalent
-struct Vertex
-{
+struct Vertex {
     float3 position;
     float  uv_x;
     float3 normal;
@@ -9,14 +8,17 @@ struct Vertex
     float4 color;
 };
 
-struct VSOutput
-{
+struct VSOutput {
     float4 position : SV_Position;
     float3 color    : COLOR0;
     float2 uv       : TEXCOORD0;
 };
 
-// [[vk::binding(0,0)]]
+struct PSInput {
+	float3 color : COLOR0;
+	float2 uv    : TEXCOORD0;
+};
+
 StructuredBuffer<Vertex> vertexBuffer;
 
 [[vk::push_constant]]
@@ -25,8 +27,7 @@ cbuffer PushConstants {
 };
 
 [shader("vertex")]
-VSOutput vertex_main(uint vertexIndex : SV_VertexID)
-{
+VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
     VSOutput output;
 
     // Load vertex data
@@ -41,3 +42,9 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID)
 
     return output;
 }
+
+[shader("fragment")]
+float4 fragment_main(PSInput input) : SV_Target {
+	return float4(input.color, 1.0f);
+}
+

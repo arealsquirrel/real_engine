@@ -24,17 +24,25 @@ void AppGame::start() {
 	
 	auto shader = instance->resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-				instance.get(), "../engine/resources/shaders/gradient.slang.spv"), "gradient.comp");
+				instance.get(), "../engine/resources/shaders/gradient.slang.spv"), "gradient.slang");
+
 
 	auto renderImage = instance->resource_database->get_resource<ResourceImage>("_render_texture");
 	compute_pass = Graphics::create_render_pass_compute(
 			instance.get(),
-			instance->resource_database->get_resource<ResourceShader>("gradient.comp"),
-			{ renderImage }, 
-			{ renderImage });
+			shader,
+			{{renderImage, ImageFormat::STORAGE}});
+
+	auto triangle_shader = instance->resource_database->register_resource(
+			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
+				instance.get(), "../engine/resources/shaders/test_triangle.slang.spv"), "test_triangle.slang");
+	geometry_pass = Graphics::create_render_pass_geometry(
+			instance.get(), {},
+			{ triangle_shader },
+			{{renderImage, ImageFormat::COLOR}});
 }
 
-void AppGame::render(real::FrameContext frame) {
+void AppGame::render(real::FrameContext frame) {	
 	compute_pass->begin_pass(frame);
 
 	ImGui::Begin("game menu");
@@ -49,8 +57,10 @@ void AppGame::render(real::FrameContext frame) {
 
 	compute_pass->set_variable("topColor", oneCol);
 	compute_pass->set_variable("bottomColor", twoCol);
-
 	compute_pass->end_pass(frame);
+
+	geometry_pass->begin_pass(frame);
+	geometry_pass->end_pass(frame);
 }
 
 void AppGame::update(u32 delta_time) {

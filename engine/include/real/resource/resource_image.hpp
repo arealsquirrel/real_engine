@@ -19,7 +19,9 @@ enum class ColorFormat {
 };
 
 enum class ImageFormat {
-	
+	COLOR,
+	DEPTH,
+	STORAGE
 };
 
 class ResourceImage : public Resource {

@@ -17,6 +17,11 @@ typedef char* PushConstantBuffer;
 
 class Renderer;
 
+struct RenderPassResource {
+	ResourceHandle<ResourceImage> texture;
+	ImageFormat format;
+};
+
 /**
  * @brief defines the abstract thingy mabob for actualy rendering shit to the screen
  * 
@@ -24,10 +29,9 @@ class Renderer;
 class RenderPass {
 public:
     RenderPass(Instance *_instance, ShaderLayout layout,
-		std::vector<ResourceHandle<ResourceImage>> _inResources,
-		std::vector<ResourceHandle<ResourceImage>> _outResources)
+		std::vector<RenderPassResource> _resources)
 		: instance(_instance), 
-		inResources(_inResources), outResources(_outResources),
+		resources(_resources),
 		shader_layout(layout) {};
 
     virtual ~RenderPass() = default;
@@ -48,8 +52,7 @@ public:
 	virtual void set_variable(ShaderField field, char *data, size_t size) = 0;
 
 public:
-	const std::vector<ResourceHandle<ResourceImage>> inResources;
-	const std::vector<ResourceHandle<ResourceImage>> outResources;
+	const std::vector<RenderPassResource> resources;
 
 protected:
     Instance *instance;

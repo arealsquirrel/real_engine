@@ -18,15 +18,14 @@ protected:
 	 */
     RenderPassCompute(
 		Instance *_instance, ShaderLayout layout,
-		std::vector<ResourceHandle<ResourceImage>> _inResources,
-		std::vector<ResourceHandle<ResourceImage>> _outResources)
-		: RenderPass(_instance, layout, _inResources, _outResources) {};
+		std::vector<RenderPassResource> _resources)
+		: RenderPass(_instance, layout, _resources) {};
 
 public:
     ~RenderPassCompute() = default;
 
-    void begin_pass(FrameContext context) = 0;
-    void end_pass(FrameContext context) = 0;
+    virtual void begin_pass(FrameContext context) = 0;
+    virtual void end_pass(FrameContext context) = 0;
 };
 
 
