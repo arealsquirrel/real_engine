@@ -19,11 +19,10 @@ struct PSInput {
 	float2 uv    : TEXCOORD0;
 };
 
-StructuredBuffer<Vertex> vertexBuffer;
-
 [[vk::push_constant]]
 cbuffer PushConstants {
     float4x4 render_matrix;
+	Vertex *vertexBuffer;
 };
 
 [shader("vertex")]

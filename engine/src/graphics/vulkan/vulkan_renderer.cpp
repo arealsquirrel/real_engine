@@ -21,8 +21,11 @@
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 
+#pragma clang diagnostic push             // Save current state
+#pragma clang diagnostic ignored "-Wnullability-completeness" // Disable a specific flag (e.g., -Wunused-variable)
 #define VMA_IMPLEMENTATION
 #include "vk_mem_alloc.h"
+#pragma clang diagnostic pop
 
 #include <real/real.hpp>
 
@@ -328,7 +331,7 @@ void VulkanRenderer::end_frame(FrameContext context) {
 
 
 	//transition the draw image and the swapchain image into their correct transfer layouts
-	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	vkutil::copy_image_to_image(cmd, render_image_handle->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);
 	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);

@@ -1,11 +1,15 @@
 
 #include "vulkan_renderpass_geometry.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/ext/vector_float4.hpp"
 #include "real/core/core.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/render_pass.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/resource/resource_shader.hpp"
+#include "vulkan_buffer.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_shader.hpp"
@@ -13,6 +17,19 @@
 #include <vulkan/vulkan_core.h>
 
 namespace real {
+
+struct Vertex {
+	glm::vec3 position;
+	float uv_x;
+	glm::vec3 normal;
+	float uv_y;
+	glm::vec4 color;
+}; 
+
+struct GPUDrawPushConstants {
+    glm::mat4 worldMatrix;
+    VkDeviceAddress vertexBuffer;
+};
 
 VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		Instance *_instance, RenderPassGeometryInfo info,
@@ -23,11 +40,17 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	VulkanRenderer *renderer = (VulkanRenderer*)_instance->renderer.get();
 	RL_LOG_TRACE("creating renderpass geometry");
 
+	VkPushConstantRange pushConstant{};
+	pushConstant.offset = 0;
+	pushConstant.size = 128;
+	pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.pNext = nullptr;
 	pipelineLayoutCreateInfo.setLayoutCount = 0;
-	pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+	pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstant;
 	VK_CHECK(vkCreatePipelineLayout(renderer->device, &pipelineLayoutCreateInfo, nullptr, &layout));
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly =  { .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
@@ -77,7 +100,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	}
 	renderInfo.colorAttachmentCount = colorFormats.size();
 	renderInfo.pColorAttachmentFormats = colorFormats.data();
-    renderInfo.depthAttachmentFormat = ((VulkanResourceImage*)resources[color_image_index].texture.get())->imageFormat; // TODO fix this lmao
+    renderInfo.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
 
     VkPipelineViewportStateCreateInfo viewportState = {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -92,7 +115,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
     colorBlending.logicOp = VK_LOGIC_OP_COPY;
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
-
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 
@@ -141,10 +163,35 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	if (vkCreateGraphicsPipelines(renderer->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS) {
         fmt::println("failed to create pipeline");
     }
+	
+	std::vector<Vertex> rect_vertices(4);
+	rect_vertices[0].position = {0.5,-0.5, 0};
+	rect_vertices[1].position = {0.5,0.5, 0};
+	rect_vertices[2].position = {-0.5,-0.5, 0};
+	rect_vertices[3].position = {-0.5,0.5, 0};
+	rect_vertices[0].color = {0,0, 0, 1};
+	rect_vertices[1].color = {0.5, 0.5, 0.5, 1};
+	rect_vertices[2].color = {1, 0, 0, 1};
+	rect_vertices[3].color = {0, 1, 0, 1};
+
+	std::vector<uint32_t> rect_indices(6);
+	rect_indices[0] = 0;
+	rect_indices[1] = 1;
+	rect_indices[2] = 2;
+	rect_indices[3] = 2;
+	rect_indices[4] = 1;
+	rect_indices[5] = 3;
+	mesh = new VulkanMeshBuffer(renderer,
+			rect_indices, (char*)rect_vertices.data(),
+			rect_vertices.size()*sizeof(Vertex));
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
-
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+    vkDeviceWaitIdle(renderer->device);
+	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
+    vkDestroyPipeline(renderer->device, pipeline, nullptr);
+	delete mesh;
 }
 
 void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
@@ -153,6 +200,7 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 
 	VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(vimg->imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkRenderingInfo renderInfo = vkutil::rendering_info(frame->draw_extent, &colorAttachment, nullptr);
+	vkutil::transition_image(frame->main_command_buffer, vimg->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	vkCmdBeginRendering(frame->main_command_buffer, &renderInfo);
 	vkCmdBindPipeline(frame->main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
@@ -174,19 +222,35 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 	scissor.extent.height = vimg->imageExtent.height;
 
 	vkCmdSetScissor(frame->main_command_buffer, 0, 1, &scissor);
-
-	vkutil::transition_image(frame->main_command_buffer, vimg->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 }
 
 void VulkanRenderPassGeometry::end_pass(FrameContext context) {
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
-	vkCmdDraw(frame->main_command_buffer, 3, 1, 0, 0);
+
+	GPUDrawPushConstants push_constants;
+	push_constants.worldMatrix = glm::mat4{ 1.f };
+	push_constants.vertexBuffer = mesh->address;
+
+	vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
+	vkCmdBindIndexBuffer(frame->main_command_buffer, mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+
+	vkCmdDrawIndexed(frame->main_command_buffer, 6, 1, 0, 0, 0);
 	vkCmdEndRendering(frame->main_command_buffer);
 }
 
 void VulkanRenderPassGeometry::set_variable(
 		ShaderField field, char *data, size_t size) {
 
+	switch (field.type) {
+	case(ShaderFieldType::PUSH_CONSTANT): {
+		char *write_pointer = (char*)(push_constant_buffer+field.offset);
+		memcpy(write_pointer, data, size);
+		return; 
+	}
+
+	default:
+		break;
+	}
 }
 
 }

@@ -33,12 +33,16 @@ void AppGame::start() {
 			shader,
 			{{renderImage, ImageFormat::STORAGE}});
 
+	auto flat_shader = instance->resource_database->register_resource(
+			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
+				instance.get(), "../engine/resources/shaders/flat.slang.spv"), "flat.slang");
+
 	auto triangle_shader = instance->resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
 				instance.get(), "../engine/resources/shaders/test_triangle.slang.spv"), "test_triangle.slang");
 	geometry_pass = Graphics::create_render_pass_geometry(
 			instance.get(), {},
-			{ triangle_shader },
+			{ flat_shader },
 			{{renderImage, ImageFormat::COLOR}});
 }
 

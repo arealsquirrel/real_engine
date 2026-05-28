@@ -20,7 +20,7 @@ static GraphicsBackendVulkan backend;
 void Graphics::init_backend(const GraphicsInfo &info) {
     vkb::InstanceBuilder builder;
     auto inst_ret = builder.set_app_name(info.name)
-		.request_validation_layers(info.debug)
+		.request_validation_layers(true)
 		.use_default_debug_messenger()
 		.require_api_version(1, 3, 0)
 		.build();

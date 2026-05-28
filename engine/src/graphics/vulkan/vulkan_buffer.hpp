@@ -16,7 +16,10 @@ struct AllocatedBuffer {
     VmaAllocationInfo info;
 };
 
-static inline AllocatedBuffer create_buffer(VulkanRenderer *renderer, size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage) {
+static inline AllocatedBuffer create_buffer(
+		VulkanRenderer *renderer, size_t allocSize,
+		VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage) {
+
 	VkBufferCreateInfo bufferInfo = {.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
 	bufferInfo.pNext = nullptr;
 	bufferInfo.size = allocSize;
@@ -42,10 +45,10 @@ static inline void destroy_buffer(VulkanRenderer *renderer, const AllocatedBuffe
 class VulkanMeshBuffer {
 public:
 	VulkanMeshBuffer(VulkanRenderer *_renderer,
-			std::vector<uint32_t> indices, std::vector<char*> vertex_data);
+			std::vector<uint32_t> indices, char *data, size_t size);
 	~VulkanMeshBuffer();
 
-private:
+public:
 	vkutil::AllocatedBuffer vertexBuffer;
 	vkutil::AllocatedBuffer indexBuffer;
 	VkDeviceAddress address;

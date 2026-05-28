@@ -15,7 +15,7 @@ Window::Window(Instance *_instance, const WindowInfo &info)
     if(s_window_count++ == 0) {
         RL_LOG_INFO("initilizing GLFW {}:{}", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR);
         glfwSetErrorCallback(real_glfw_error_callback);
-        assert(glfwInit());
+        glfwInit();
     }
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

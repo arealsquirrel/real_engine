@@ -12,8 +12,8 @@ file(DOWNLOAD
 )
 
 file(DOWNLOAD
-	"https://raw.githubusercontent.com/syoyo/tinygltfloader/refs/heads/master/tiny_gltf_loader.h"
-	"${PROJECT_SOURCE_DIR}/vendor/tiny_gltf_loader.h"
+	"https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/refs/heads/release/tiny_obj_loader.h"
+	"${PROJECT_SOURCE_DIR}/vendor/tiny_obj_loader.hpp"
 )
 
 file(DOWNLOAD
@@ -21,7 +21,7 @@ file(DOWNLOAD
 	"${PROJECT_SOURCE_DIR}/vendor/stb_image.h"
 )
 
-file(GLOB_RECURSE SRCS src/*.cpp vendor/*.cpp)
+file(GLOB_RECURSE SRCS src/*.cpp vendor/*.cpp vendor/*.c)
 
 configure_file(${PROJECT_SOURCE_DIR}/include/real/config/config.hpp.in
 			   ${PROJECT_SOURCE_DIR}/include/real/config/config.hpp)

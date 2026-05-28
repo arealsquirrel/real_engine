@@ -6,10 +6,10 @@ namespace real {
 VulkanMeshBuffer::VulkanMeshBuffer(
 		VulkanRenderer *_renderer,
 		std::vector<uint32_t> indices,
-		std::vector<char*> vertex_data) 
+		char *vertex_data, size_t size) 
 	: renderer(_renderer) {
 
-	const size_t vertexBufferSize = vertex_data.size();
+	const size_t vertexBufferSize = size;
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
 
 	// GPUMeshBuffers newSurface;
@@ -36,7 +36,7 @@ VulkanMeshBuffer::VulkanMeshBuffer(
 	
 	void* data = staging.info.pMappedData;
 
-	memcpy(data, vertex_data.data(), vertexBufferSize);
+	memcpy(data, vertex_data, vertexBufferSize);
 	memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
 
 	vkutil::immediate_submit(
@@ -57,11 +57,12 @@ VulkanMeshBuffer::VulkanMeshBuffer(
 		vkCmdCopyBuffer(cmd, staging.buffer, indexBuffer.buffer, 1, &indexCopy);
 	});
 
-	vkutil::destroy_buffer(staging);
+	vkutil::destroy_buffer(renderer, staging);
 }
 
 VulkanMeshBuffer::~VulkanMeshBuffer() {
-
+	vkutil::destroy_buffer(renderer, vertexBuffer);
+	vkutil::destroy_buffer(renderer, indexBuffer);
 }
 
 }
