@@ -34,7 +34,6 @@ private:
 
 	size_t color_image_index {0};
 
-	VulkanMeshBuffer *mesh;
 	PushConstantBuffer push_constant_buffer;
 };
 

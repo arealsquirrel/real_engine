@@ -1,15 +1,12 @@
 
 #include "vulkan_renderpass_geometry.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/vector_float3.hpp"
-#include "glm/ext/vector_float4.hpp"
 #include "real/core/core.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/render_pass.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/resource/resource_shader.hpp"
-#include "vulkan_buffer.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_shader.hpp"
@@ -17,14 +14,6 @@
 #include <vulkan/vulkan_core.h>
 
 namespace real {
-
-struct Vertex {
-	glm::vec3 position;
-	float uv_x;
-	glm::vec3 normal;
-	float uv_y;
-	glm::vec4 color;
-}; 
 
 struct GPUDrawPushConstants {
     glm::mat4 worldMatrix;
@@ -164,6 +153,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
         fmt::println("failed to create pipeline");
     }
 	
+	/*
 	std::vector<Vertex> rect_vertices(4);
 	rect_vertices[0].position = {0.5,-0.5, 0};
 	rect_vertices[1].position = {0.5,0.5, 0};
@@ -173,7 +163,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	rect_vertices[1].color = {0.5, 0.5, 0.5, 1};
 	rect_vertices[2].color = {1, 0, 0, 1};
 	rect_vertices[3].color = {0, 1, 0, 1};
-
 	std::vector<uint32_t> rect_indices(6);
 	rect_indices[0] = 0;
 	rect_indices[1] = 1;
@@ -184,6 +173,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	mesh = new VulkanMeshBuffer(renderer,
 			rect_indices, (char*)rect_vertices.data(),
 			rect_vertices.size()*sizeof(Vertex));
+	*/
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
@@ -191,7 +181,7 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
     vkDeviceWaitIdle(renderer->device);
 	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
     vkDestroyPipeline(renderer->device, pipeline, nullptr);
-	delete mesh;
+	// delete mesh;
 }
 
 void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
@@ -227,14 +217,14 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 void VulkanRenderPassGeometry::end_pass(FrameContext context) {
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
 
-	GPUDrawPushConstants push_constants;
-	push_constants.worldMatrix = glm::mat4{ 1.f };
-	push_constants.vertexBuffer = mesh->address;
+	// GPUDrawPushConstants push_constants;
+	// push_constants.worldMatrix = glm::mat4{ 1.f };
+	// push_constants.vertexBuffer = mesh->address;
 
-	vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
-	vkCmdBindIndexBuffer(frame->main_command_buffer, mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-
-	vkCmdDrawIndexed(frame->main_command_buffer, 6, 1, 0, 0, 0);
+	// vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
+	// vkCmdBindIndexBuffer(frame->main_command_buffer, mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+	// vkCmdDrawIndexed(frame->main_command_buffer, 6, 1, 0, 0, 0);
+	
 	vkCmdEndRendering(frame->main_command_buffer);
 }
 

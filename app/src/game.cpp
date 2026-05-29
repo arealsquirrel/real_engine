@@ -47,6 +47,8 @@ void AppGame::start() {
 }
 
 void AppGame::render(real::FrameContext frame) {	
+	ImGui::ShowMetricsWindow();
+
 	compute_pass->begin_pass(frame);
 
 	ImGui::Begin("game menu");

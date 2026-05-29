@@ -2,6 +2,7 @@
 #define REALLIB_RESOURCE_MESH_HPP
 
 #include "real/core/core.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
 
@@ -14,10 +15,11 @@ RL_CLASS(ResourceMesh)
 
 public:
 	ResourceMesh(Instance *_instance, std::vector<uint32_t> indexes, char *vertex_data, size_t vertex_data_size);
-	~ResourceMesh();
+	virtual ~ResourceMesh();
 
-	virtual void bind() = 0;
-	virtual void unbind() = 0;
+	virtual void bind(FrameContext context) = 0;
+	virtual void draw(FrameContext context) = 0;
+	virtual void unbind(FrameContext context) = 0;
 
 private:
 	ResourceMeshBuffer buffer;
