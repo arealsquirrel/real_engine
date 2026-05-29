@@ -23,7 +23,7 @@ CPMAddPackage(
   VERSION 1.92.4
   DOWNLOAD_ONLY)
 
-add_library(imgui_cmake_wrapper STATIC)
+add_library(imgui_cmake_wrapper SHARED)
 
 target_sources(
   imgui_cmake_wrapper

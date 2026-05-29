@@ -6,11 +6,11 @@
 
 namespace real {
 
-struct RenderPassGeometryInfo {
+struct REALLIB_EXPORT RenderPassGeometryInfo {
 
 };
 
-class RenderPassGeometry : public RenderPass {
+class REALLIB_EXPORT RenderPassGeometry : public RenderPass {
 protected:
 	RenderPassGeometry(
 		Instance *_instance, ShaderLayout layout,

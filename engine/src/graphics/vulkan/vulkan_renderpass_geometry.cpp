@@ -10,6 +10,7 @@
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_shader.hpp"
+#include <cstdlib>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
@@ -152,6 +153,8 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	if (vkCreateGraphicsPipelines(renderer->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS) {
         fmt::println("failed to create pipeline");
     }
+
+	push_constant_buffer = (char*)malloc(128);
 	
 	/*
 	std::vector<Vertex> rect_vertices(4);
@@ -178,6 +181,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	free(push_constant_buffer);
     vkDeviceWaitIdle(renderer->device);
 	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
     vkDestroyPipeline(renderer->device, pipeline, nullptr);

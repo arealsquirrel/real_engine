@@ -8,7 +8,6 @@
 
 namespace real {
 
-Log *Log::s_log = nullptr;
 
 LogSink_Console::LogSink_Console(bool _color) 
     : color(_color) {}
@@ -61,6 +60,10 @@ void LogSink_Buffer::log_to_sink(LogData data, std::string_view str) {
 	buffer.data()[index++ % 1000] = std::make_pair(str, data);
 }
 
+Log &Log::get() {
+	static Log log {};
+	return log;
+}
 
 Log::Log(std::string _name, LogLevel _level)
     : name(_name), log_level(_level) {

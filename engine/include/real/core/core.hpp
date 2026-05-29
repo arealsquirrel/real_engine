@@ -42,4 +42,12 @@ class PanelResourceViewer;
 #define EXPOSE_TO_EDITOR
 #endif
 
+#ifdef __linux__
+
+#define REALLIB_EXPORT __attribute__((visibility("default")))
+
+#else
+#error "trash"
+#endif
+
 #endif

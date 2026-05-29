@@ -3,10 +3,11 @@
 
 #include "real/core/instance.hpp"
 #include "real/core/types.hpp"
+#include <real/core/core.hpp>
 
 namespace real {
 
-class Game {
+class REALLIB_EXPORT Game {
 public:
 	Game(Shared<Instance> _instance);
 	~Game();

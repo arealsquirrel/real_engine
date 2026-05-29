@@ -6,12 +6,12 @@
 #include <filesystem>
 #include <fmt/base.h>
 #include <fstream>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
 #include <fmt/core.h>
+#include <real/core/core.hpp>
 
 namespace real {
 
@@ -37,8 +37,9 @@ struct LogData {
 /**
  * @brief abstract class for log sinks
  */
-class LogSink {
+class REALLIB_EXPORT LogSink {
 public:
+	LogSink() = default;
     virtual ~LogSink() = default;
 
 public:
@@ -48,7 +49,7 @@ public:
 /**
  * @brief logs to console in color or not in color
  */
-class LogSink_Console : public LogSink {
+class REALLIB_EXPORT LogSink_Console : public LogSink {
 public:
     LogSink_Console(bool _color=true);
 
@@ -59,7 +60,7 @@ private:
     bool color;
 };
 
-class LogSink_File : public LogSink {
+class REALLIB_EXPORT LogSink_File : public LogSink {
 public:
     LogSink_File(std::filesystem::path path);
 
@@ -73,7 +74,7 @@ private:
     std::ofstream out_file;
 };
 
-class LogSink_Buffer : public LogSink {
+class REALLIB_EXPORT LogSink_Buffer : public LogSink {
 public:
     LogSink_Buffer();
 	~LogSink_Buffer() = default;
@@ -89,7 +90,7 @@ public:
 /**
  * @brief base logging class that logs data to various sinks
  */
-class Log {
+class REALLIB_EXPORT Log {
 public:
     Log(std::string _name="LOG", LogLevel _level=LogLevel_Trace);
     ~Log();
@@ -105,27 +106,22 @@ public:
 					fmt::format(fmt::runtime(in), std::forward<Args>(args)...).c_str());
     }
 
-	static Log *get() {
-		if(s_log == nullptr)
-			s_log = new Log("engine_log.txt");
-		
-		return s_log;
-	}
+	static Log &get();
 
 public:
     std::vector<LogSink*> sinks;
     std::string name = "LOG";
     LogLevel log_level;
 
-private:
-	static Log *s_log;
+// private:
+	//static Log *s_log;
 };
 
 }
 
-#define RL_LOG_TRACE(...) ::real::Log::get()->log({LogLevel_Trace,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
-#define RL_LOG_INFO(...) ::real::Log::get()->log({LogLevel_Info,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
-#define RL_LOG_WARN(...) ::real::Log::get()->log({LogLevel_Warn,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
-#define RL_LOG_ERROR(...) ::real::Log::get()->log({LogLevel_Fatal,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_TRACE(...) ::real::Log::get().log({LogLevel_Trace,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_INFO(...) ::real::Log::get().log({LogLevel_Info,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_WARN(...) ::real::Log::get().log({LogLevel_Warn,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
+#define RL_LOG_ERROR(...) ::real::Log::get().log({LogLevel_Fatal,__TIME__,__FILE_NAME__,__LINE__}, __VA_ARGS__)
 
 #endif

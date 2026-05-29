@@ -19,12 +19,12 @@ int main() {
 	real::LogSink_Buffer *log_buffer;
 	
 	{
-		Log *log = Log::get();
-		log->name = "game engine";
-		log->log_level = real::LogLevel_Trace;
+		Log &log = Log::get();
+		log.name = "game engine";
+		log.log_level = real::LogLevel_Trace;
 		log_buffer = new real::LogSink_Buffer();
-		log->sinks.push_back(new real::LogSink_Console());
-		log->sinks.push_back(log_buffer);
+		log.sinks.push_back(new real::LogSink_Console());
+		log.sinks.push_back(log_buffer);
 	}
 
 	Graphics::init_backend({});

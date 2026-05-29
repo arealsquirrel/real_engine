@@ -9,7 +9,7 @@
 
 namespace real {
 
-enum class ResourceSerializerType {
+enum class REALLIB_EXPORT ResourceSerializerType {
     Disk,
     ZipFile,
 };
@@ -21,7 +21,7 @@ using SaveObject = void*;
 /**
  * @brief stores data in a specified format so the engine can use it
  */
-class Resource {
+class REALLIB_EXPORT Resource {
 RL_CLASS(Resource)
 
 public:

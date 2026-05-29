@@ -11,10 +11,10 @@ int main() {
 	Shared<Instance> instance = std::make_shared<Instance>();
 	
 	{
-		Log *log = Log::get();
-		log->name = "game engine";
-		log->log_level = real::LogLevel_Trace;
-		log->sinks.push_back(new real::LogSink_Console());
+		Log &log = Log::get();
+		log.name = "game engine";
+		log.log_level = real::LogLevel_Trace;
+		log.sinks.push_back(new real::LogSink_Console());
 	}
 
 	Graphics::init_backend({});

@@ -3,6 +3,7 @@
 
 #include "real/core/types.hpp"
 #include <utility>
+#include <real/core/core.hpp>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -19,7 +20,7 @@ struct WindowInfo {
 /**
  * @brief makes and manages a window
  */
-class Window {
+class REALLIB_EXPORT Window {
 public:
     Window(Instance *_instance, const WindowInfo &info);
     ~Window();

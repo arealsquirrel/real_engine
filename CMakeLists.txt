@@ -1,21 +1,16 @@
 
 cmake_minimum_required(VERSION 4.0)
 
-project(real_engine LANGUAGES CXX)
+project(real_engine LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-set(IMGUI_RENDERER_BACKEND "vulkan")
-set(IMGUI_PLATFORM_BACKEND "glfw")
-
-add_compile_options(-fPIC)
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")      # Debug flags
 set(CMAKE_CXX_FLAGS_MINSIZEREL "-g -Oz")      # Debug flags
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG") # Release flags
 
-# add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
-# add_link_options(-fsanitize=address)
+set(IMGUI_RENDERER_BACKEND "vulkan")
+set(IMGUI_PLATFORM_BACKEND "glfw")
 
 include("cmake/get_cpm.cmake")
 include("cmake/packages.cmake")

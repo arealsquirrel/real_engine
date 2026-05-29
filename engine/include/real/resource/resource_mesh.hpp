@@ -10,7 +10,7 @@ namespace real {
 
 typedef char* ResourceMeshBuffer;
 
-class ResourceMesh : public Resource {
+class REALLIB_EXPORT ResourceMesh : public Resource {
 RL_CLASS(ResourceMesh)
 
 public:

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-#define TINYGLTF_IMPLEMENTATION
+#define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.hpp>
 
 #include <real/resource/resource_mesh.hpp>

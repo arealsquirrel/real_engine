@@ -16,7 +16,7 @@ Unique<Game> game_entrypoint(Shared<Instance> instance) {
 }
 
 AppGame::~AppGame() {
-
+	
 }
 
 void AppGame::start() {

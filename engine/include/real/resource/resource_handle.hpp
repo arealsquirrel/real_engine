@@ -24,14 +24,14 @@ enum class ResourceState {
 	Unreferenced
 };
 
-struct ResourceHandleControlBlock {
+struct REALLIB_EXPORT ResourceHandleControlBlock {
 	u32 count;
 	ResourceState state;
 	UUID id;
 };
 
 template<typename T>
-class ResourceHandle {
+class REALLIB_EXPORT ResourceHandle {
 public:
 	ResourceHandle() {
 		block = new ResourceHandleControlBlock();

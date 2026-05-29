@@ -26,8 +26,9 @@ file(GLOB_RECURSE SRCS src/*.cpp vendor/*.cpp vendor/*.c)
 configure_file(${PROJECT_SOURCE_DIR}/include/real/config/config.hpp.in
 			   ${PROJECT_SOURCE_DIR}/include/real/config/config.hpp)
 
-add_library(${PROJECT_NAME} ${SRCS})
+add_library(${PROJECT_NAME} SHARED ${SRCS})
 
+target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden -fPIC)
 target_compile_definitions(${PROJECT_NAME} PUBLIC SPIRV_REFLECT_USE_SYSTEM_SPIRV_H)
 
 target_include_directories(${PROJECT_NAME}

@@ -87,6 +87,7 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 
 VulkanRenderPassCompute::~VulkanRenderPassCompute() {
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	free(push_constant_buffer);
 
     vkDeviceWaitIdle(renderer->device);
 	

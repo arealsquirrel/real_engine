@@ -1,10 +1,11 @@
-#ifndef REALLIB_CORE_INSTANCE
-#define REALLIB_CORE_INSTANCE
+#ifndef REALLIB_INSTANCE
+#define REALLIB_INSTANCE
 
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
+#include <real/core/core.hpp>
 
 namespace real {
 
@@ -14,7 +15,7 @@ class ResourceDatabase;
  * @brief defines an instance of the engine that manages
  * all the parts of running the engine
  */
-class Instance {
+class REALLIB_EXPORT Instance {
 public:
     Instance();
     ~Instance();

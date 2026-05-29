@@ -18,7 +18,7 @@ class ResourceShader;
 class ResourceImage;
 class RenderPassResource;
 
-struct GraphicsInfo {
+struct REALLIB_EXPORT GraphicsInfo {
 	bool debug;
 	const char *name;
 };
@@ -27,7 +27,7 @@ struct GraphicsInfo {
  * @brief contains static methods to work with graphics backends to setup static one-instance
  * level thingies.
  */
-class Graphics {
+class REALLIB_EXPORT Graphics {
 public:
 	/* -------- PLATFORM METHODS -------- */
     static void init_backend(const GraphicsInfo &info);

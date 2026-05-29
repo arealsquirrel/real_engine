@@ -3,6 +3,7 @@
 
 #include "real/core/types.hpp"
 #include "real/graphics/window.hpp"
+#include <real/core/core.hpp>
 
 namespace real {
 
@@ -17,7 +18,7 @@ class Instance;
  *
  * its attached to a window
  */
-class Renderer {
+class REALLIB_EXPORT Renderer {
 public:
     Renderer(Instance *_instance, Shared<Window> _window);
     virtual ~Renderer();

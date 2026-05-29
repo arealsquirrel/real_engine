@@ -24,7 +24,7 @@ enum class ImageFormat {
 	STORAGE
 };
 
-class ResourceImage : public Resource {
+class REALLIB_EXPORT ResourceImage : public Resource {
 RL_CLASS(ResourceImage)
 
 protected:

@@ -46,11 +46,16 @@ struct ShaderField {
 	size_t offset;
 };
 
+REALLIB_EXPORT 
 const char *ShaderType_to_string(const ShaderType type);
+
+REALLIB_EXPORT 
 const char *ShaderFieldType_to_string(const ShaderFieldType type);
+
+REALLIB_EXPORT 
 const char *ShaderDataType_to_string(const ShaderDataType type);
 
-struct ShaderLayout {
+struct REALLIB_EXPORT ShaderLayout {
 public:
 	ShaderField get_field(std::string str);
 	void add_field_entry(ShaderField field);
@@ -62,7 +67,7 @@ public:
 /**
  * @brief the backend is entirly in the render folder of the API in use
  */
-class ResourceShader : public Resource {
+class REALLIB_EXPORT ResourceShader : public Resource {
 RL_CLASS(ResourceShader)
 EXPOSE_TO_EDITOR
 

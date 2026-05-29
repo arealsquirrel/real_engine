@@ -9,7 +9,7 @@
 
 namespace real {
 
-class RenderPassCompute : public RenderPass {
+class REALLIB_EXPORT RenderPassCompute : public RenderPass {
 protected:
 
 	/*

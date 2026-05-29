@@ -3,11 +3,12 @@
 #define SC_UUID_HPP
 
 #include <functional>
+#include <real/core/core.hpp>
 #include <real/core/types.hpp>
 
 namespace real {
 
-struct UUID {
+struct REALLIB_EXPORT UUID {
 public:
 	UUID();
 	UUID(const UUID &id);

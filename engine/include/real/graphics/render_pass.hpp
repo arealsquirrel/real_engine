@@ -17,7 +17,7 @@ typedef char* PushConstantBuffer;
 
 class Renderer;
 
-struct RenderPassResource {
+struct REALLIB_EXPORT RenderPassResource {
 	ResourceHandle<ResourceImage> texture;
 	ImageFormat format;
 };
@@ -26,7 +26,7 @@ struct RenderPassResource {
  * @brief defines the abstract thingy mabob for actualy rendering shit to the screen
  * 
  */
-class RenderPass {
+class REALLIB_EXPORT RenderPass {
 public:
     RenderPass(Instance *_instance, ShaderLayout layout,
 		std::vector<RenderPassResource> _resources)

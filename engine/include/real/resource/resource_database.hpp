@@ -20,7 +20,7 @@ namespace real {
  * some resources may depend on other resources so we have to generate a resource tree of sorts,
  * this will happen in a while because this first requires having resources and whatnot
  */
-class ResourceDatabase {
+class REALLIB_EXPORT ResourceDatabase {
 public:
     ResourceDatabase();
     ~ResourceDatabase();
