@@ -33,7 +33,7 @@ extern "C" {
 static inline glm::mat4 get_projection() {
 	glm::mat4 view(1.0f);
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -7.0f));
-	view = glm::rotate(view, glm::radians((float)glfwGetTime() * 20.0f + 180), glm::vec3(1.0f, 0.0f, 0.0f));
+	view = glm::rotate(view, glm::radians((float)glfwGetTime() * 100.0f + 180), glm::vec3(1.0f, 0.0f, 0.0f));
 	glm::mat4 projection;
 	float aspect = (float)1200 / 800;
 	projection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 100.0f);

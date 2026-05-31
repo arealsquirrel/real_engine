@@ -29,7 +29,7 @@ int main() {
 
 reload_game:
 	reason = editor::EditorExitReason::NotExiting;
-	Game *game = new Game(instance);
+	auto [game, dll] = Game::load_game_dll(instance);
 	game->start();
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
@@ -40,8 +40,7 @@ reload_game:
 		game->renderer->end_frame(frame);
 	}
 
-	game->destroy();
-	delete game;
+	Game::destroy_game_dll(game, dll);
 	if(reason == editor::EditorExitReason::Reload) {
 		goto reload_game;
 	}

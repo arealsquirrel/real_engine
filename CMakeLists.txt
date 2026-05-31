@@ -25,7 +25,7 @@ add_subdirectory(engine)
 add_subdirectory(app)
 add_subdirectory(tests)
 add_subdirectory(runtime)
-# add_subdirectory(editor)
+add_subdirectory(editor)
 
 add_custom_target(
     shaders
