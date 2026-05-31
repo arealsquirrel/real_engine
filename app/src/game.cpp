@@ -1,8 +1,14 @@
 
+#include "game.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float4.hpp"
+#include "real/core/core.hpp"
+#include "real/core/game.hpp"
+#include "real/core/instance.hpp"
+#include "real/core/logging.hpp"
+#include "real/core/types.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include <real/real.hpp>
@@ -12,9 +18,17 @@
 
 using namespace real;
 
-RenderPassCompute *compute_pass;
-RenderPassGeometry *geometry_pass;
-ResourceHandle<ResourceMesh> mesh_resource;
+extern "C" {
+	REALLIB_EXPORT
+	Game *game_create(Shared<Instance> instance) {
+		return new MyGame(instance);
+	}
+
+	REALLIB_EXPORT
+	void game_destroy(Game *game) {
+		delete (MyGame*)game;
+	}
+}
 
 static inline glm::mat4 get_projection() {
 	glm::mat4 view(1.0f);
@@ -27,7 +41,10 @@ static inline glm::mat4 get_projection() {
 	return projection * view;
 }
 
-void Game::start() {
+void MyGame::start() {
+
+	RL_LOG_TRACE("starting from mygame");
+
 	auto [width, height] = window->get_glfw_window_dimensions();
 	
 	auto shader = resource_database->register_resource(
@@ -56,7 +73,7 @@ void Game::start() {
 			}, { flat_shader }, {}).release();
 }
 
-void Game::render(real::FrameContext frame) {
+void MyGame::render(real::FrameContext frame) {
 	compute_pass->begin_pass(frame);
 	static glm::vec4 oneCol {1.0f, 0.8f, 0.8f, 1.0f};
 	static glm::vec4 twoCol {0.1f, 0.1f, 1.0f, 1.0f};
@@ -71,12 +88,11 @@ void Game::render(real::FrameContext frame) {
 	geometry_pass->end_pass(frame);
 }
 
-void Game::update(u32 delta_time) {
+void MyGame::update(u32 delta_time) {
 }
 
-void Game::destroy() {
+MyGame::~MyGame() {
 	delete compute_pass;
 	delete geometry_pass;
-
 	mesh_resource.unload();
 }

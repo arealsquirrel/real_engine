@@ -1,10 +1,14 @@
 
 #include "real/core/instance.hpp"
+#include "real/core/logging.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource_database.hpp"
 #include <GLFW/glfw3.h>
+#include <cassert>
+#include <optional>
 #include <real/core/game.hpp>
 #include <utility>
+#include <dlfcn.h>
 
 namespace real {
 
@@ -17,6 +21,38 @@ Game::Game(Shared<Instance> _instance)
 }
 
 Game::~Game() {}
+
+std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance) {
+	DLLGameLoad load;
+	load.game_dll_handle = dlopen("./app/libapp.so", RTLD_LAZY);
+    if (!load.game_dll_handle) {
+		RL_LOG_ERROR("Cannot open game libary {}", dlerror());
+        assert(false);
+    }
+
+    load.create_game = (create_real_game_f*)dlsym(load.game_dll_handle, "game_create");
+    const char* dlsym_error = dlerror();
+    if (dlsym_error) {
+        RL_LOG_ERROR("Cannot load symbol create");
+        dlclose(load.game_dll_handle);
+        assert(false);
+    }
+
+    load.destroy_game = (destroy_real_game_f*)dlsym(load.game_dll_handle, "game_destroy");
+    dlsym_error = dlerror();
+    if (dlsym_error) {
+        RL_LOG_ERROR("Cannot load symbol destroy");
+        dlclose(load.game_dll_handle);
+        assert(false);
+    }
+
+	return std::make_pair(load.create_game(instance), load);
+}
+
+void Game::destroy_game_dll(Game* game, DLLGameLoad load) {
+	load.destroy_game(game);
+	dlclose(load.game_dll_handle);
+}
 
 }
 

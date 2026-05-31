@@ -26,26 +26,28 @@ int main() {
 	editor::Editor *ed = new editor::Editor(instance);
 	ed->add_panel<editor::PanelResourceDatabase>();
 	ed->add_panel<editor::PanelLogs>(log_buffer);
-	
 
-	// while(reason != editor::EditorExitReason::Reload) {
-		Game *game = new Game(instance);
-		game->start();
+reload_game:
+	reason = editor::EditorExitReason::NotExiting;
+	Game *game = new Game(instance);
+	game->start();
 
-		while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
-			game->update(0);
-			auto frame = game->renderer->start_frame();
-			reason = ed->render();
-			game->render(frame);
-			game->renderer->end_frame(frame);
-		}
+	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
+		game->update(0);
+		auto frame = game->renderer->start_frame();
+		reason = ed->render();
+		game->render(frame);
+		game->renderer->end_frame(frame);
+	}
 
-		game->destroy();
-		delete game;
-		
+	game->destroy();
+	delete game;
+	if(reason == editor::EditorExitReason::Reload) {
+		goto reload_game;
+	}
+
 	delete ed;
 	instance.reset();	
-	// }
 
 	Graphics::destroy_backend();
 }

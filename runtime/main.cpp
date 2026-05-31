@@ -3,7 +3,9 @@
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
+#include <iostream>
 #include <memory>
+
 #include <real/real.hpp>
 
 using namespace real;
@@ -15,12 +17,11 @@ int main() {
 	log.name = "game engine";
 	log.log_level = real::LogLevel_Trace;
 	log.sinks.push_back(new real::LogSink_Console());
-
+    
 	Graphics::init_backend({});
 
 	Shared<Instance> instance = std::make_shared<Instance>();
-	Game *game = new Game(instance);
-
+    auto [game, dll] = Game::load_game_dll(instance);
 	game->start();
 
 	while(instance->should_close() == false) {
@@ -31,10 +32,8 @@ int main() {
 		instance->renderer->end_frame(frame);
 	}
 
-	game->destroy();
-	delete game;
 	instance.reset();
-
+    Game::destroy_game_dll(game, dll);
 	Graphics::destroy_backend();
 }
 
