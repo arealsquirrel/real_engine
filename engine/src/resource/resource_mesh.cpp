@@ -45,10 +45,10 @@ namespace std {
 namespace real {
 
 ResourceMesh::ResourceMesh(
-		Game *_game,
+		Instance *_instance,
 		std::vector<uint32_t> indexes,
 		char *vertex_data, size_t vertex_data_size)
-	: Resource(_game) {}
+	: Resource(_instance) {}
 
 ResourceMesh::~ResourceMesh() {
 
@@ -56,7 +56,7 @@ ResourceMesh::~ResourceMesh() {
 
 template<>
 ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
-		Game *game, Optional<Path> path) {
+		Instance *instance, Optional<Path> path) {
 
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
@@ -114,7 +114,7 @@ ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
 	}
 
 	// return new Vulkan
-	return Graphics::create_resource_mesh(game, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex)).release();
+	return Graphics::create_resource_mesh(instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex)).release();
 }
 
 }

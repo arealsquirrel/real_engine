@@ -20,12 +20,12 @@
 namespace real {
 
 VulkanRenderPassCompute::VulkanRenderPassCompute(
-		Game *_game,
+		Instance *_instance,
         ResourceHandle<ResourceShader> shader,
 		std::vector<RenderPassResource> _resources)
-	: RenderPassCompute(_game, shader.get()->get_layout(), _resources) {
+	: RenderPassCompute(_instance, shader.get()->get_layout(), _resources) {
 
-	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	DescriptorLayoutBuilder lb;
 	VulkanResourceShader *vshader = (VulkanResourceShader*)shader.get();
@@ -86,7 +86,7 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 }
 
 VulkanRenderPassCompute::~VulkanRenderPassCompute() {
-	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	free(push_constant_buffer);
 
     vkDeviceWaitIdle(renderer->device);

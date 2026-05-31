@@ -49,7 +49,7 @@ class VulkanResourceMesh : public ResourceMesh {
 RL_OBJECT(VulkanResourceMesh, ResourceMesh)
 
 public:
-	VulkanResourceMesh(Game *_game,
+	VulkanResourceMesh(Instance *_instance,
 			std::vector<uint32_t> indices, char *data, size_t size);
 	~VulkanResourceMesh();
 

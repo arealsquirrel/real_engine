@@ -18,7 +18,7 @@ class REALLIB_EXPORT ResourceMesh : public Resource {
 RL_OBJECT(ResourceMesh, Resource)
 
 public:
-	ResourceMesh(Game *_game, std::vector<uint32_t> indexes, char *vertex_data, size_t vertex_data_size);
+	ResourceMesh(Instance *_instance, std::vector<uint32_t> indexes, char *vertex_data, size_t vertex_data_size);
 	virtual ~ResourceMesh();
 
 	virtual void bind(FrameContext context) = 0;

@@ -26,7 +26,7 @@ class REALLIB_EXPORT Window : public Object {
 RL_OBJECT(Window, Object)
 
 public:
-    Window(Game *_game, const WindowInfo &info);
+    Window(Instance *_instance, const WindowInfo &info);
     ~Window();
 
     bool should_exit();

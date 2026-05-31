@@ -6,7 +6,7 @@
 
 namespace real {
 
-class Game;
+class Instance;
 
 struct TypeInfo {
     const char *name;
@@ -16,7 +16,7 @@ struct TypeInfo {
 
 class REALLIB_EXPORT Object {
 public:
-    explicit Object(Game *_game);
+    explicit Object(Instance *_instance);
     virtual ~Object();
 
 public:
@@ -26,7 +26,7 @@ public:
 	virtual const TypeInfo *object_typeinfo() const { return Object::object_parent_typeinfo_static(); }
 
 protected:
-    Game *game {nullptr};
+    Instance *instance {nullptr};
 };
 
 #define RL_OBJECT(CLASS_NAME, CLASS_PARENT) public: \

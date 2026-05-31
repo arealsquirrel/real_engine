@@ -37,8 +37,8 @@ namespace real {
 
 void style_imgui();
 
-VulkanRenderer::VulkanRenderer(Game *_game, Shared<Window> _window)
-    : Renderer(_game, _window) {}
+VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
+    : Renderer(_instance, _window) {}
 
 void VulkanRenderer::init() {
 	RL_LOG_TRACE("Creating vulkan renderer");
@@ -52,13 +52,13 @@ void VulkanRenderer::init() {
 	create_descriptors();
 	create_imgui();
 
-	game->resource_database->register_resource(
- 		ResourceImage::create(game, width, height, ColorFormat::RGBA_FLOAT), "_render_color_texture");
+	instance->resource_database->register_resource(
+ 		ResourceImage::create(instance, width, height, ColorFormat::RGBA_FLOAT), "_render_color_texture");
 
-	game->resource_database->register_resource(
-			ResourceImage::create(game, width, height, ColorFormat::DEPTH), "_render_depth_texture");
+	instance->resource_database->register_resource(
+			ResourceImage::create(instance, width, height, ColorFormat::DEPTH), "_render_depth_texture");
 
-	renderImage = game->resource_database->get_resource<ResourceImage>("_render_color_texture");
+	renderImage = instance->resource_database->get_resource<ResourceImage>("_render_color_texture");
 }
 
 VulkanRenderer::~VulkanRenderer() {

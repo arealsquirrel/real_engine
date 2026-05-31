@@ -23,7 +23,7 @@ class REALLIB_EXPORT Renderer : public Object {
 RL_OBJECT(Renderer, Object)
 
 public:
-    Renderer(Game *_game, Shared<Window> _window);
+    Renderer(Instance *_instance, Shared<Window> _window);
     virtual ~Renderer();
 
 	// some of the constructors need instance things to be initilized

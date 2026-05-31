@@ -24,7 +24,7 @@ class REALLIB_EXPORT ResourceDatabase : public Object {
 RL_OBJECT(ResourceDatabase, Object)
 
 public:
-    ResourceDatabase(Game *game);
+    ResourceDatabase(Instance *Instance);
     ~ResourceDatabase();
 
 	struct Entry {

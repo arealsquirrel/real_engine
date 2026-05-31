@@ -30,9 +30,9 @@ class REALLIB_EXPORT RenderPass : public Object {
 RL_OBJECT(RenderPass, Object)
 
 public:
-    RenderPass(Game *_game, ShaderLayout layout,
+    RenderPass(Instance *_instance, ShaderLayout layout,
 		std::vector<RenderPassResource> _resources)
-		: Object(_game), 
+		: Object(_instance), 
 		resources(_resources),
 		shader_layout(layout) {};
 

@@ -5,8 +5,8 @@
 
 namespace real {
 
-Resource::Resource(Game *_game, std::optional<Path> _path) 
-    : Object(_game), path(_path) {}
+Resource::Resource(Instance *_instance, std::optional<Path> _path) 
+    : Object(_instance), path(_path) {}
 
 Resource::~Resource() {}
 

@@ -3,6 +3,7 @@
 
 #include "panel.hpp"
 #include "real/core/game.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/types.hpp"
 #include <utility>
 #include <vector>
@@ -17,7 +18,7 @@ enum class EditorExitReason {
 
 class Editor {
 public:
-	Editor(Shared<real::Game> _game);
+	Editor(Shared<real::Instance> _instance);
 	~Editor();
 
 public:
@@ -25,11 +26,11 @@ public:
 
 	template<typename T, typename ...Args>
 	void add_panel(Args ...args) {
-		panels.push_back(std::make_shared<T>(game, std::forward<Args>(args)...));
+		panels.push_back(std::make_shared<T>(instance, std::forward<Args>(args)...));
 	}
 
 private:
-	Shared<real::Game> game;
+	Shared<real::Instance> instance;
 	std::vector<Shared<editor::Panel>> panels;
 };
 

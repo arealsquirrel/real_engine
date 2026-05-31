@@ -32,12 +32,12 @@ struct GPUDrawPushConstants {
 };
 
 VulkanRenderPassGeometry::VulkanRenderPassGeometry(
-		Game *_game, RenderPassGeometryInfo info,
+		Instance *_instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
 		std::vector<RenderPassResource> resources)
-		: RenderPassGeometry(_game, shaders[0].get()->get_layout(), resources) {
+		: RenderPassGeometry(_instance, shaders[0].get()->get_layout(), resources) {
 
-	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	RL_LOG_TRACE("creating renderpass geometry");
 
 	renderImage = info.renderImage;
@@ -187,7 +187,7 @@ void VulkanRenderPassGeometry::enable_depth(
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
-	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	free(push_constant_buffer);
     vkDeviceWaitIdle(renderer->device);
 	vkDestroyPipelineLayout(renderer->device, layout, nullptr);

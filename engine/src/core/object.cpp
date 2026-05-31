@@ -3,8 +3,8 @@
 
 namespace real {
 
-Object::Object(Game *_game) {
-	game = _game;
+Object::Object(Instance *_instance) {
+	instance = _instance;
 }
 
 Object::~Object() {

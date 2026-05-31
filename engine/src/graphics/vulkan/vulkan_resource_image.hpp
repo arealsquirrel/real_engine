@@ -18,13 +18,13 @@ RL_OBJECT(VulkanResourceImage, ResourceImage)
 
 public:
     VulkanResourceImage(
-        Game *_game,
+        Instance *_instance,
         u32 width, u32 height,
         ColorFormat format, void *data=nullptr,
 		std::optional<Path> _path=std::nullopt);
 
 	VulkanResourceImage(
-		Game *_game,
+		Instance *_instance,
 		VkImage _image, VkImageView _view,
 		VkExtent3D _extent, VkFormat _format,
 		bool _internaly_managed=false);

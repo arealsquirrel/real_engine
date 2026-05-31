@@ -4,8 +4,8 @@
 
 namespace real {
 
-Renderer::Renderer(Game *_game, Shared<Window> _window) 
-    : Object(_game), window(_window){}
+Renderer::Renderer(Instance *_instance, Shared<Window> _window) 
+    : Object(_instance), window(_window){}
 
 Renderer::~Renderer() = default;
 

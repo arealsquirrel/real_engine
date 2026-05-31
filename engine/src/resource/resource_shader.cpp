@@ -32,10 +32,10 @@ const char *ShaderDataType_to_string(const ShaderDataType type) {
 }
 
 ResourceShader::ResourceShader(
-        Game *_game, std::vector<char> data,
+        Instance *_instance, std::vector<char> data,
 		std::vector<ShaderField> fields, u32 _type,
 		std::optional<Path> _path) 
-	: Resource(_game, _path), type(_type) {}
+	: Resource(_instance, _path), type(_type) {}
 
 ResourceShader::~ResourceShader() = default;
 

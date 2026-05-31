@@ -2,6 +2,7 @@
 #define REALLIB_GRAPHICS_HPP
 
 #include "real/core/game.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
@@ -37,21 +38,21 @@ public:
 
 public:
 	/* -------- BUILDER METHODS -------- */
-	static Unique<Window> create_window(Game *game, const WindowInfo &info);
+	static Unique<Window> create_window(Instance *instance, const WindowInfo &info);
 
-	static Unique<Renderer> create_renderer(Game *game, Shared<Window> window);
+	static Unique<Renderer> create_renderer(Instance *instance, Shared<Window> window);
 
 	static Unique<RenderPassCompute> create_render_pass_compute(
-		Game *game, ResourceHandle<ResourceShader> shader,
+		Instance *instance, ResourceHandle<ResourceShader> shader,
 		std::vector<RenderPassResource> resources);
 
 	static Unique<RenderPassGeometry> create_render_pass_geometry(
-		Game *game, RenderPassGeometryInfo info,
+		Instance *instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
 		std::vector<RenderPassResource> resources);
 
 	static Unique<ResourceMesh> create_resource_mesh(
-		Game *game, std::vector<uint32_t> indices, char *data, size_t size);
+		Instance *instance, std::vector<uint32_t> indices, char *data, size_t size);
 };
 
 }

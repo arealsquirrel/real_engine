@@ -15,7 +15,7 @@ RL_OBJECT(VulkanRenderPassCompute, RenderPassCompute)
 
 public:
 	VulkanRenderPassCompute(
-		Game *_game,
+		Instance *_instance,
         ResourceHandle<ResourceShader> _shader,
 		std::vector<RenderPassResource> _resources);
 

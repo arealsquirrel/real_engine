@@ -7,11 +7,12 @@
 #include "panel.hpp"
 #include <fmt/format.h>
 #include "real/core/game.hpp"
+#include "real/core/instance.hpp"
 
 namespace editor {
 
-Editor::Editor(Shared<real::Game> _game) 
-	: game(_game) {}
+Editor::Editor(Shared<real::Instance> _instance) 
+	: instance(_instance) {}
 
 Editor::~Editor() {
 }

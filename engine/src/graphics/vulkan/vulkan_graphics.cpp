@@ -2,6 +2,7 @@
 #include <cassert>
 #include <real/graphics/graphics.hpp>
 #include "real/core/game.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/render_pass_compute.hpp"
@@ -43,34 +44,34 @@ void Graphics::destroy_backend() {
     vkDestroyInstance(backend.instance, nullptr);
 }
 
-Unique<Window> Graphics::create_window(Game *game, const WindowInfo &info) {
-	return std::make_unique<Window>(game, info);
+Unique<Window> Graphics::create_window(Instance *instance, const WindowInfo &info) {
+	return std::make_unique<Window>(instance, info);
 }
 
-Unique<Renderer> Graphics::create_renderer(Game *game, Shared<Window> window) {
-	return std::make_unique<VulkanRenderer>(game, window);
+Unique<Renderer> Graphics::create_renderer(Instance *instance, Shared<Window> window) {
+	return std::make_unique<VulkanRenderer>(instance, window);
 }
 
 Unique<RenderPassCompute> Graphics::create_render_pass_compute(
-	Game *game, ResourceHandle<ResourceShader> shader,
+	Instance *instance, ResourceHandle<ResourceShader> shader,
 	std::vector<RenderPassResource> resources) {
 
-	return std::make_unique<VulkanRenderPassCompute>(game, shader, resources);
+	return std::make_unique<VulkanRenderPassCompute>(instance, shader, resources);
 }
 
 Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
-		Game *game, RenderPassGeometryInfo info,
+		Instance *instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
 		std::vector<RenderPassResource> resources) {
 	
-	return std::make_unique<VulkanRenderPassGeometry>(game, info, shaders, resources);
+	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, resources);
 }
 
 Unique<ResourceMesh> Graphics::create_resource_mesh(
-		Game *game, std::vector<uint32_t> indices,
+		Instance *instance, std::vector<uint32_t> indices,
 		char *data, size_t size) {
 
-	return std::make_unique<VulkanResourceMesh>(game, indices, data, size);
+	return std::make_unique<VulkanResourceMesh>(instance, indices, data, size);
 }
 
 }

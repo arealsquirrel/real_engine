@@ -1,6 +1,7 @@
 
 #include "panel_logs.hpp"
 #include "imgui.h"
+#include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include <cstdint>
 
@@ -11,8 +12,8 @@ ImVec4 ImGuiIntRGBToFloatRGB(int r, int g, int b){
 }
 
 PanelLogs::PanelLogs(
-		Shared<real::Game> _game, real::LogSink_Buffer *lb) 
-	: Panel(_game), log_buffer(lb) {}
+		Shared<real::Instance> _instance, real::LogSink_Buffer *lb) 
+	: Panel(_instance), log_buffer(lb) {};
 
 void PanelLogs::draw() {
 	ImGui::Begin("Log");

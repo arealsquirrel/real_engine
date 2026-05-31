@@ -30,13 +30,13 @@ RL_OBJECT(ResourceImage, Resource)
 
 protected:
     ResourceImage(
-			Game *_game,
+			Instance *_instance,
 			u32 width, u32 height, ColorFormat format, void *data=nullptr,
 			std::optional<Path> _path=std::nullopt);
 
 public:
 	static ResourceImage *create(
-			Game *_game,
+			Instance *_instance,
 			u32 width, u32 height, ColorFormat format, void *data=nullptr);
 
 public:

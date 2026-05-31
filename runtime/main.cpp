@@ -1,6 +1,9 @@
 
 #include "real/core/game.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
+#include "real/core/types.hpp"
+#include <memory>
 #include <real/real.hpp>
 
 using namespace real;
@@ -15,36 +18,22 @@ int main() {
 
 	Graphics::init_backend({});
 
-	Game *game = new Game();
+	Shared<Instance> instance = std::make_shared<Instance>();
+	Game *game = new Game(instance);
 
-	WindowInfo info;
-	info.width = 1200;
-	info.height = 800;
-	info.title = "my engine :3";
-	Shared<Window> window = std::move(Graphics::create_window(game, info));
-	Shared<ResourceDatabase> resource_database = std::move(std::make_unique<ResourceDatabase>(game));
-	Shared<Renderer> renderer = std::move(Graphics::create_renderer(game, window));
-
-	game->window = window;
-	game->resource_database = resource_database;
-	game->renderer = renderer;
-
-	game->renderer->init();
 	game->start();
 
-	while(game->should_close() == false) {
+	while(instance->should_close() == false) {
 		game->update(0);
 
-		auto frame = game->renderer->start_frame();
+		auto frame = instance->renderer->start_frame();
 		game->render(frame);
-		game->renderer->end_frame(frame);
+		instance->renderer->end_frame(frame);
 	}
 
 	game->destroy();
 	delete game;
-	window.reset();
-	resource_database.reset();
-	renderer.reset();
+	instance.reset();
 
 	Graphics::destroy_backend();
 }

@@ -1,10 +1,11 @@
 
 #include "panel.hpp"
+#include "real/core/instance.hpp"
 
 namespace editor {
 
-Panel::Panel(Shared<real::Game> _game) 
-	: game(_game), panelID() {}
+Panel::Panel(Shared<real::Instance> _instance) 
+	: instance(_instance), panelID() {}
 
 Panel::~Panel() {
 

@@ -5,8 +5,8 @@
 
 namespace real {
 
-ResourceDatabase::ResourceDatabase(Game *game) 
-	: Object(game) {}
+ResourceDatabase::ResourceDatabase(Instance *instance) 
+	: Object(instance) {}
 
 ResourceDatabase::~ResourceDatabase() {
 	for (auto &resource : resource_array) {

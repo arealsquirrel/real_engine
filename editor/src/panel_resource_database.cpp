@@ -9,7 +9,7 @@ namespace editor {
 void PanelResourceDatabase::draw() {
 	using namespace real;
 
-	ResourceDatabase *db = game->resource_database.get();
+	ResourceDatabase *db = instance->resource_database.get();
 
 	ImGui::Begin("Resource Database");
 

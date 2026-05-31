@@ -75,7 +75,7 @@ EXPOSE_TO_EDITOR
 
 protected:
     ResourceShader(
-        Game *_game, std::vector<char> data, 
+        Instance *_instance, std::vector<char> data, 
 		std::vector<ShaderField> fields, u32 _type,
 		std::optional<Path> _path);
 

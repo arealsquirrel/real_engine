@@ -30,7 +30,7 @@ class VulkanRenderer : public Renderer {
 RL_OBJECT(VulkanRenderer, Renderer)
 
 public:
-	VulkanRenderer(Game *_game, Shared<Window> _window);
+	VulkanRenderer(Instance *_instance, Shared<Window> _window);
 	~VulkanRenderer();
 
 	FrameContext start_frame() override;

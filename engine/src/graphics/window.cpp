@@ -11,8 +11,8 @@ namespace real {
 
 u32 Window::s_window_count = 0;
 
-Window::Window(Game *_game, const WindowInfo &info)
-	: Object(_game) {
+Window::Window(Instance *_instance, const WindowInfo &info)
+	: Object(_instance) {
     if(s_window_count++ == 0) {
         RL_LOG_INFO("initilizing GLFW {}:{}", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR);
         glfwSetErrorCallback(real_glfw_error_callback);

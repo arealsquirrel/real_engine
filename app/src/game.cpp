@@ -5,7 +5,6 @@
 #include "glm/ext/vector_float4.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_mesh.hpp"
-#include <memory>
 #include <real/real.hpp>
 #include <imgui.h>
 #include <real/real.hpp>
@@ -33,25 +32,25 @@ void Game::start() {
 	
 	auto shader = resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-				this, "../engine/resources/shaders/gradient.slang.spv"), "gradient.slang");
+				instance.get(), "../engine/resources/shaders/gradient.slang.spv"), "gradient.slang");
 
 	auto flat_shader = resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-				this, "../engine/resources/shaders/flat.slang.spv"), "flat.slang");
+				instance.get(), "../engine/resources/shaders/flat.slang.spv"), "flat.slang");
 
 	mesh_resource = resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceMesh>(
-				this, "../engine/resources/meshes/monkey.obj"), "monkey");
+				instance.get(), "../engine/resources/meshes/monkey.obj"), "monkey");
 
 	auto renderColorImage = resource_database->get_resource<ResourceImage>("_render_color_texture");
 	auto renderDepthImage = resource_database->get_resource<ResourceImage>("_render_depth_texture");
 
 	compute_pass = Graphics::create_render_pass_compute(
-			this, shader, {{renderColorImage, ImageFormat::STORAGE}}).release();
+			instance.get(), shader, {{renderColorImage, ImageFormat::STORAGE}}).release();
 
 
 	geometry_pass = Graphics::create_render_pass_geometry(
-			this, {
+			instance.get(), {
 				.renderImage = renderColorImage,
 				.depthImage = renderDepthImage
 			}, { flat_shader }, {}).release();
@@ -66,12 +65,9 @@ void Game::render(real::FrameContext frame) {
 	compute_pass->end_pass(frame);
 
 
-
-	geometry_pass->begin_pass(frame);
-	
+	geometry_pass->begin_pass(frame);	
 	geometry_pass->set_variable("render_matrix", get_projection());
 	geometry_pass->draw_mesh(frame, mesh_resource);
-
 	geometry_pass->end_pass(frame);
 }
 

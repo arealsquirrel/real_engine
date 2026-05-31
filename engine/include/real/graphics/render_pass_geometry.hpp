@@ -20,9 +20,9 @@ RL_OBJECT(RenderPassGeometry, RenderPass)
 
 protected:
 	RenderPassGeometry(
-		Game *_game, ShaderLayout layout,
+		Instance *_instance, ShaderLayout layout,
 		std::vector<RenderPassResource> _resources)
-		: RenderPass(_game, layout, _resources) {};
+		: RenderPass(_instance, layout, _resources) {};
 
 public:
 	virtual ~RenderPassGeometry() = default;

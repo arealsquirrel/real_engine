@@ -3,13 +3,14 @@
 
 #include "panel.hpp"
 #include "real/core/game.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 namespace editor {
 
 class PanelLogs : public Panel {
 public:
-	PanelLogs(Shared<real::Game> _game, real::LogSink_Buffer *lb);
+	PanelLogs(Shared<real::Instance> _instance, real::LogSink_Buffer *lb);
 	~PanelLogs() = default;
 
 	void draw();

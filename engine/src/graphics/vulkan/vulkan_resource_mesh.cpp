@@ -1,6 +1,7 @@
 
 #include "vulkan_resource_mesh.hpp"
 #include "real/core/game.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include "vulkan_resource_mesh.hpp"
@@ -9,11 +10,11 @@
 namespace real {
 
 VulkanResourceMesh::VulkanResourceMesh(
-		Game *_game,
+		Instance *_instance,
 		std::vector<uint32_t> indices,
 		char *vertex_data, size_t size) 
-	: ResourceMesh(_game, indices, vertex_data, size),
-	renderer((VulkanRenderer*)game->renderer.get()) {
+	: ResourceMesh(_instance, indices, vertex_data, size),
+	renderer((VulkanRenderer*)instance->renderer.get()) {
 
 	const size_t vertexBufferSize = size;
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);

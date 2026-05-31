@@ -19,7 +19,7 @@ RL_OBJECT(VulkanRenderPassGeometry, RenderPassGeometry)
 
 public:
 	VulkanRenderPassGeometry(
-		Game *_game, RenderPassGeometryInfo info,
+		Instance *_instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> _shaders,
 		std::vector<RenderPassResource> _resources);
 

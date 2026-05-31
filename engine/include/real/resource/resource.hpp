@@ -24,12 +24,12 @@ class REALLIB_EXPORT Resource : public Object {
 RL_OBJECT(Resource, Object)
 
 public:
-    Resource(Game *_game, std::optional<Path> _path=std::nullopt);
+    Resource(Instance *_instance, std::optional<Path> _path=std::nullopt);
     virtual ~Resource();
 
 	template<ResourceSerializerType ST, typename ResourceType>
 	static ResourceType *load(
-		Game *game,
+		Instance *instance,
 		Optional<Path> path=std::nullopt);
 
 	template<ResourceSerializerType ST, typename ResourceType>
