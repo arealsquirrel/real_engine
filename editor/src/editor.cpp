@@ -5,11 +5,13 @@
 #include <real/config/config.hpp>
 #include <string>
 #include "panel.hpp"
+#include <fmt/format.h>
+#include "real/core/game.hpp"
 
 namespace editor {
 
-Editor::Editor(Shared<real::Instance> _instance) 
-	: instance(_instance) {}
+Editor::Editor(Shared<real::Game> _game) 
+	: game(_game) {}
 
 Editor::~Editor() {
 }

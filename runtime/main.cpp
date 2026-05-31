@@ -16,7 +16,6 @@ int main() {
 	Graphics::init_backend({});
 
 	Game *game = new Game();
-	RL_LOG_TRACE("raw");
 	game->renderer->init();
 	game->start();
 
@@ -29,7 +28,6 @@ int main() {
 	}
 
 	game->destroy();
-	delete game;
 
 	Graphics::destroy_backend();
 }

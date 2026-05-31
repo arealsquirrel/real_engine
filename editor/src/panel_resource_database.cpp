@@ -9,7 +9,7 @@ namespace editor {
 void PanelResourceDatabase::draw() {
 	using namespace real;
 
-	ResourceDatabase *db = instance->resource_database.get();
+	ResourceDatabase *db = game->resource_database.get();
 
 	ImGui::Begin("Resource Database");
 
@@ -34,7 +34,7 @@ void PanelResourceDatabase::draw() {
 				ImGui::TableSetColumnIndex(0);
 				ImGui::Text("%s", db->uuid_to_entry.at(handle.get_uuid()).name.c_str());
 				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%s", handle.get()->get_class_name());
+				ImGui::Text("%s", handle.get()->object_name());
 				ImGui::TableSetColumnIndex(2);
 				if(handle.get()->path.has_value())
 					ImGui::Text("%s", handle.get()->path->c_str());

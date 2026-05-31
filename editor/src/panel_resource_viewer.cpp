@@ -1,6 +1,7 @@
 
 #include "panel_resource_viewer.hpp"
 #include "imgui.h"
+#include "real/core/game.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_database.hpp"
 #include "real/resource/resource_shader.hpp"
@@ -22,9 +23,9 @@ void PanelResourceViewer::display(real::ResourceShader *resource) {
 }
 
 PanelResourceViewer::PanelResourceViewer(
-		Shared<real::Instance> _instance, 
+		Shared<real::Game> _game, 
 		std::optional<real::ResourceHandle<real::Resource>> _current_handle)
-	: Panel(_instance), current_handle(_current_handle) {}
+	: Panel(_game), current_handle(_current_handle) {}
 
 PanelResourceViewer::~PanelResourceViewer() {
 
@@ -53,14 +54,14 @@ void PanelResourceViewer::draw() {
 		ImGui::EndMenuBar();
 	}
 	
-	ResourceDatabase::Entry entry = instance->resource_database->get_entry(current_handle->get_uuid());
+	ResourceDatabase::Entry entry = game->resource_database->get_entry(current_handle->get_uuid());
 	ImGui::Text("name: %s", entry.name.c_str());
 	ImGui::Separator();
 	ImGui::Text("uuid: %llu", entry.id.uuid);
-	ImGui::Text("type: %s", current_handle->get()->get_class_name());
+	ImGui::Text("type: %s", current_handle->get()->object_name());
 	ImGui::Separator();
 
-	std::string cn = current_handle->get()->get_class_name();
+	std::string cn = current_handle->get()->object_name();
 	if(cn == "ResourceShader") {
 		display<ResourceShader>((ResourceShader*)current_handle->get());
 	} else {
