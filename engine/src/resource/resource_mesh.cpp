@@ -1,4 +1,5 @@
 
+#include "real/core/game.hpp"
 #include "real/core/types.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
@@ -8,7 +9,6 @@
 #include <tiny_obj_loader.hpp>
 
 #include <real/resource/resource_mesh.hpp>
-#include <real/core/instance.hpp>
 #include <glm/glm.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -43,10 +43,10 @@ namespace std {
 namespace real {
 
 ResourceMesh::ResourceMesh(
-		Instance *_instance,
+		Game *_game,
 		std::vector<uint32_t> indexes,
 		char *vertex_data, size_t vertex_data_size)
-	: Resource(_instance) {}
+	: Resource(_game) {}
 
 ResourceMesh::~ResourceMesh() {
 
@@ -54,7 +54,7 @@ ResourceMesh::~ResourceMesh() {
 
 template<>
 ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
-		Instance *instance, Optional<Path> path) {
+		Game *game, Optional<Path> path) {
 
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
@@ -80,6 +80,8 @@ ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
 			indices.push_back(uniqueVertices[vertex]);
 		}
 	}
+
+	// return new Vulkan
 }
 
 }

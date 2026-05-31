@@ -1,7 +1,7 @@
 #ifndef REALLIB_RENDER_PASS_HPP
 #define REALLIB_RENDER_PASS_HPP
 
-#include "real/core/instance.hpp"
+#include "real/core/object.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
@@ -26,11 +26,13 @@ struct REALLIB_EXPORT RenderPassResource {
  * @brief defines the abstract thingy mabob for actualy rendering shit to the screen
  * 
  */
-class REALLIB_EXPORT RenderPass {
+class REALLIB_EXPORT RenderPass : public Object {
+RL_OBJECT(RenderPass, Object)
+
 public:
-    RenderPass(Instance *_instance, ShaderLayout layout,
+    RenderPass(Game *_game, ShaderLayout layout,
 		std::vector<RenderPassResource> _resources)
-		: instance(_instance), 
+		: Object(_game), 
 		resources(_resources),
 		shader_layout(layout) {};
 
@@ -55,7 +57,6 @@ public:
 	const std::vector<RenderPassResource> resources;
 
 protected:
-    Instance *instance;
 	ShaderLayout shader_layout;
 };
 

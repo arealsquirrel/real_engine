@@ -1,8 +1,9 @@
 
+#include "real/core/game.hpp"
 #include "real/core/logging.hpp"
+#include "real/core/object.hpp"
 #include <GLFW/glfw3.h>
 #include <real/graphics/window.hpp>
-#include <real/core/instance.hpp>
 #include <assert.h>
 #include <utility>
 
@@ -10,8 +11,8 @@ namespace real {
 
 u32 Window::s_window_count = 0;
 
-Window::Window(Instance *_instance, const WindowInfo &info)
-	: instance(_instance) {
+Window::Window(Game *_game, const WindowInfo &info)
+	: Object(_game) {
     if(s_window_count++ == 0) {
         RL_LOG_INFO("initilizing GLFW {}:{}", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR);
         glfwSetErrorCallback(real_glfw_error_callback);

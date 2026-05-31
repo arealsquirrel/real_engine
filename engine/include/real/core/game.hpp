@@ -1,24 +1,31 @@
 #ifndef REALLIB_GAME_HPP
 #define REALLIB_GAME_HPP
 
-#include "real/core/instance.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/renderer.hpp"
+#include "real/resource/resource_database.hpp"
 #include <real/core/core.hpp>
 
 namespace real {
 
 class REALLIB_EXPORT Game {
 public:
-	Game(Shared<Instance> _instance);
+	Game();
 	~Game();
 
 public:
-	virtual void start() = 0;
-	virtual void update(u32 delta_time) = 0;
-	virtual void render(real::FrameContext frame) = 0;
+	void start();
+	void update(u32 delta_time);
+	void render(real::FrameContext frame);
+	void destroy();
 
-protected:
-	Shared<Instance> instance;
+public:
+	bool should_close();
+
+public:
+	Unique<ResourceDatabase> resource_database;
+	Shared<Window> window;
+    Shared<Renderer> renderer;
 };
 
 }

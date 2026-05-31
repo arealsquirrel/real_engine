@@ -2,6 +2,7 @@
 #define REALLIB_RESOURCE_MESH_HPP
 
 #include "real/core/core.hpp"
+#include "real/core/object.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
@@ -11,10 +12,10 @@ namespace real {
 typedef char* ResourceMeshBuffer;
 
 class REALLIB_EXPORT ResourceMesh : public Resource {
-RL_CLASS(ResourceMesh)
+RL_OBJECT(ResourceMesh, Resource)
 
 public:
-	ResourceMesh(Instance *_instance, std::vector<uint32_t> indexes, char *vertex_data, size_t vertex_data_size);
+	ResourceMesh(Game *_game, std::vector<uint32_t> indexes, char *vertex_data, size_t vertex_data_size);
 	virtual ~ResourceMesh();
 
 	virtual void bind(FrameContext context) = 0;

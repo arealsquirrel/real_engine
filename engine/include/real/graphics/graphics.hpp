@@ -1,10 +1,11 @@
 #ifndef REALLIB_GRAPHICS_HPP
 #define REALLIB_GRAPHICS_HPP
 
-#include "real/core/instance.hpp"
+#include "real/core/game.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
+#include "real/resource/resource_mesh.hpp"
 #include <real/resource/resource_handle.hpp>
 
 namespace real {
@@ -36,18 +37,21 @@ public:
 
 public:
 	/* -------- BUILDER METHODS -------- */
-	static Shared<Window> create_window(Instance *instance, const WindowInfo &info);
+	static Unique<Window> create_window(Game *game, const WindowInfo &info);
 
-	static Shared<Renderer> create_renderer(Instance *instance, Shared<Window> window);
+	static Unique<Renderer> create_renderer(Game *game, Shared<Window> window);
 
-	static Shared<RenderPassCompute> create_render_pass_compute(
-		Instance *_instance, ResourceHandle<ResourceShader> shader,
-		std::vector<RenderPassResource> _resources);
+	static Unique<RenderPassCompute> create_render_pass_compute(
+		Game *game, ResourceHandle<ResourceShader> shader,
+		std::vector<RenderPassResource> resources);
 
-	static Shared<RenderPassGeometry> create_render_pass_geometry(
-		Instance *_instance, RenderPassGeometryInfo info,
+	static Unique<RenderPassGeometry> create_render_pass_geometry(
+		Game *game, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
-		std::vector<RenderPassResource> _resources);
+		std::vector<RenderPassResource> resources);
+
+	static Unique<ResourceMesh> create_resource_mesh(
+		Game *game, std::vector<uint32_t> indices, char *data, size_t size);
 };
 
 }

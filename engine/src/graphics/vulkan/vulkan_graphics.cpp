@@ -1,8 +1,8 @@
 
 #include <cassert>
 #include <real/graphics/graphics.hpp>
+#include "real/core/game.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
-#include <real/core/instance.hpp>
 #include "real/graphics/render_pass_compute.hpp"
 #include "real/graphics/window.hpp"
 #include "vulkan_backend.hpp"
@@ -40,28 +40,27 @@ void Graphics::destroy_backend() {
     vkDestroyInstance(backend.instance, nullptr);
 }
 
-Shared<Window> Graphics::create_window(Instance *instance, const WindowInfo &info) {
-	return std::make_shared<Window>(instance, info);
+Unique<Window> Graphics::create_window(Game *game, const WindowInfo &info) {
+	return std::make_unique<Window>(game, info);
 }
 
-Shared<Renderer> Graphics::create_renderer(Instance *instance, Shared<Window> window) {
-	return std::make_shared<VulkanRenderer>(instance, window);
+Unique<Renderer> Graphics::create_renderer(Game *game, Shared<Window> window) {
+	return std::make_unique<VulkanRenderer>(game, window);
 }
 
-Shared<RenderPassCompute> Graphics::create_render_pass_compute(
-	Instance *_instance, ResourceHandle<ResourceShader> shader,
-	std::vector<RenderPassResource> _resources) {
+Unique<RenderPassCompute> Graphics::create_render_pass_compute(
+	Game *game, ResourceHandle<ResourceShader> shader,
+	std::vector<RenderPassResource> resources) {
 
-	return std::make_shared<VulkanRenderPassCompute>(_instance, shader, _resources);
+	return std::make_unique<VulkanRenderPassCompute>(game, shader, resources);
 }
 
-Shared<RenderPassGeometry> Graphics::create_render_pass_geometry(
-		Instance *_instance, RenderPassGeometryInfo info,
+Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
+		Game *game, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
-		std::vector<RenderPassResource> _resources) {
+		std::vector<RenderPassResource> resources) {
 	
-	return std::make_shared<VulkanRenderPassGeometry>(
-			_instance, info, shaders, _resources);
+	return std::make_unique<VulkanRenderPassGeometry>(game, info, shaders, resources);
 }
 
 }

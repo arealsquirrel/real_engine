@@ -1,13 +1,18 @@
 
-#include "vulkan_buffer.hpp"
+#include "vulkan_resource_mesh.hpp"
+#include "real/core/game.hpp"
+#include "real/resource/resource_mesh.hpp"
+#include "vulkan_resource_mesh.hpp"
+#include "vulkan_renderer.hpp"
 
 namespace real {
 
-VulkanMeshBuffer::VulkanMeshBuffer(
-		VulkanRenderer *_renderer,
+VulkanResourceMesh::VulkanResourceMesh(
+		Game *_game,
 		std::vector<uint32_t> indices,
 		char *vertex_data, size_t size) 
-	: renderer(_renderer) {
+	: ResourceMesh(_game, indices, vertex_data, size),
+	renderer((VulkanRenderer*)game->renderer.get()) {
 
 	const size_t vertexBufferSize = size;
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
@@ -60,9 +65,21 @@ VulkanMeshBuffer::VulkanMeshBuffer(
 	vkutil::destroy_buffer(renderer, staging);
 }
 
-VulkanMeshBuffer::~VulkanMeshBuffer() {
+VulkanResourceMesh::~VulkanResourceMesh() {
 	vkutil::destroy_buffer(renderer, vertexBuffer);
 	vkutil::destroy_buffer(renderer, indexBuffer);
+}
+
+void VulkanResourceMesh::bind(FrameContext context) {
+
+}
+
+void VulkanResourceMesh::draw(FrameContext context) {
+
+}
+
+void VulkanResourceMesh::unbind(FrameContext context) {
+
 }
 
 }

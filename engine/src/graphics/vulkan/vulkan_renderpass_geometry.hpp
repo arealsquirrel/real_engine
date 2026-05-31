@@ -1,12 +1,12 @@
 #ifndef REALLIB_VULKAN_RENDER_PASS_GEOMETRY_HPP
 #define REALLIB_VULKAN_RENDER_PASS_GEOMETRY_HPP
 
+#include "real/core/object.hpp"
 #include "real/graphics/render_pass.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_shader.hpp"
-#include "vulkan_buffer.hpp"
 #include "vulkan_resource_image.hpp"
 #include <cstddef>
 #include <vector>
@@ -15,9 +15,11 @@
 namespace real {
 
 class VulkanRenderPassGeometry : public RenderPassGeometry {
+RL_OBJECT(VulkanRenderPassGeometry, RenderPassGeometry)
+
 public:
 	VulkanRenderPassGeometry(
-		Instance *_instance, RenderPassGeometryInfo info,
+		Game *_game, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> _shaders,
 		std::vector<RenderPassResource> _resources);
 

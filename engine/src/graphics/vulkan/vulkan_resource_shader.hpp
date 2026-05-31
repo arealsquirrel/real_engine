@@ -1,6 +1,8 @@
 #ifndef REALLIB_VUKLAN_RESOURCE_SHADER_HPP
 #define REALLIB_VUKLAN_RESOURCE_SHADER_HPP
 
+#include "real/core/game.hpp"
+#include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_shader.hpp"
@@ -11,9 +13,11 @@ namespace real {
 class VulkanRenderer;
 
 class VulkanResourceShader : public ResourceShader {
+RL_OBJECT(VulkanResourceShader, ResourceShader)
+
 public:
 	VulkanResourceShader(
-			Instance *_instance, std::vector<char> data,
+			Game *_game, std::vector<char> data,
 			std::vector<ShaderField> fields, u32 _type,
 			std::optional<Path> _path=std::nullopt);
 

@@ -7,6 +7,7 @@
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
 
+/*
 class AppGame : public real::Game {
 public:
 	using real::Game::Game;
@@ -21,5 +22,6 @@ private:
 	Shared<real::RenderPassCompute> compute_pass;
 	Shared<real::RenderPassGeometry> geometry_pass;
 };
+*/
 
 #endif

@@ -8,9 +8,6 @@ namespace real {
  */
 void print_version();
 
-#define RL_CLASS(name) public: \
-	virtual const char *get_class_name() { return #name; }
-
 }
 
 #define BIT(n) 1<<n
@@ -20,7 +17,7 @@ void print_version();
 #define STRINGIFY(x) #x
 #define STRINGIFY_EXP(x) STRINGIFY(x)
 
-#define REAL_ENTRY extern Unique<Game> game_entrypoint(Shared<Instance> instance);
+#define REAL_ENTRY extern Unique<::real::Game> game_entrypoint();
 
 #ifdef REALLIB_EDITOR
 

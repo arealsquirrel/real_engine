@@ -1,5 +1,6 @@
 
 #include "vulkan_resource_shader.hpp"
+#include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
@@ -32,11 +33,11 @@ static ShaderDataType reflect_to_datatype(SpvReflectTypeDescription* type) {
 }
 
 VulkanResourceShader::VulkanResourceShader(
-		Instance *_instance, std::vector<char> data, 
+		Game *_game, std::vector<char> data, 
 		std::vector<ShaderField> fields, u32 _type,
 		std::optional<Path> _path) 
-	: ResourceShader(_instance, data, fields, _type, _path), 
-		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
+	: ResourceShader(_game, data, fields, _type, _path), 
+		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_game->renderer)) {
 	
 	SpvReflectShaderModule spvmodule;
 	SpvReflectResult result = spvReflectCreateShaderModule(data.size(), (uint32_t*)data.data(), &spvmodule);
@@ -108,7 +109,7 @@ VulkanResourceShader::~VulkanResourceShader() {
 
 template<>
 ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-        Instance *instance,
+        Game *game,
         Optional<Path> path) {
 
     if(path.has_value() == false) {
@@ -131,8 +132,7 @@ ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
 
 	ShaderType type;
 
-    return (ResourceShader*)(new VulkanResourceShader(
-				instance, buffer, {}, ShaderType_INFER, path));
+    return (ResourceShader*)(new VulkanResourceShader(game, buffer, {}, ShaderType_INFER, path));
 }
 
 }

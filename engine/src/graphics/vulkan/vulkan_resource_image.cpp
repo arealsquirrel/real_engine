@@ -1,29 +1,30 @@
 
+#include "real/core/game.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/types.hpp"
-#include "real/resource/resource.hpp"
 #include "vulkan_backend.hpp"
 #include <real/resource/resource_image.hpp>
-#include <utility>
 #include "vulkan_resource_image.hpp"
 #include "vulkan_util.hpp"
 #include "vulkan_renderer.hpp"
 
 namespace real {
 
-VulkanResourceImage::VulkanResourceImage(Instance *_instance,
+VulkanResourceImage::VulkanResourceImage(
+		Game *_game,
 		VkImage _image, VkImageView _view,
 		VkExtent3D _extent, VkFormat _format,
 		bool _internaly_managed)
-	: ResourceImage(instance, _extent.width, _extent.height,
+	: ResourceImage(_game, _extent.width, _extent.height,
 			ColorFormat::UNKNOWN, nullptr), internaly_managed(_internaly_managed),
 		image(_image), imageView(_view), imageExtent(_extent), imageFormat(_format) {}
 
 VulkanResourceImage::VulkanResourceImage(
-    Instance *_instance,
+    Game *_game,
     u32 width, u32 height, ColorFormat format, void *data, std::optional<Path> _path)  
-    : ResourceImage(_instance, width, height, format, data, _path), internaly_managed(false) {
+    : ResourceImage(_game, width, height, format, data, _path), internaly_managed(false) {
 
-	renderer = (VulkanRenderer*)(instance->renderer.get());
+	renderer = (VulkanRenderer*)(game->renderer.get());
 
 	VkExtent3D drawImageExtent = {
 		width,
@@ -76,10 +77,11 @@ ImageHandle VulkanResourceImage::get_handle() {
 }
 
 ResourceImage *ResourceImage::create(
-		Instance *_instance,
-		u32 width, u32 height, ColorFormat format, void *data) {
+		Game *_game,
+		u32 width, u32 height, 
+		ColorFormat format, void *data) {
 
-	return new VulkanResourceImage(_instance, width, height, format, data);
+	return new VulkanResourceImage(_game, width, height, format, data);
 }
 
 }

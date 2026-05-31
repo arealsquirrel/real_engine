@@ -2,6 +2,7 @@
 #include "vulkan_renderpass_geometry.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "real/core/core.hpp"
+#include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/render_pass.hpp"
@@ -22,12 +23,12 @@ struct GPUDrawPushConstants {
 };
 
 VulkanRenderPassGeometry::VulkanRenderPassGeometry(
-		Instance *_instance, RenderPassGeometryInfo info,
+		Game *_game, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
 		std::vector<RenderPassResource> resources)
-		: RenderPassGeometry(_instance, {}, resources) {
+		: RenderPassGeometry(_game, {}, resources) {
 
-	VulkanRenderer *renderer = (VulkanRenderer*)_instance->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
 	RL_LOG_TRACE("creating renderpass geometry");
 
 	VkPushConstantRange pushConstant{};
@@ -180,7 +181,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
-	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
 	free(push_constant_buffer);
     vkDeviceWaitIdle(renderer->device);
 	vkDestroyPipelineLayout(renderer->device, layout, nullptr);

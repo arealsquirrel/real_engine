@@ -1,7 +1,7 @@
 #ifndef REALLIB_RESOURCE_DATABASE_HPP
 #define REALLIB_RESOURCE_DATABASE_HPP
 
-#include "real/core/instance.hpp"
+#include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/resource/resource.hpp"
@@ -20,9 +20,11 @@ namespace real {
  * some resources may depend on other resources so we have to generate a resource tree of sorts,
  * this will happen in a while because this first requires having resources and whatnot
  */
-class REALLIB_EXPORT ResourceDatabase {
+class REALLIB_EXPORT ResourceDatabase : public Object {
+RL_OBJECT(ResourceDatabase, Object)
+
 public:
-    ResourceDatabase();
+    ResourceDatabase(Game *game);
     ~ResourceDatabase();
 
 	struct Entry {
@@ -79,7 +81,6 @@ public:
 private:
 	EXPOSE_TO_EDITOR;	
 
-	Shared<Instance> instance;
 	std::vector<ResourceHandle<Resource>> resource_array;
 	std::unordered_map<UUID, Entry> uuid_to_entry;
 	std::unordered_map<std::string, UUID> name_to_resource_UUID;

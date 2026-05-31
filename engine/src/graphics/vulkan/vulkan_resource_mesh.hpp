@@ -1,6 +1,9 @@
 #ifndef REALLIB_VULKAN_BUFFER_HPP
 #define REALLIB_VULKAN_BUFFER_HPP
 
+#include "real/core/game.hpp"
+#include "real/core/object.hpp"
+#include "real/resource/resource_mesh.hpp"
 #include "vulkan_renderer.hpp"
 #include <cstdint>
 #include <vector>
@@ -42,11 +45,17 @@ static inline void destroy_buffer(VulkanRenderer *renderer, const AllocatedBuffe
 
 }
 
-class VulkanMeshBuffer {
+class VulkanResourceMesh : public ResourceMesh {
+RL_OBJECT(VulkanResourceMesh, ResourceMesh)
+
 public:
-	VulkanMeshBuffer(VulkanRenderer *_renderer,
+	VulkanResourceMesh(Game *_game,
 			std::vector<uint32_t> indices, char *data, size_t size);
-	~VulkanMeshBuffer();
+	~VulkanResourceMesh();
+
+	void bind(FrameContext context) final override;
+	void draw(FrameContext context) final override;
+	void unbind(FrameContext context) final override;
 
 public:
 	vkutil::AllocatedBuffer vertexBuffer;

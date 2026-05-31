@@ -1,6 +1,7 @@
 #ifndef REALLIB_RENDERER_HPP
 #define REALLIB_RENDERER_HPP
 
+#include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/window.hpp"
 #include <real/core/core.hpp>
@@ -10,7 +11,7 @@ namespace real {
 // typedef void* RendererData;
 typedef void* FrameContext;
 
-class Instance;
+// class Instance;
 
 /**
  * @brief this class holds the render passes as well as the command buffers and data
@@ -18,9 +19,11 @@ class Instance;
  *
  * its attached to a window
  */
-class REALLIB_EXPORT Renderer {
+class REALLIB_EXPORT Renderer : public Object {
+RL_OBJECT(Renderer, Object)
+
 public:
-    Renderer(Instance *_instance, Shared<Window> _window);
+    Renderer(Game *_game, Shared<Window> _window);
     virtual ~Renderer();
 
 	// some of the constructors need instance things to be initilized
@@ -30,7 +33,6 @@ public:
     virtual void end_frame(FrameContext context) = 0;
 
 protected:
-    Instance *instance;
     Shared<Window> window;
 };
 

@@ -8,6 +8,7 @@ Pipelines
 resource refactors
 	- possibly some sort of slab allocator for resources and common objects
 	- resource reloading function
+	- make a create function from Graphics class and then the load functions out of the platform dependednt area
 
 infrastructure for making imgui debug menus
 	- CVARS system-ish

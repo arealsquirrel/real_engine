@@ -1,10 +1,12 @@
 
+#include "real/core/object.hpp"
 #include "real/resource/resource_handle.hpp"
 #include <real/resource/resource_database.hpp>
 
 namespace real {
 
-ResourceDatabase::ResourceDatabase() {}
+ResourceDatabase::ResourceDatabase(Game *game) 
+	: Object(game) {}
 
 ResourceDatabase::~ResourceDatabase() {
 	for (auto &resource : resource_array) {

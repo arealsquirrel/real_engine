@@ -1,0 +1,40 @@
+#ifndef REALLIB_OBJECT_HPP
+#define REALLIB_OBJECT_HPP
+
+#include "real/core/core.hpp"
+#include "real/core/uuid.hpp"
+
+namespace real {
+
+class Game;
+
+struct TypeInfo {
+    const char *name;
+    const UUID id;
+    const TypeInfo *parent;
+};
+
+class REALLIB_EXPORT Object {
+public:
+    explicit Object(Game *_game);
+    virtual ~Object();
+
+public:
+    static const TypeInfo *object_typeinfo_static() { static TypeInfo i{"Object", UUID(), nullptr}; return &i; }
+    static const TypeInfo *object_parent_typeinfo_static() { return nullptr; }
+    virtual const char *object_name() const { return Object::object_typeinfo_static()->name; };
+	virtual const TypeInfo *object_typeinfo() const { return Object::object_parent_typeinfo_static(); }
+
+protected:
+    Game *game {nullptr};
+};
+
+#define RL_OBJECT(CLASS_NAME, CLASS_PARENT) public: \
+    static const TypeInfo *object_typeinfo_static() { static TypeInfo i{#CLASS_NAME, UUID(), CLASS_PARENT::object_parent_typeinfo_static()}; return &i; } \
+    static const TypeInfo *object_parent_typeinfo_static() { return CLASS_NAME::object_typeinfo_static()->parent; } \
+    virtual const char *object_name() const override { return CLASS_NAME::object_typeinfo()->name; }; \
+	virtual const TypeInfo *object_typeinfo() const override { return CLASS_NAME::object_typeinfo_static(); }
+
+}
+
+#endif

@@ -2,7 +2,7 @@
 #define REALLIB_RESOURCE_IMAGE_HPP
 
 #include "real/core/core.hpp"
-#include "real/core/instance.hpp"
+#include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
@@ -25,17 +25,17 @@ enum class ImageFormat {
 };
 
 class REALLIB_EXPORT ResourceImage : public Resource {
-RL_CLASS(ResourceImage)
+RL_OBJECT(ResourceImage, Resource)
 
 protected:
     ResourceImage(
-			Instance *_instance,
+			Game *_game,
 			u32 width, u32 height, ColorFormat format, void *data=nullptr,
 			std::optional<Path> _path=std::nullopt);
 
 public:
 	static ResourceImage *create(
-			Instance *_instance,
+			Game *_game,
 			u32 width, u32 height, ColorFormat format, void *data=nullptr);
 
 public:

@@ -4,7 +4,7 @@
 #include <real/graphics/render_pass_compute.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
-#include "real/core/instance.hpp"
+#include "real/core/game.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_shader.hpp"
@@ -20,12 +20,12 @@
 namespace real {
 
 VulkanRenderPassCompute::VulkanRenderPassCompute(
-		Instance *_instance,
+		Game *_game,
         ResourceHandle<ResourceShader> shader,
 		std::vector<RenderPassResource> _resources)
-	: RenderPassCompute(_instance, shader.get()->get_layout(), _resources) {
+	: RenderPassCompute(_game, shader.get()->get_layout(), _resources) {
 
-	VulkanRenderer *renderer = (VulkanRenderer*)_instance->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
 
 	DescriptorLayoutBuilder lb;
 	VulkanResourceShader *vshader = (VulkanResourceShader*)shader.get();
@@ -86,7 +86,7 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 }
 
 VulkanRenderPassCompute::~VulkanRenderPassCompute() {
-	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
 	free(push_constant_buffer);
 
     vkDeviceWaitIdle(renderer->device);

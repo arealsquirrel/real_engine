@@ -35,7 +35,7 @@ TEST(Resources, ResourceHandleMemoryLeaks) {
 }
 
 TEST(Resources, ResourceHandleArray) {
-	ResourceDatabase *db = new ResourceDatabase();
+	ResourceDatabase *db = new ResourceDatabase(nullptr);
 	
 	std::vector<ResourceHandle<Resource>> arr;
 
@@ -57,7 +57,7 @@ TEST(Resources, ResourceHandleArray) {
 }
 
 TEST(Resources, ResourceDatabase) {
-	ResourceDatabase *db = new ResourceDatabase();
+	ResourceDatabase *db = new ResourceDatabase(nullptr);
 
 	for (int i = 0; i < 1000; i++) {
 		db->register_resource(new TestResource(i), std::to_string(i));

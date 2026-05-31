@@ -1,6 +1,7 @@
 #ifndef REALLIB_VUKLAN_RENDERPASS_COMPUTE
 #define REALLIB_VUKLAN_RENDERPASS_COMPUTE
 
+#include "real/core/object.hpp"
 #include "real/resource/resource_shader.hpp"
 #include "vulkan_resource_shader.hpp"
 
@@ -10,9 +11,11 @@
 namespace real {
 
 class VulkanRenderPassCompute : public RenderPassCompute {
+RL_OBJECT(VulkanRenderPassCompute, RenderPassCompute)
+
 public:
 	VulkanRenderPassCompute(
-		Instance *_instance,
+		Game *_game,
         ResourceHandle<ResourceShader> _shader,
 		std::vector<RenderPassResource> _resources);
 

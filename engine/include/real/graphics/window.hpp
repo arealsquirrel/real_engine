@@ -1,16 +1,18 @@
 #ifndef REALLIB_WINDOW_HPP
 #define REALLIB_WINDOW_HPP
 
+#include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include <utility>
 #include <real/core/core.hpp>
 
-#define GLFW_INCLUDE_NONE
+
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
 namespace real {
 
-class Instance;
+// class Instance;
 
 struct WindowInfo {
     int width, height;
@@ -20,9 +22,11 @@ struct WindowInfo {
 /**
  * @brief makes and manages a window
  */
-class REALLIB_EXPORT Window {
+class REALLIB_EXPORT Window : public Object {
+RL_OBJECT(Window, Object)
+
 public:
-    Window(Instance *_instance, const WindowInfo &info);
+    Window(Game *_game, const WindowInfo &info);
     ~Window();
 
     bool should_exit();
@@ -34,7 +38,6 @@ public:
 	std::pair<u32, u32> get_glfw_window_dimensions();
 
 private:
-    Instance *instance;
     GLFWwindow *window;
     static u32 s_window_count;
 };

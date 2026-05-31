@@ -1,7 +1,8 @@
 #ifndef REALLIB_VULKAN_RESOURCE_IMAGE_HPP
 #define REALLIB_VULKAN_RESOURCE_IMAGE_HPP
 
-#include "real/core/instance.hpp"
+#include "real/core/game.hpp"
+#include "real/core/object.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_image.hpp"
 #include "vulkan_backend.hpp"
@@ -13,17 +14,20 @@ namespace real {
 class VulkanRenderer;
 
 class VulkanResourceImage : public ResourceImage {
+RL_OBJECT(VulkanResourceImage, ResourceImage)
+
 public:
     VulkanResourceImage(
-        Instance *_instance,
+        Game *_game,
         u32 width, u32 height,
         ColorFormat format, void *data=nullptr,
 		std::optional<Path> _path=std::nullopt);
 
-	VulkanResourceImage(Instance *_instance,
-			VkImage _image, VkImageView _view,
-			VkExtent3D _extent, VkFormat _format,
-			bool _internaly_managed=false);
+	VulkanResourceImage(
+		Game *_game,
+		VkImage _image, VkImageView _view,
+		VkExtent3D _extent, VkFormat _format,
+		bool _internaly_managed=false);
 
     ~VulkanResourceImage();
 
@@ -41,7 +45,6 @@ public:
     VkExtent3D imageExtent;
     VkFormat imageFormat;
 	ImageFormat engineFormat;
-
 	VulkanRenderer *renderer;
 };
 

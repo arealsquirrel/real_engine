@@ -1,7 +1,6 @@
 
+#include "real/core/game.hpp"
 #include "real/core/logging.hpp"
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
 #include "real/core/types.hpp"
 #include "vulkan_resource_image.hpp"
@@ -29,15 +28,17 @@
 
 #include <real/real.hpp>
 
-
 #include "real/resource/resource_image.hpp"
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 
 namespace real {
 
 void style_imgui();
 
-VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
-    : Renderer(_instance, _window) {}
+VulkanRenderer::VulkanRenderer(Game *_game, Shared<Window> _window)
+    : Renderer(_game, _window) {}
 
 void VulkanRenderer::init() {
 	RL_LOG_TRACE("Creating vulkan renderer");
@@ -51,10 +52,9 @@ void VulkanRenderer::init() {
 	create_descriptors();
 	create_imgui();
 
-	instance->resource_database->register_resource(
- 		ResourceImage::create(instance, width, height, ColorFormat::RGB_FLOAT), "_render_texture");
-	
-	renderImage = instance->resource_database->get_resource<ResourceImage>("_render_texture");
+	game->resource_database->register_resource(
+ 		ResourceImage::create(game, width, height, ColorFormat::RGB_FLOAT), "_render_texture");
+	renderImage = game->resource_database->get_resource<ResourceImage>("_render_texture");
 }
 
 VulkanRenderer::~VulkanRenderer() {

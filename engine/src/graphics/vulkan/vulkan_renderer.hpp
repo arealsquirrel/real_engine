@@ -1,7 +1,7 @@
 #ifndef REALLIB_VULKAN_RENDERER_HPP
 #define REALLIB_VULKAN_RENDERER_HPP
 
-#include "real/core/instance.hpp"
+#include "real/core/object.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_handle.hpp"
@@ -27,8 +27,10 @@ struct FrameDataVulkan {
 };
 
 class VulkanRenderer : public Renderer {
+RL_OBJECT(VulkanRenderer, Renderer)
+
 public:
-	VulkanRenderer(Instance *_instance, Shared<Window> _window);
+	VulkanRenderer(Game *_game, Shared<Window> _window);
 	~VulkanRenderer();
 
 	FrameContext start_frame() override;

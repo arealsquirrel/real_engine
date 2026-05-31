@@ -2,7 +2,7 @@
 #define REALLIB_RESOURCE_SHADER_HPP
 
 #include "real/core/core.hpp"
-#include "real/core/instance.hpp"
+#include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
@@ -68,12 +68,12 @@ public:
  * @brief the backend is entirly in the render folder of the API in use
  */
 class REALLIB_EXPORT ResourceShader : public Resource {
-RL_CLASS(ResourceShader)
+RL_OBJECT(ResourceShader, Resource)
 EXPOSE_TO_EDITOR
 
 protected:
     ResourceShader(
-        Instance *_instance, std::vector<char> data, 
+        Game *_game, std::vector<char> data, 
 		std::vector<ShaderField> fields, u32 _type,
 		std::optional<Path> _path);
 

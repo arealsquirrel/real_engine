@@ -2,8 +2,7 @@
 #define REALLIB_RESOURCE_HPP
 
 #include "real/core/core.hpp"
-#include "real/core/instance.hpp"
-#include <cstdint>
+#include "real/core/object.hpp"
 #include <optional>
 #include <real/core/types.hpp>
 
@@ -21,16 +20,16 @@ using SaveObject = void*;
 /**
  * @brief stores data in a specified format so the engine can use it
  */
-class REALLIB_EXPORT Resource {
-RL_CLASS(Resource)
+class REALLIB_EXPORT Resource : public Object {
+RL_OBJECT(Resource, Object)
 
 public:
-    Resource(Instance *_instance, std::optional<Path> _path=std::nullopt);
+    Resource(Game *_game, std::optional<Path> _path=std::nullopt);
     virtual ~Resource();
 
 	template<ResourceSerializerType ST, typename ResourceType>
 	static ResourceType *load(
-		Instance *instance,
+		Game *game,
 		Optional<Path> path=std::nullopt);
 
 	template<ResourceSerializerType ST, typename ResourceType>
@@ -41,10 +40,6 @@ public:
 
 public:
 	const std::optional<Path> path;
-
-protected:
-    uint32_t size;
-    Instance *instance;
 };
 
 }
