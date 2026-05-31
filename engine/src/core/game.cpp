@@ -3,6 +3,7 @@
 #include "real/resource/resource_database.hpp"
 #include <GLFW/glfw3.h>
 #include <real/core/game.hpp>
+#include <utility>
 
 namespace real {
 
@@ -13,7 +14,7 @@ Game::Game() {
 	info.title = "my engine :3";
 	window = Graphics::create_window(this, info);
 	resource_database = std::make_unique<ResourceDatabase>(this);
-	renderer = Graphics::create_renderer(this, window);
+	renderer = std::move(Graphics::create_renderer(this, window));
 }
 
 Game::~Game() {

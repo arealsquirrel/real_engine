@@ -16,6 +16,7 @@ enum class ColorFormat {
     RGB_FLOAT,
 	RGBA_FLOAT,
 	MONOCHROME,
+	DEPTH
 };
 
 enum class ImageFormat {

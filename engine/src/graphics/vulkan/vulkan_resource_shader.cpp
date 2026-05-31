@@ -1,5 +1,6 @@
 
 #include "vulkan_resource_shader.hpp"
+#include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
@@ -27,6 +28,28 @@ static ShaderDataType reflect_to_datatype(SpvReflectTypeDescription* type) {
 			case(2): return ShaderDataType::FLOAT2;
 			}
 		}
+
+		if(CHECK_FLAG(tf, SPV_REFLECT_TYPE_FLAG_INT)) {
+			switch (type->traits.numeric.vector.component_count) {
+			case(4): return ShaderDataType::INT4;
+			case(3): return ShaderDataType::INT3;
+			case(2): return ShaderDataType::INT2;
+			}
+		}
+	}
+
+
+	if(CHECK_FLAG(tf, SPV_REFLECT_TYPE_FLAG_MATRIX)) {
+		if(CHECK_FLAG(tf, SPV_REFLECT_TYPE_FLAG_FLOAT)) {
+			switch (type->traits.numeric.matrix.column_count) {
+			case 4: return ShaderDataType::FLOAT4x4;
+			}
+		}
+	}
+
+
+	if(CHECK_FLAG(tf, SPV_REFLECT_TYPE_FLAG_REF)) {
+		return ShaderDataType::POINTER;
 	}
 
 	return ShaderDataType::NONE;
@@ -86,6 +109,8 @@ VulkanResourceShader::VulkanResourceShader(
 					ShaderFieldType::PUSH_CONSTANT, 
 					reflect_to_datatype(block->members[j].type_description),
 					block->members[j].name, i, block->members[j].offset});
+
+			RL_LOG_INFO("{}", block->members[j].name);
 		}
 	}
 

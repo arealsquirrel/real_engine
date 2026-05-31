@@ -10,6 +10,9 @@
 namespace real {
 
 typedef char* ResourceMeshBuffer;
+typedef char* MeshAddress;
+
+class RenderPassGeometry;
 
 class REALLIB_EXPORT ResourceMesh : public Resource {
 RL_OBJECT(ResourceMesh, Resource)
@@ -19,11 +22,13 @@ public:
 	virtual ~ResourceMesh();
 
 	virtual void bind(FrameContext context) = 0;
-	virtual void draw(FrameContext context) = 0;
 	virtual void unbind(FrameContext context) = 0;
+	virtual MeshAddress get_address() = 0;
 
 private:
 	ResourceMeshBuffer buffer;
+
+	friend RenderPassGeometry;
 };
 
 }

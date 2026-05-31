@@ -28,6 +28,7 @@ int main() {
 	}
 
 	game->destroy();
+	delete game;
 
 	Graphics::destroy_backend();
 }

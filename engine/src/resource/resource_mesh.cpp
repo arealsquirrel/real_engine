@@ -1,6 +1,8 @@
 
 #include "real/core/game.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/graphics.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
 #include <unordered_map>
@@ -66,22 +68,53 @@ ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
 	std::string err;
 	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path->c_str());
 
-	std::unordered_map<Vertex, uint32_t> uniqueVertices;
-
 	for (const auto& shape : shapes) {
 		for (const auto& index : shape.mesh.indices) {
 			Vertex vertex{};
 
+			vertex.pos = {
+				attrib.vertices[3 * index.vertex_index + 0],
+				attrib.vertices[3 * index.vertex_index + 1],
+				attrib.vertices[3 * index.vertex_index + 2]
+			};
+
+
+			vertex.normal = {
+				attrib.normals[3 * index.normal_index + 0],
+				attrib.normals[3 * index.normal_index + 1],
+				attrib.normals[3 * index.normal_index + 2],
+			};
+
+			vertex.color = {1.0f, 1.0f, 1.0f, 1.0f};
+
+			/*
+			vertex.color = {
+				attrib.colors[4 * index.vertex_index + 0],
+				attrib.colors[4 * index.vertex_index + 1],
+				attrib.colors[4 * index.vertex_index + 2],
+				attrib.colors[4 * index.vertex_index + 3]
+			};
+			*/
+
+			// vertex.uv_x = attrib.texcoords[2 * index.texcoord_index + 0];
+			// vertex.uv_y = attrib.texcoords[2 * index.texcoord_index + 1];
+
+			/*
 			if (uniqueVertices.count(vertex) == 0) {
-				uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+				uniqueVertices.emplace(vertex, static_cast<uint32_t>(vertices.size()));
 				vertices.push_back(vertex);
 			}
 
-			indices.push_back(uniqueVertices[vertex]);
+			indices.push_back(uniqueVertices.at(vertex));
+			*/
+
+			vertices.push_back(vertex);
+	        indices.push_back(indices.size());
 		}
 	}
 
 	// return new Vulkan
+	return Graphics::create_resource_mesh(game, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex)).release();
 }
 
 }

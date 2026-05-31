@@ -2,13 +2,16 @@
 #include <cassert>
 #include <real/graphics/graphics.hpp>
 #include "real/core/game.hpp"
+#include "real/core/types.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/render_pass_compute.hpp"
 #include "real/graphics/window.hpp"
+#include "real/resource/resource_mesh.hpp"
 #include "vulkan_backend.hpp"
 #include "vulkan_renderpass_geometry.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_renderpass_compute.hpp"
+#include "vulkan_resource_mesh.hpp"
 #include <VkBootstrap.h>
 #include <vulkan/vulkan_core.h>
 #include <real/resource/resource_shader.hpp>
@@ -61,6 +64,13 @@ Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
 		std::vector<RenderPassResource> resources) {
 	
 	return std::make_unique<VulkanRenderPassGeometry>(game, info, shaders, resources);
+}
+
+Unique<ResourceMesh> Graphics::create_resource_mesh(
+		Game *game, std::vector<uint32_t> indices,
+		char *data, size_t size) {
+
+	return std::make_unique<VulkanResourceMesh>(game, indices, data, size);
 }
 
 }

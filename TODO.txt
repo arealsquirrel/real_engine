@@ -2,7 +2,7 @@
 TODO list before sinking into meshes
 
 Pipelines
-	- figure out how we are passing in data
+	- put the render texture in the hands of the user
 	- figure out how we are transitioning images
 
 resource refactors

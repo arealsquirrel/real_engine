@@ -35,7 +35,9 @@ enum class ShaderDataType {
 	INT,
 	INT2,
 	INT3,
-	INT4
+	INT4,
+	FLOAT4x4,
+	POINTER
 };
 
 struct ShaderField {

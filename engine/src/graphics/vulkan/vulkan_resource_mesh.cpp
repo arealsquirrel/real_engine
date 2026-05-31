@@ -1,6 +1,7 @@
 
 #include "vulkan_resource_mesh.hpp"
 #include "real/core/game.hpp"
+#include "real/core/logging.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include "vulkan_resource_mesh.hpp"
 #include "vulkan_renderer.hpp"
@@ -63,6 +64,9 @@ VulkanResourceMesh::VulkanResourceMesh(
 	});
 
 	vkutil::destroy_buffer(renderer, staging);
+
+	indices_count = indices.size();
+	RL_LOG_INFO("done making mesh");
 }
 
 VulkanResourceMesh::~VulkanResourceMesh() {
@@ -71,12 +75,20 @@ VulkanResourceMesh::~VulkanResourceMesh() {
 }
 
 void VulkanResourceMesh::bind(FrameContext context) {
-
+	/*
+	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+	vkCmdBindIndexBuffer(
+			frame->main_command_buffer,
+			indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+	*/
 }
 
+/*
 void VulkanResourceMesh::draw(FrameContext context) {
-
+	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+	vkCmdDrawIndexed(frame->main_command_buffer, indices_count, 1, 0, 0, 0);
 }
+*/
 
 void VulkanResourceMesh::unbind(FrameContext context) {
 

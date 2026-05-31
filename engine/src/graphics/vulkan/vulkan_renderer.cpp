@@ -53,8 +53,12 @@ void VulkanRenderer::init() {
 	create_imgui();
 
 	game->resource_database->register_resource(
- 		ResourceImage::create(game, width, height, ColorFormat::RGB_FLOAT), "_render_texture");
-	renderImage = game->resource_database->get_resource<ResourceImage>("_render_texture");
+ 		ResourceImage::create(game, width, height, ColorFormat::RGBA_FLOAT), "_render_color_texture");
+
+	game->resource_database->register_resource(
+			ResourceImage::create(game, width, height, ColorFormat::DEPTH), "_render_depth_texture");
+
+	renderImage = game->resource_database->get_resource<ResourceImage>("_render_color_texture");
 }
 
 VulkanRenderer::~VulkanRenderer() {

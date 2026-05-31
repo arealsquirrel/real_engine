@@ -3,6 +3,7 @@
 
 #include "real/core/object.hpp"
 #include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_mesh.hpp"
 #include "real/resource/resource_shader.hpp"
 #include <real/graphics/render_pass.hpp>
 #include <real/resource/resource_database.hpp>
@@ -27,8 +28,8 @@ protected:
 public:
     ~RenderPassCompute() = default;
 
-    virtual void begin_pass(FrameContext context) = 0;
-    virtual void end_pass(FrameContext context) = 0;
+    virtual void begin_pass(FrameContext context) override = 0;
+    virtual void end_pass(FrameContext context) override = 0;
 };
 
 

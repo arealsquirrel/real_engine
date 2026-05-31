@@ -54,14 +54,17 @@ public:
 	~VulkanResourceMesh();
 
 	void bind(FrameContext context) final override;
-	void draw(FrameContext context) final override;
+	// void draw(FrameContext context) final override;
 	void unbind(FrameContext context) final override;
+	virtual MeshAddress get_address() final override { return (char*)address; }
 
 public:
 	vkutil::AllocatedBuffer vertexBuffer;
 	vkutil::AllocatedBuffer indexBuffer;
 	VkDeviceAddress address;
 	VulkanRenderer *renderer;
+
+	uint32_t indices_count {0};
 };
 
 }

@@ -1,17 +1,26 @@
 
 #include "vulkan_renderpass_geometry.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/trigonometric.hpp"
 #include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/render_pass.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/resource/resource_shader.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
+#include "vulkan_resource_mesh.hpp"
 #include "vulkan_resource_shader.hpp"
+#include <GLFW/glfw3.h>
 #include <cstdlib>
+#include <cstring>
+#include <optional>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
@@ -26,10 +35,19 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		Game *_game, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
 		std::vector<RenderPassResource> resources)
-		: RenderPassGeometry(_game, {}, resources) {
+		: RenderPassGeometry(_game, shaders[0].get()->get_layout(), resources) {
 
 	VulkanRenderer *renderer = (VulkanRenderer*)game->renderer.get();
 	RL_LOG_TRACE("creating renderpass geometry");
+
+	renderImage = info.renderImage;
+	// depthImage = info.depthImage;
+
+	if(info.depthImage.has_value()) {
+		depthImage = std::make_optional<ResourceHandle<VulkanResourceImage>>(info.depthImage.value());
+	} else {
+		depthImage = std::nullopt;
+	}
 
 	VkPushConstantRange pushConstant{};
 	pushConstant.offset = 0;
@@ -77,11 +95,17 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
     depthStencil.minDepthBounds = 0.f;
     depthStencil.maxDepthBounds = 1.f;
 
+	if(info.depthImage.has_value()) enable_depth(depthStencil);
+
 	RL_LOG_TRACE("creating render info color formats");
 	VkPipelineRenderingCreateInfo renderInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	std::vector<VkFormat> colorFormats;
+	/*
 	size_t i = 0;
 	for (auto &img : resources) {
+		if(img.format == ImageFormat::DEPTH)
+			continue;
+
 		if(img.format == ImageFormat::COLOR) {
 			color_image_index = i;
 		}
@@ -89,6 +113,9 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		VulkanResourceImage *vimg = (VulkanResourceImage*)img.texture.get();
 		colorFormats.push_back(vimg->imageFormat); 
 	}
+	*/
+	colorFormats.push_back(renderImage.get()->imageFormat);
+
 	renderInfo.colorAttachmentCount = colorFormats.size();
 	renderInfo.pColorAttachmentFormats = colorFormats.data();
     renderInfo.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
@@ -156,28 +183,21 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
     }
 
 	push_constant_buffer = (char*)malloc(128);
+	addr_loc = shader_layout.get_field("_vertex_buffer");
+}
+
+void VulkanRenderPassGeometry::enable_depth(
+		VkPipelineDepthStencilStateCreateInfo &depth) {
 	
-	/*
-	std::vector<Vertex> rect_vertices(4);
-	rect_vertices[0].position = {0.5,-0.5, 0};
-	rect_vertices[1].position = {0.5,0.5, 0};
-	rect_vertices[2].position = {-0.5,-0.5, 0};
-	rect_vertices[3].position = {-0.5,0.5, 0};
-	rect_vertices[0].color = {0,0, 0, 1};
-	rect_vertices[1].color = {0.5, 0.5, 0.5, 1};
-	rect_vertices[2].color = {1, 0, 0, 1};
-	rect_vertices[3].color = {0, 1, 0, 1};
-	std::vector<uint32_t> rect_indices(6);
-	rect_indices[0] = 0;
-	rect_indices[1] = 1;
-	rect_indices[2] = 2;
-	rect_indices[3] = 2;
-	rect_indices[4] = 1;
-	rect_indices[5] = 3;
-	mesh = new VulkanMeshBuffer(renderer,
-			rect_indices, (char*)rect_vertices.data(),
-			rect_vertices.size()*sizeof(Vertex));
-	*/
+	depth.depthTestEnable = VK_TRUE;
+    depth.depthWriteEnable = true;
+    depth.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
+    depth.depthBoundsTestEnable = VK_FALSE;
+    depth.stencilTestEnable = VK_FALSE;
+    depth.front = {};
+    depth.back = {};
+    depth.minDepthBounds = 0.f;
+    depth.maxDepthBounds = 1.f;
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
@@ -186,16 +206,20 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
     vkDeviceWaitIdle(renderer->device);
 	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
     vkDestroyPipeline(renderer->device, pipeline, nullptr);
-	// delete mesh;
 }
 
 void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
-	VulkanResourceImage *vimg = (VulkanResourceImage*)resources[color_image_index].texture.get();
+	VulkanResourceImage *vimg = renderImage.get();
+	VulkanResourceImage *dimg = depthImage.value().get();
 
+	VkRenderingAttachmentInfo depthAttachment = vkutil::depth_attachment_info(dimg->imageView, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 	VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(vimg->imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	VkRenderingInfo renderInfo = vkutil::rendering_info(frame->draw_extent, &colorAttachment, nullptr);
+	VkRenderingInfo renderInfo = vkutil::rendering_info(frame->draw_extent, &colorAttachment, &depthAttachment);
+	
 	vkutil::transition_image(frame->main_command_buffer, vimg->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	vkutil::transition_image(frame->main_command_buffer, dimg->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+
 	vkCmdBeginRendering(frame->main_command_buffer, &renderInfo);
 	vkCmdBindPipeline(frame->main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
@@ -217,6 +241,35 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 	scissor.extent.height = vimg->imageExtent.height;
 
 	vkCmdSetScissor(frame->main_command_buffer, 0, 1, &scissor);
+}
+
+void VulkanRenderPassGeometry::draw_mesh(
+		FrameContext context, 
+		ResourceHandle<ResourceMesh> mesh) {
+	
+	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
+
+	GPUDrawPushConstants push_constants;
+	glm::mat4 a{1.f};
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -7.0f));
+	view = glm::rotate(view, glm::radians((float)glfwGetTime() * 20.0f + 180), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	glm::mat4 projection;
+	float aspect = (float)renderImage.get()->imageExtent.width / renderImage.get()->imageExtent.height;
+	projection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 100.0f);
+	projection[1][1] *= -1;
+	push_constants.worldMatrix = projection * view;
+	push_constants.vertexBuffer = da_mesh->address;
+
+
+	vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
+
+	// set_variable(addr_loc, (char*)da_mesh->address, sizeof(VkDeviceAddress));
+	// vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), push_constant_buffer);
+	vkCmdBindIndexBuffer(frame->main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(frame->main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
 }
 
 void VulkanRenderPassGeometry::end_pass(FrameContext context) {

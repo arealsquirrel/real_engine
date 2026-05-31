@@ -29,12 +29,20 @@ public:
 	void begin_pass(FrameContext context) final override;
 	void end_pass(FrameContext context) final override;
 	void set_variable(ShaderField field, char *data, size_t size) final override;
+	virtual void draw_mesh(FrameContext context, ResourceHandle<ResourceMesh> mesh) final override;
+
+private:
+	void enable_depth(VkPipelineDepthStencilStateCreateInfo &depth);
 
 private:
 	VkPipeline pipeline;
 	VkPipelineLayout layout;
+	ShaderField addr_loc;
 
-	size_t color_image_index {0};
+	// size_t color_image_index {0};
+	// size_t depth_image_index {0};
+	ResourceHandle<VulkanResourceImage> renderImage;
+	std::optional<ResourceHandle<VulkanResourceImage>> depthImage;
 
 	PushConstantBuffer push_constant_buffer;
 };
