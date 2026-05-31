@@ -9,13 +9,19 @@
 
 namespace editor {
 
+enum class EditorExitReason {
+	NotExiting,
+	Exit,
+	Reload
+};
+
 class Editor {
 public:
 	Editor(Shared<real::Game> _game);
 	~Editor();
 
 public:
-	void render();
+	EditorExitReason render();
 
 	template<typename T, typename ...Args>
 	void add_panel(Args ...args) {

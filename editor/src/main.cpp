@@ -21,29 +21,45 @@ int main() {
 	log.sinks.push_back(new real::LogSink_Console());
 	log.sinks.push_back(log_buffer);
 
+	WindowInfo info;
+	info.width = 1200;
+	info.height = 800;
+	info.title = "my engine :3";
+
 	Graphics::init_backend({});
+	editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
 
-	Shared<Game> game = std::shared_ptr<Game>(new Game());
-	game->renderer->init();
-	game->start();
+	// while(reason != editor::EditorExitReason::Reload) {
+		Shared<Game> game = std::shared_ptr<Game>(new Game());
+		Shared<Window> window = std::move(Graphics::create_window(game.get(), info));
+		Shared<ResourceDatabase> resource_database = std::move(std::make_unique<ResourceDatabase>(game.get()));
+		Shared<Renderer> renderer = std::move(Graphics::create_renderer(game.get(), window));
+		game->window = window;
+		game->resource_database = resource_database;
+		game->renderer = renderer;
+		game->renderer->init();
+		game->start();
 
-	editor::Editor *ed = new editor::Editor(game);
-	ed->add_panel<editor::PanelResourceDatabase>();
-	ed->add_panel<editor::PanelLogs>(log_buffer);
+		editor::Editor *ed = new editor::Editor(game);
+		ed->add_panel<editor::PanelResourceDatabase>();
+		ed->add_panel<editor::PanelLogs>(log_buffer);
 
-	while(game->should_close() == false) {
-		game->update(0);
+		while(game->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
+			game->update(0);
+			auto frame = game->renderer->start_frame();
+			reason = ed->render();
+			game->render(frame);
+			game->renderer->end_frame(frame);
+		}
 
-		auto frame = game->renderer->start_frame();
-		ed->render();
-		game->render(frame);
-		game->renderer->end_frame(frame);
-	}
+		game->destroy();
+		delete ed;
+		game.reset();
+		window.reset();
+		resource_database.reset();
+		renderer.reset();
+	// }
 
-	game->destroy();
-
-	delete ed;
-	game.reset();
 	Graphics::destroy_backend();
 }
 

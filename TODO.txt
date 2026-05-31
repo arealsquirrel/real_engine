@@ -1,23 +1,31 @@
 
-TODO list before sinking into meshes
+TODO list before sinking into Textures
 
 Pipelines
-	- put the render texture in the hands of the user
 	- figure out how we are transitioning images
+	- wireframe rendering, that one vulkan thingy
+	- expose dynamic state
+	- uniforms
+	- make pipeline internal variables for shaders
+	- make sure that if something does not load, the engine does not shit itself / backup plans
 
 resource refactors
 	- possibly some sort of slab allocator for resources and common objects
 	- resource reloading function
 	- make a create function from Graphics class and then the load functions out of the platform dependednt area
+	- make a good set of primitaves
+	- make a load directory function
 
 infrastructure for making imgui debug menus
 	- CVARS system-ish
 		- its going to be compile time global editor basicly
-	- I would like it to be macros so we can just put it in and out
+		- I would like it to be macros so we can just put it in and out
+	- make rendering debug menu / preformance
+	- profile the shit out of this thing
+	- more debuging with the newly added object classes
 
-misc
-	- adding command line args for configuring the instance
-
-DLL injection loading application and whatnot
+App and actual development environment
+	- adding command line args for configuring the project
+	- dll injection
 	- so improving the launcher
 

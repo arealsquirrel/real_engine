@@ -16,10 +16,24 @@ Editor::Editor(Shared<real::Game> _game)
 Editor::~Editor() {
 }
 
-void Editor::render() {
+EditorExitReason Editor::render() {
+	EditorExitReason r = EditorExitReason::NotExiting;
+
 	ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 
 	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("Project")) {
+			if (ImGui::MenuItem("Exit")) { 
+				r = EditorExitReason::Exit;
+			}
+
+			if (ImGui::MenuItem("Reload")) { 
+				r = EditorExitReason::Reload;
+			}
+
+			ImGui::EndMenu();
+		}
+
 		std::string version_string = fmt::format(
 				"real engine, version {}.{}.{}, {}",
 				RL_VERSION_MAJOR, RL_VERSION_MINOR, RL_VERSION_PATCH,
@@ -33,6 +47,8 @@ void Editor::render() {
 	for(auto p : panels) {
 		p->draw();
 	}
+
+	return r;
 }
 
 }

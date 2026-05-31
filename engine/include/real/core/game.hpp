@@ -23,7 +23,7 @@ public:
 	bool should_close();
 
 public:
-	Unique<ResourceDatabase> resource_database;
+	Shared<ResourceDatabase> resource_database;
 	Shared<Window> window;
     Shared<Renderer> renderer;
 };

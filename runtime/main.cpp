@@ -16,6 +16,19 @@ int main() {
 	Graphics::init_backend({});
 
 	Game *game = new Game();
+
+	WindowInfo info;
+	info.width = 1200;
+	info.height = 800;
+	info.title = "my engine :3";
+	Shared<Window> window = std::move(Graphics::create_window(game, info));
+	Shared<ResourceDatabase> resource_database = std::move(std::make_unique<ResourceDatabase>(game));
+	Shared<Renderer> renderer = std::move(Graphics::create_renderer(game, window));
+
+	game->window = window;
+	game->resource_database = resource_database;
+	game->renderer = renderer;
+
 	game->renderer->init();
 	game->start();
 
@@ -29,6 +42,9 @@ int main() {
 
 	game->destroy();
 	delete game;
+	window.reset();
+	resource_database.reset();
+	renderer.reset();
 
 	Graphics::destroy_backend();
 }

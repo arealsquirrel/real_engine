@@ -100,20 +100,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	RL_LOG_TRACE("creating render info color formats");
 	VkPipelineRenderingCreateInfo renderInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	std::vector<VkFormat> colorFormats;
-	/*
-	size_t i = 0;
-	for (auto &img : resources) {
-		if(img.format == ImageFormat::DEPTH)
-			continue;
-
-		if(img.format == ImageFormat::COLOR) {
-			color_image_index = i;
-		}
-		i++;
-		VulkanResourceImage *vimg = (VulkanResourceImage*)img.texture.get();
-		colorFormats.push_back(vimg->imageFormat); 
-	}
-	*/
 	colorFormats.push_back(renderImage.get()->imageFormat);
 
 	renderInfo.colorAttachmentCount = colorFormats.size();
@@ -177,12 +163,12 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
     dynamicInfo.dynamicStateCount = 2;
     pipelineInfo.pDynamicState = &dynamicInfo;
 
-	RL_LOG_TRACE("creating the pipeline");
 	if (vkCreateGraphicsPipelines(renderer->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS) {
         fmt::println("failed to create pipeline");
     }
 
 	push_constant_buffer = (char*)malloc(128);
+	memset(push_constant_buffer, 0, 128);
 	addr_loc = shader_layout.get_field("_vertex_buffer");
 }
 
@@ -250,39 +236,21 @@ void VulkanRenderPassGeometry::draw_mesh(
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
 	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
 
-	GPUDrawPushConstants push_constants;
-	glm::mat4 a{1.f};
-	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -7.0f));
-	view = glm::rotate(view, glm::radians((float)glfwGetTime() * 20.0f + 180), glm::vec3(1.0f, 0.0f, 0.0f));
+	// GPUDrawPushConstants push_constants;
+	// push_constants.worldMatrix = projection * view;
+	// push_constants.vertexBuffer = da_mesh->address;
+	// vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
+	// set_variable(, char *data, size_t size)
+	static ShaderField f {ShaderFieldType::PUSH_CONSTANT, ShaderDataType::FLOAT4x4, "_vertex_buffer", 0, 64};
+	set_variable(f, (char*)&da_mesh->address, sizeof(VkDeviceAddress));
 
-	glm::mat4 projection;
-	float aspect = (float)renderImage.get()->imageExtent.width / renderImage.get()->imageExtent.height;
-	projection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 100.0f);
-	projection[1][1] *= -1;
-	push_constants.worldMatrix = projection * view;
-	push_constants.vertexBuffer = da_mesh->address;
-
-
-	vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
-
-	// set_variable(addr_loc, (char*)da_mesh->address, sizeof(VkDeviceAddress));
-	// vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), push_constant_buffer);
+	vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
 	vkCmdBindIndexBuffer(frame->main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(frame->main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
 }
 
 void VulkanRenderPassGeometry::end_pass(FrameContext context) {
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
-
-	// GPUDrawPushConstants push_constants;
-	// push_constants.worldMatrix = glm::mat4{ 1.f };
-	// push_constants.vertexBuffer = mesh->address;
-
-	// vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
-	// vkCmdBindIndexBuffer(frame->main_command_buffer, mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-	// vkCmdDrawIndexed(frame->main_command_buffer, 6, 1, 0, 0, 0);
-	
 	vkCmdEndRendering(frame->main_command_buffer);
 }
 
@@ -291,8 +259,9 @@ void VulkanRenderPassGeometry::set_variable(
 
 	switch (field.type) {
 	case(ShaderFieldType::PUSH_CONSTANT): {
-		char *write_pointer = (char*)(push_constant_buffer+field.offset);
-		memcpy(write_pointer, data, size);
+		// RL_LOG_INFO("{} {} {}", field.name.c_str(), field.offset, size);
+		// char *write_pointer = &push_constant_buffer[field.offset]; //(char*)((char*)push_constant_buffer+field.offset);
+		memcpy(push_constant_buffer+field.offset, data, size);
 		return; 
 	}
 

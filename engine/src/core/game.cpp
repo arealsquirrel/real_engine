@@ -8,6 +8,7 @@
 namespace real {
 
 Game::Game() {
+	/*
 	WindowInfo info;
 	info.width = 1200;
 	info.height = 800;
@@ -15,12 +16,15 @@ Game::Game() {
 	window = Graphics::create_window(this, info);
 	resource_database = std::make_unique<ResourceDatabase>(this);
 	renderer = std::move(Graphics::create_renderer(this, window));
+	*/
 }
 
 Game::~Game() {
+	/*
 	resource_database.reset();
     renderer.reset();
     window.reset();
+	*/
 }
 
 bool Game::should_close() {
