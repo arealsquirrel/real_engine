@@ -9,8 +9,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")      # Debug flags
 set(CMAKE_CXX_FLAGS_MINSIZEREL "-g -Oz")      # Debug flags
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG") # Release flags
 
-#add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
-#add_link_options(-fsanitize=address)
+add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+add_link_options(-fsanitize=address)
 
 set(IMGUI_RENDERER_BACKEND "vulkan")
 set(IMGUI_PLATFORM_BACKEND "glfw")

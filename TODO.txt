@@ -15,6 +15,7 @@ resource refactors
 	- make a create function from Graphics class and then the load functions out of the platform dependednt area
 	- make a good set of primitaves
 	- make a load directory function
+	- it has to be memory safe from hottime reloading
 
 infrastructure for making imgui debug menus
 	- CVARS system-ish

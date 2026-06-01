@@ -2,13 +2,8 @@
 #include "editor.hpp"
 #include "panel_logs.hpp"
 #include "panel_resource_database.hpp"
-#include "panel_resource_viewer.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
-#include "real/debug/instrumentation.hpp"
-#include "real/graphics/window.hpp"
-#include "real/resource/resource_handle.hpp"
-#include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
 
 using namespace real;
@@ -31,6 +26,7 @@ reload_game:
 	reason = editor::EditorExitReason::NotExiting;
 	auto [game, dll] = Game::load_game_dll(instance);
 	game->start();
+	log_buffer->index = 0;
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
 		game->update(0);

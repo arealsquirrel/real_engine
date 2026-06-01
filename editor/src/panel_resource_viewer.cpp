@@ -55,10 +55,10 @@ void PanelResourceViewer::draw() {
 		ImGui::EndMenuBar();
 	}
 	
-	ResourceDatabase::Entry entry = instance->resource_database->get_entry(current_handle->get_uuid());
-	ImGui::Text("name: %s", entry.name.c_str());
+	// ResourceDatabase::Entry entry = instance->resource_database->get_entry(current_handle->get_uuid());
+	ImGui::Text("idk bru");
 	ImGui::Separator();
-	ImGui::Text("uuid: %llu", entry.id.uuid);
+	ImGui::Text("uuid: %llu", current_handle->get_uuid().uuid);
 	ImGui::Text("type: %s", current_handle->get()->object_name());
 	ImGui::Separator();
 

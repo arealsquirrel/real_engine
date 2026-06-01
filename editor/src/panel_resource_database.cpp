@@ -24,24 +24,24 @@ void PanelResourceDatabase::draw() {
 
 		// Demonstrate using clipper for large vertical lists
 		
-		ImGuiListClipper clipper;
-		clipper.Begin(db->resource_array.size());
-		while (clipper.Step()) {
-			for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; row++) {
-				auto &handle = db->resource_array[row];
-				real::ResourceDatabase::Entry e = db->uuid_to_entry[handle.get_uuid()];
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("%s", db->uuid_to_entry.at(handle.get_uuid()).name.c_str());
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("%s", handle.get()->object_name());
-				ImGui::TableSetColumnIndex(2);
-				if(handle.get()->path.has_value())
-					ImGui::Text("%s", handle.get()->path->c_str());
-				else
-					ImGui::Text("None");
-			}
+		// ImGuiListClipper clipper;
+		// clipper.Begin(db->resource_map.size());
+		// while (clipper.Step()) {
+		for (auto &[id, handle] : db->resource_map) {
+			// auto &handle = db->resource_array[row];
+			// real::ResourceDatabase::Entry e = db->uuid_to_entry[handle.get_uuid()];
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("idk bru");
+			ImGui::TableSetColumnIndex(1);
+			ImGui::Text("%s", handle.get()->object_name());
+			ImGui::TableSetColumnIndex(2);
+			if(handle.get()->path.has_value())
+				ImGui::Text("%s", handle.get()->path->c_str());
+			else
+				ImGui::Text("None");
 		}
+
 		ImGui::EndTable();
 	}
 

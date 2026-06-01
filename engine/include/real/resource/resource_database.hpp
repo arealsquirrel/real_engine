@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_DATABASE_HPP
 #define REALLIB_RESOURCE_DATABASE_HPP
 
+#include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
@@ -27,36 +28,31 @@ public:
     ResourceDatabase(Instance *Instance);
     ~ResourceDatabase();
 
-	struct Entry {
-		u32 arr_index;
-		UUID id;
-		std::string name;
-	};
-
 public:
 	template<typename T>
 	ResourceHandle<T> register_resource(
 			T *resource, std::string name,
 			UUID id=UUID()) {
 
-		u32 i = resource_array.size();
 		ResourceHandle<T> handle(this, resource, ResourceState::Loaded, id);
-		resource_array.push_back(handle);
-		uuid_to_entry.emplace(id, Entry{i, id, name});
+		resource_map.emplace(id, handle);
 		name_to_resource_UUID.emplace(name, id);
+		RL_LOG_TRACE("registered resource {}", name.c_str());
 		return handle;
 	}
 
 	template<typename T>
 	ResourceHandle<T> get_resource(UUID id) {
 		return ResourceHandle<T>(
-				resource_array[uuid_to_entry.find(id)->second.arr_index]);
+				resource_map.at(id));
 	}
 
 	template<typename T>
 	ResourceHandle<T> get_resource(std::string name) {
 		return get_resource<T>(name_to_resource_UUID.find(name)->second);
 	}
+
+	void unregister_resource(std::string name);
 
 	/*
 	template<typename T, ResourceSerializerType ST>
@@ -75,14 +71,12 @@ public:
 	void clean_non_references();
 	void clean_unloaded();
 
-	Entry get_entry(std::string name);
-	Entry get_entry(UUID id);
-
 private:
 	EXPOSE_TO_EDITOR;	
 
-	std::vector<ResourceHandle<Resource>> resource_array;
-	std::unordered_map<UUID, Entry> uuid_to_entry;
+	// std::vector<ResourceHandle<Resource>> resource_array;
+	std::unordered_map<UUID, ResourceHandle<Resource>> resource_map;
+	// std::unordered_map<UUID, Entry> uuid_to_entry;
 	std::unordered_map<std::string, UUID> name_to_resource_UUID;
 };
 
