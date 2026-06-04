@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_IMAGE_HPP
 #define REALLIB_RESOURCE_IMAGE_HPP
 
+#include "imgui.h"
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
@@ -20,8 +21,10 @@ enum class ColorFormat {
 };
 
 enum class ImageFormat {
-	COLOR,
-	DEPTH,
+	UNKNOWN,
+	RENDER_ATTACHMENT_COLOR,
+	RENDER_ATTACHMENT_DEPTH,
+	STORAGE_SAMPLED,
 	STORAGE
 };
 
@@ -31,13 +34,19 @@ RL_OBJECT(ResourceImage, Resource)
 protected:
     ResourceImage(
 			Instance *_instance,
-			u32 width, u32 height, ColorFormat format, void *data=nullptr,
+			u32 width, u32 height, 
+        	ColorFormat cformat, ImageFormat iformat,
+			void *data=nullptr,
 			std::optional<Path> _path=std::nullopt);
 
 public:
 	static ResourceImage *create(
 			Instance *_instance,
-			u32 width, u32 height, ColorFormat format, void *data=nullptr);
+			u32 width, u32 height,
+        	ColorFormat cformat, ImageFormat iformat,
+			void *data=nullptr);
+
+	virtual ImTextureID get_imgui_textureID() = 0;
 
 public:
     ~ResourceImage();
@@ -47,6 +56,10 @@ public:
     virtual ImageHandle get_handle() = 0;
 	virtual ColorFormat get_color_format() = 0;
 	virtual std::pair<u32, u32> get_image_extent() = 0;
+
+protected:
+	ColorFormat cformat;
+	ImageFormat iformat;
 };
 
 }

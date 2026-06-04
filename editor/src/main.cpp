@@ -2,6 +2,7 @@
 #include "editor.hpp"
 #include "panel_logs.hpp"
 #include "panel_resource_database.hpp"
+#include "panel_resource_viewer.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include <real/real.hpp>
@@ -21,6 +22,7 @@ int main() {
 	editor::Editor *ed = new editor::Editor(instance);
 	ed->add_panel<editor::PanelResourceDatabase>();
 	ed->add_panel<editor::PanelLogs>(log_buffer);
+	ed->add_panel<editor::PanelResourceViewer>();
 
 reload_game:
 	reason = editor::EditorExitReason::NotExiting;

@@ -53,10 +53,12 @@ void VulkanRenderer::init() {
 	create_imgui();
 
 	instance->resource_database->register_resource(
- 		ResourceImage::create(instance, width, height, ColorFormat::RGBA_FLOAT), "_render_color_texture");
+ 		ResourceImage::create(instance, width, height,
+			ColorFormat::RGBA_FLOAT, ImageFormat::RENDER_ATTACHMENT_COLOR), "_render_color_texture");
 
 	instance->resource_database->register_resource(
-			ResourceImage::create(instance, width, height, ColorFormat::DEPTH), "_render_depth_texture");
+			ResourceImage::create(instance, width, height,
+				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH), "_render_depth_texture");
 
 	renderImage = instance->resource_database->get_resource<ResourceImage>("_render_color_texture");
 }

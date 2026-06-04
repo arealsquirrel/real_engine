@@ -8,6 +8,7 @@
 #include "vulkan_backend.hpp"
 #include <utility>
 #include <vulkan/vulkan_core.h>
+#include <imgui.h>
 
 namespace real {
 
@@ -20,7 +21,8 @@ public:
     VulkanResourceImage(
         Instance *_instance,
         u32 width, u32 height,
-        ColorFormat format, void *data=nullptr,
+        ColorFormat cformat, ImageFormat iformat,
+		void *data=nullptr,
 		std::optional<Path> _path=std::nullopt);
 
 	VulkanResourceImage(
@@ -35,7 +37,9 @@ public:
 	ColorFormat get_color_format() override { return ColorFormat::UNKNOWN; }
 	std::pair<u32, u32> get_image_extent() override { return std::make_pair(imageExtent.width, imageExtent.height); }
 	void transition_image(FrameContext context, ImageFormat to) override;
-	ImageFormat get_image_format() override { return engineFormat; };
+	ImageFormat get_image_format() override { return iformat; };
+
+	ImTextureID get_imgui_textureID() override;
 
 public:
 	const bool internaly_managed;
@@ -44,8 +48,10 @@ public:
     VmaAllocation allocation;
     VkExtent3D imageExtent;
     VkFormat imageFormat;
-	ImageFormat engineFormat;
+	// ImageFormat engineFormat;
 	VulkanRenderer *renderer;
+
+	VkDescriptorSet imgui_descriptorset;
 };
 
 }

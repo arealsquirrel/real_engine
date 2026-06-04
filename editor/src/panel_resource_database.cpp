@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "real/core/types.hpp"
 #include "real/resource/resource_database.hpp"
+#include <string>
 
 namespace editor {
 
@@ -27,12 +28,23 @@ void PanelResourceDatabase::draw() {
 		// ImGuiListClipper clipper;
 		// clipper.Begin(db->resource_map.size());
 		// while (clipper.Step()) {
-		for (auto &[id, handle] : db->resource_map) {
-			// auto &handle = db->resource_array[row];
-			// real::ResourceDatabase::Entry e = db->uuid_to_entry[handle.get_uuid()];
+		for (auto &[name, id] : db->name_to_resource_UUID) {
+			auto &handle = db->resource_map[id];
+
 			ImGui::TableNextRow();
+
 			ImGui::TableSetColumnIndex(0);
-			ImGui::Text("idk bru");
+
+			bool selected;
+			ImGui::Selectable(name.c_str(), selected, ImGuiSelectableFlags_SpanAllColumns);
+
+			if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+                ImGui::SetDragDropPayload("REAL_RESOURCE_NAME", name.c_str(), name.size());
+                ImGui::Text("Moving: %s", name.c_str()); 
+                ImGui::EndDragDropSource();
+            }
+
+
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("%s", handle.get()->object_name());
 			ImGui::TableSetColumnIndex(2);

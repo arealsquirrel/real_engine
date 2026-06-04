@@ -7,7 +7,6 @@
 #include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
-#include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_mesh.hpp"

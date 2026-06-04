@@ -39,6 +39,6 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
 
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
-	return float4(input.color, 1.0f);
+	return float4(float3(1.0f, 1.0f, 0.0f), 1.0f);
 }
 

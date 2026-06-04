@@ -7,6 +7,7 @@
 #include "real/core/types.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_handle.hpp"
+#include <string>
 
 namespace editor {
 
@@ -25,6 +26,7 @@ private:
 
 public:
 	// what a wonderful language
+	std::string name;
 	std::optional<real::ResourceHandle<real::Resource>> current_handle = std::nullopt;
 };
 
