@@ -16,6 +16,7 @@ resource refactors
 	- make a good set of primitaves
 	- make a load directory function
 	- it has to be memory safe from hottime reloading
+	- move the path variable to the resource manager and away from the resource class
 
 infrastructure for making imgui debug menus
 	- CVARS system-ish
@@ -30,3 +31,41 @@ App and actual development environment
 	- dll injection
 	- so improving the launcher
 
+Graphics API
+	- overall
+		- we need error checking
+		- debug utils
+
+	- Shaders
+		- hold a layout of where the things are and information about the shader
+		- it should abviously have backups for if things go wrong
+		- it needs to support HLSL, GLSL, and SPIRV
+	
+	- Models
+		- model resource holds the buffer
+		- multiple models (vertex array)
+		- custom input and creation for buffers
+	
+	- Textures
+		- Track the layout (depth, color rgba8, color rgba16 ...)
+		- Track the format of the image, the user does not need to nesisarily decide
+		- mipmaps and multi sampling
+
+	- Renderer
+		- render stats
+		- better per frame data
+	
+	- Subpass
+		- more abstracted descriptor sets
+			- images
+			- buffers
+		- abstract
+			- updating descriptor sets
+			- the shader layout
+			- the dynamic state needs to be good
+		- graphics
+			- the actual pipeline settings
+			- standardized input, output for slang vertex's
+		- compute
+			- the dispatch function should specify the x,y,z
+			- compute queue???

@@ -47,7 +47,7 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
 float4 fragment_main(PSInput input) : SV_Target {
 	float3 objectColor = input.color;
 	float3 lightColor = float3(1.0f, 1.0f, 1.0f);
-	float3 lightPos = float3(0.0f, 0.0f, -4.0f);
+	float3 lightPos = float3(0.0f, 0.0f, 0.0f);
 
 	float ambientStrength = 0.1;
     float3 ambient = ambientStrength * lightColor;

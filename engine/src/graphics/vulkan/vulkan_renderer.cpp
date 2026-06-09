@@ -53,14 +53,26 @@ void VulkanRenderer::init() {
 	create_imgui();
 
 	instance->resource_database->register_resource(
- 		ResourceImage::create(instance, width, height,
-			ColorFormat::RGBA_FLOAT, ImageFormat::RENDER_ATTACHMENT_COLOR), "_render_color_texture");
+ 		Graphics::create_resource_image(instance, width, height,
+			ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR).release(),
+		"_render_color_texture");
 
 	instance->resource_database->register_resource(
-			ResourceImage::create(instance, width, height,
-				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH), "_render_depth_texture");
+			Graphics::create_resource_image(instance, width, height,
+				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH).release(),
+			"_render_depth_texture");
 
 	renderImage = instance->resource_database->get_resource<ResourceImage>("_render_color_texture");
+
+	VkSamplerCreateInfo sampl = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+
+	sampl.magFilter = VK_FILTER_NEAREST;
+	sampl.minFilter = VK_FILTER_NEAREST;
+	vkCreateSampler(device, &sampl, nullptr, &samplerNearest);
+
+	sampl.magFilter = VK_FILTER_LINEAR;
+	sampl.minFilter = VK_FILTER_LINEAR;
+	vkCreateSampler(device, &sampl, nullptr, &samplerLinear);
 }
 
 VulkanRenderer::~VulkanRenderer() {
@@ -73,6 +85,8 @@ VulkanRenderer::~VulkanRenderer() {
     delete_queue.flush();
 
     for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
+		frame_data[i].frameDescriptors.destroy_pools(device);
+
         vkDestroyCommandPool(device, frame_data[i].command_pool, nullptr);
 
 	    vkDestroyFence(device, frame_data[i].render_fence, nullptr);
@@ -191,6 +205,17 @@ void VulkanRenderer::create_frame_objects() {
 	}
 
 	for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
+
+		std::vector<DescriptorAllocatorGrowable::PoolSizeRatio> frame_sizes = { 
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 3 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 4 },
+		};
+
+		frame_data[i].frameDescriptors = DescriptorAllocatorGrowable{};
+		frame_data[i].frameDescriptors.init(device, 1000, frame_sizes);
+	
         /* COMMAND POOLS AND BUFFERS */
 		VK_CHECK(vkCreateCommandPool(
             device,

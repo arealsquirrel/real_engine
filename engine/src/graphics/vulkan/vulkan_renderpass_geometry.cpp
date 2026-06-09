@@ -69,8 +69,8 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	VkPipelineRasterizationStateCreateInfo rasterizer = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.cullMode = VK_CULL_MODE_NONE; // VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; //VK_FRONT_FACE_CLOCKWISE;
 	
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -85,9 +85,9 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
     multisampling.alphaToOneEnable = VK_FALSE;
 	
     VkPipelineDepthStencilStateCreateInfo depthStencil = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-    depthStencil.depthTestEnable = VK_FALSE;
-    depthStencil.depthWriteEnable = VK_FALSE;
-    depthStencil.depthCompareOp = VK_COMPARE_OP_NEVER;
+    depthStencil.depthTestEnable = VK_TRUE;
+    depthStencil.depthWriteEnable = VK_TRUE;
+    depthStencil.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.stencilTestEnable = VK_FALSE;
     depthStencil.front = {};
@@ -97,7 +97,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 
 	if(info.depthImage.has_value()) enable_depth(depthStencil);
 
-	RL_LOG_TRACE("creating render info color formats");
 	VkPipelineRenderingCreateInfo renderInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	std::vector<VkFormat> colorFormats;
 	colorFormats.push_back(renderImage.get()->imageFormat);
@@ -122,7 +121,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 
-	RL_LOG_TRACE("doing shader stages now");
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 	for (auto &s : shaders) {
 		for(int i = 1; i < 8; i++) {
@@ -131,12 +129,10 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 			stage.pNext = nullptr;
 			stage.module = dynamic_cast<VulkanResourceShader*>(s.get())->module;
 			if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderType_VERTEX) {
-				RL_LOG_TRACE("vertex");
 				stage.pName = "vertex_main";
 				stage.stage = VK_SHADER_STAGE_VERTEX_BIT;
 				shaderStages.push_back(stage);
 			} else if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderType_FRAGMENT) {
-				RL_LOG_TRACE("fragment");
 				stage.pName = "fragment_main";
 				stage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 				shaderStages.push_back(stage);
@@ -236,11 +232,6 @@ void VulkanRenderPassGeometry::draw_mesh(
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
 	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
 
-	// GPUDrawPushConstants push_constants;
-	// push_constants.worldMatrix = projection * view;
-	// push_constants.vertexBuffer = da_mesh->address;
-	// vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GPUDrawPushConstants), &push_constants);
-	// set_variable(, char *data, size_t size)
 	static ShaderField f {ShaderFieldType::PUSH_CONSTANT, ShaderDataType::FLOAT4x4, "_vertex_buffer", 0, 64};
 	set_variable(f, (char*)&da_mesh->address, sizeof(VkDeviceAddress));
 
@@ -259,8 +250,6 @@ void VulkanRenderPassGeometry::set_variable(
 
 	switch (field.type) {
 	case(ShaderFieldType::PUSH_CONSTANT): {
-		// RL_LOG_INFO("{} {} {}", field.name.c_str(), field.offset, size);
-		// char *write_pointer = &push_constant_buffer[field.offset]; //(char*)((char*)push_constant_buffer+field.offset);
 		memcpy(push_constant_buffer+field.offset, data, size);
 		return; 
 	}

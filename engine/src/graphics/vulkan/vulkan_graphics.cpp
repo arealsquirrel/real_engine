@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <memory>
 #include <real/graphics/graphics.hpp>
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
@@ -12,6 +13,7 @@
 #include "vulkan_renderpass_geometry.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_renderpass_compute.hpp"
+#include "vulkan_resource_image.hpp"
 #include "vulkan_resource_mesh.hpp"
 #include <VkBootstrap.h>
 #include <vulkan/vulkan_core.h>
@@ -72,6 +74,13 @@ Unique<ResourceMesh> Graphics::create_resource_mesh(
 		char *data, size_t size) {
 
 	return std::make_unique<VulkanResourceMesh>(instance, indices, data, size);
+}
+
+Unique<ResourceImage> Graphics::create_resource_image(
+			Instance *instance, u32 width, u32 height,
+			ColorFormat cformat, ImageFormat iformat, void *data, int mips) {
+	
+	return std::make_unique<VulkanResourceImage>(instance, width, height, cformat, iformat, data, mips);
 }
 
 }

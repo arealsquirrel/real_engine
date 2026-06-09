@@ -14,8 +14,8 @@ typedef void* ImageHandle;
 
 enum class ColorFormat {
 	UNKNOWN,
-    RGB_FLOAT,
-	RGBA_FLOAT,
+	RGBA_FLOAT16,
+	RGBA_FLOAT8,
 	MONOCHROME,
 	DEPTH
 };
@@ -40,12 +40,6 @@ protected:
 			std::optional<Path> _path=std::nullopt);
 
 public:
-	static ResourceImage *create(
-			Instance *_instance,
-			u32 width, u32 height,
-        	ColorFormat cformat, ImageFormat iformat,
-			void *data=nullptr);
-
 	virtual ImTextureID get_imgui_textureID() = 0;
 
 public:

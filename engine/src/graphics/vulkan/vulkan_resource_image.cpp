@@ -9,6 +9,7 @@
 #include <real/resource/resource_image.hpp>
 #include <vulkan/vulkan_core.h>
 #include "vulkan_resource_image.hpp"
+#include "vulkan_resource_mesh.hpp"
 #include "vulkan_util.hpp"
 #include "vulkan_renderer.hpp"
 
@@ -27,7 +28,7 @@ VulkanResourceImage::VulkanResourceImage(
     Instance *_instance,
     u32 width, u32 height, 
 	ColorFormat _cformat, ImageFormat _iformat,
-	void *data, std::optional<Path> _path)  
+	void *data, int mips, std::optional<Path> _path)
     : ResourceImage(_instance, width, height, _cformat, _iformat, data, _path), internaly_managed(false) {
 
 	renderer = (VulkanRenderer*)(instance->renderer.get());
@@ -36,44 +37,62 @@ VulkanResourceImage::VulkanResourceImage(
 
 	VkImageCreateInfo rimg_info = {};
 	VmaAllocationCreateInfo rimg_allocinfo = {};
+	VkImageUsageFlags imageUsages = {}; //VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	VkImageAspectFlags aspect = 0;
 	rimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 	rimg_allocinfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	imageExtent = drawImageExtent;
 
 	// hardcoding the draw format to 32 bit float
 	switch (cformat) {
 		case (ColorFormat::DEPTH): {
 			imageFormat = VK_FORMAT_D32_SFLOAT;
-			imageExtent = drawImageExtent;
-			VkImageUsageFlags depthImageUsages{};
-			depthImageUsages |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-			depthImageUsages |= VK_IMAGE_USAGE_SAMPLED_BIT;
-			rimg_info = vkutil::image_create_info(imageFormat, depthImageUsages, drawImageExtent);
-			VK_CHECK(vmaCreateImage(renderer->allocator, &rimg_info, &rimg_allocinfo, &image, &allocation, nullptr));
-			VkImageViewCreateInfo rview_info = vkutil::imageview_create_info(imageFormat, image, VK_IMAGE_ASPECT_DEPTH_BIT);
-			VK_CHECK(vkCreateImageView(renderer->device, &rview_info, nullptr, &imageView));
-			RL_LOG_TRACE("Createing depth image");
+			imageUsages |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			imageUsages |= VK_IMAGE_USAGE_SAMPLED_BIT;
+			rimg_info = vkutil::image_create_info(imageFormat, imageUsages, drawImageExtent);
+			aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
 			break;
 		}
 	
-		case (ColorFormat::RGBA_FLOAT): {
+		case (ColorFormat::RGBA_FLOAT16): {
 			imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
-			imageExtent = drawImageExtent;
-			VkImageUsageFlags drawImageUsages{};
-			drawImageUsages |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-			drawImageUsages |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-			drawImageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
-			drawImageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			drawImageUsages |= VK_IMAGE_USAGE_SAMPLED_BIT;
-			rimg_info = vkutil::image_create_info(imageFormat, drawImageUsages, drawImageExtent);
-			VK_CHECK(vmaCreateImage(renderer->allocator, &rimg_info, &rimg_allocinfo, &image, &allocation, nullptr));
-			VkImageViewCreateInfo rview_info = vkutil::imageview_create_info(imageFormat, image, VK_IMAGE_ASPECT_COLOR_BIT);
-			VK_CHECK(vkCreateImageView(renderer->device, &rview_info, nullptr, &imageView));
-			RL_LOG_TRACE("Creating RGBA float image");
+			imageUsages |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+			imageUsages |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+			imageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
+			imageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			imageUsages |= VK_IMAGE_USAGE_SAMPLED_BIT;
+			rimg_info = vkutil::image_create_info(imageFormat, imageUsages, drawImageExtent);
+			aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+			break;
+		}
+		case (ColorFormat::RGBA_FLOAT8): {
+			imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+			imageUsages |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+			imageUsages |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+			imageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
+			imageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			imageUsages |= VK_IMAGE_USAGE_SAMPLED_BIT;
+			rimg_info = vkutil::image_create_info(imageFormat, imageUsages, drawImageExtent);
+			aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 			break;
 		}
 	default:
 		RL_LOG_ERROR("color format not supported yet");
-	} 
+	}
+
+	if(mips != 0) {
+		rimg_info.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(imageExtent.width, imageExtent.height)))) + 1;
+	}
+
+	// rimg_info.mipLevels = mips;
+	VK_CHECK(vmaCreateImage(renderer->allocator, &rimg_info, &rimg_allocinfo, &image, &allocation, nullptr));
+
+	if(data != nullptr) {
+		make_image_from_data(data, imageUsages, mips != 0);
+	}
+	
+	VkImageViewCreateInfo rview_info = vkutil::imageview_create_info(imageFormat, image, aspect);
+	VK_CHECK(vkCreateImageView(renderer->device, &rview_info, nullptr, &imageView));
 
 	VkImageLayout layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
@@ -91,6 +110,41 @@ VulkanResourceImage::VulkanResourceImage(
 	}
 
 	imgui_descriptorset = ImGui_ImplVulkan_AddTexture(imageView, layout);
+}
+
+void VulkanResourceImage::make_image_from_data(
+			void *data, VkImageUsageFlags usage, bool mipmapped) {
+
+	size_t data_size = imageExtent.depth * imageExtent.width * imageExtent.height * 4;
+	RL_LOG_INFO("here {}", data_size);
+	vkutil::AllocatedBuffer uploadbuffer = vkutil::create_buffer(renderer, data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
+
+	memcpy(uploadbuffer.info.pMappedData, data, data_size);
+
+	vkutil::immediate_submit(renderer->imm_fence, renderer->imm_command_buffer, renderer->device, renderer->graphics_queue,
+	[&](VkCommandBuffer cmd) {
+		vkutil::transition_image(cmd, image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+		VkBufferImageCopy copyRegion = {};
+		copyRegion.bufferOffset = 0;
+		copyRegion.bufferRowLength = 0;
+		copyRegion.bufferImageHeight = 0;
+
+		copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		copyRegion.imageSubresource.mipLevel = 0;
+		copyRegion.imageSubresource.baseArrayLayer = 0;
+		copyRegion.imageSubresource.layerCount = 1;
+		copyRegion.imageExtent = imageExtent;
+
+		// copy the buffer into the image
+		vkCmdCopyBufferToImage(cmd, uploadbuffer.buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+			&copyRegion);
+
+		vkutil::transition_image(cmd, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		});
+
+	vkutil::destroy_buffer(renderer, uploadbuffer);
 }
 
 VulkanResourceImage::~VulkanResourceImage() {
@@ -115,6 +169,7 @@ ImageHandle VulkanResourceImage::get_handle() {
 	return imageView;
 }
 
+/*
 ResourceImage *ResourceImage::create(
 		Instance *instance,
 		u32 width, u32 height, 
@@ -122,5 +177,6 @@ ResourceImage *ResourceImage::create(
 
 	return new VulkanResourceImage(instance, width, height, cformat, iformat, data);
 }
+*/
 
 }

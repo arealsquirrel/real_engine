@@ -22,7 +22,7 @@ public:
         Instance *_instance,
         u32 width, u32 height,
         ColorFormat cformat, ImageFormat iformat,
-		void *data=nullptr,
+		void *data=nullptr, int mips=0,
 		std::optional<Path> _path=std::nullopt);
 
 	VulkanResourceImage(
@@ -34,12 +34,16 @@ public:
     ~VulkanResourceImage();
 
 	ImageHandle get_handle() override;
-	ColorFormat get_color_format() override { return ColorFormat::UNKNOWN; }
+	ColorFormat get_color_format() override { return cformat; }
 	std::pair<u32, u32> get_image_extent() override { return std::make_pair(imageExtent.width, imageExtent.height); }
 	void transition_image(FrameContext context, ImageFormat to) override;
 	ImageFormat get_image_format() override { return iformat; };
 
 	ImTextureID get_imgui_textureID() override;
+
+private:
+	void make_image_from_data(
+			void* data, VkImageUsageFlags usage, bool mipmapped);
 
 public:
 	const bool internaly_managed;
@@ -48,7 +52,6 @@ public:
     VmaAllocation allocation;
     VkExtent3D imageExtent;
     VkFormat imageFormat;
-	// ImageFormat engineFormat;
 	VulkanRenderer *renderer;
 
 	VkDescriptorSet imgui_descriptorset;

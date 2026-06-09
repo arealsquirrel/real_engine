@@ -6,6 +6,7 @@
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
+#include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include <real/resource/resource_handle.hpp>
 
@@ -53,6 +54,10 @@ public:
 
 	static Unique<ResourceMesh> create_resource_mesh(
 		Instance *instance, std::vector<uint32_t> indices, char *data, size_t size);
+
+	static Unique<ResourceImage> create_resource_image(
+			Instance *_instance, u32 width, u32 height,
+			ColorFormat cformat, ImageFormat iformat, void *data=nullptr, int mips=0);
 };
 
 }

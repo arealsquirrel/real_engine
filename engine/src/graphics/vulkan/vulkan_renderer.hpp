@@ -24,6 +24,7 @@ struct FrameDataVulkan {
     VkExtent2D draw_extent;
     u32 swapchain_index;
     vkutil::DeletionQueue delete_queue;
+	DescriptorAllocatorGrowable frameDescriptors;
 };
 
 class VulkanRenderer : public Renderer {
@@ -56,6 +57,9 @@ public:
     VkCommandBuffer imm_command_buffer;
     VkCommandPool imm_command_pool;
     VkQueue graphics_queue;
+
+	VkSampler samplerNearest;
+	VkSampler samplerLinear;
 	
 private:
 	vkb::Device vkbDevice;

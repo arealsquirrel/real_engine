@@ -3,6 +3,7 @@
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/vector_float3.hpp"
 #include "glm/ext/vector_float4.hpp"
 #include "real/core/core.hpp"
 #include "real/core/game.hpp"
@@ -30,13 +31,26 @@ extern "C" {
 }
 
 static inline glm::mat4 get_projection() {
+	ImGui::Begin("mesh projection");
+
+	static glm::vec3 rot {};
+	static glm::vec3 position {0.0f, 0.0f, -3.0f};
+	ImGui::InputFloat3("Rotation", &rot.x);
+	ImGui::InputFloat3("Position", &position.x);
+
 	glm::mat4 view(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -7.0f));
-	view = glm::rotate(view, glm::radians((float)glfwGetTime() * 50.0f + 180), glm::vec3(1.0f, 0.0f, 0.0f));
+	view = glm::scale(view, glm::vec3(1.0f, 1.0f, 1.0f));
+    view = glm::translate(view, position);
+ 	view = glm::rotate(view, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+ 	view = glm::rotate(view, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+ 	view = glm::rotate(view, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 projection;
 	float aspect = (float)1200 / 800;
 	projection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 100.0f);
 	projection[1][1] *= -1;
+
+	ImGui::End();
+
 	return projection * view;
 }
 
@@ -53,7 +67,12 @@ void MyGame::start() {
 
 	mesh_resource = resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceMesh>(
-				instance.get(), "../engine/resources/meshes/monkey.obj"), "monkey");
+				instance.get(), "../engine/resources/meshes/viking_room.obj"), "viking_room.obj");
+
+
+	resource_database->register_resource(
+			Resource::load<ResourceSerializerType::Disk, ResourceImage>(
+		 		instance.get(), "../engine/resources/textures/viking_room.png"), "viking_room.png");
 
 	auto renderColorImage = resource_database->get_resource<ResourceImage>("_render_color_texture");
 	auto renderDepthImage = resource_database->get_resource<ResourceImage>("_render_depth_texture");
@@ -92,5 +111,6 @@ MyGame::~MyGame() {
 	
 	resource_database->unregister_resource("gradient.slang");
 	resource_database->unregister_resource("flat.slang");
-	resource_database->unregister_resource("monkey");
+	resource_database->unregister_resource("viking_room.png");
+	resource_database->unregister_resource("viking_room.obj");
 }
