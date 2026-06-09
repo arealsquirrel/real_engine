@@ -4,9 +4,9 @@
 #include "real/core/game.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
-#include "real/graphics/renderer.hpp"
 #include "real/resource/resource_shader.hpp"
 #include <vulkan/vulkan_core.h>
+#include <spirv_reflect.h>
 
 namespace real {
 
@@ -18,12 +18,15 @@ RL_OBJECT(VulkanResourceShader, ResourceShader)
 public:
 	VulkanResourceShader(
 			Instance *_instance, std::vector<char> data,
-			std::vector<ShaderField> fields, u32 _type,
+			std::vector<ShaderField> fields={},
+			ShaderTypeFlags _type=ShaderTypeFlag_NONE,
 			std::optional<Path> _path=std::nullopt);
 
 	~VulkanResourceShader();
 
-	// void write_to_field(ShaderField field, void *buffer, size_t size, FrameContext frame) override;
+private:
+	void serialize_shader(std::vector<char> data);
+	void serialize_function_compute(SpvReflectEntryPoint fn);
 
 public:
     VkShaderModule module;

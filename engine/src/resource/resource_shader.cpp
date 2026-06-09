@@ -8,15 +8,20 @@
 
 namespace real {
 
-const char *ShaderType_to_string(const ShaderType type) {
+const char *ShaderType_to_string(const ShaderTypeFlags type) {
+	/*
 	constexpr const char *arr[] = {
 		"COMPUTE", "VERTEX", "FRAGMENT", "VERTEX_FRAGMENT"};
 	return arr[(int)type];
+	*/
+	RL_LOG_WARN("Function not implemented");
+
+	return "null";
 }
 
 const char *ShaderFieldType_to_string(const ShaderFieldType type) {
 	constexpr const char *arr[] = {
-		"UNIFORM", "STORAGE_IMAGE", "SAMPLED_IMAGE", "PUSH_CONSTANT"
+		"UNIFORM", "PUSH_CONSTANT"
 	};
 
 	return arr[(int)type];
@@ -25,7 +30,9 @@ const char *ShaderFieldType_to_string(const ShaderFieldType type) {
 const char *ShaderDataType_to_string(const ShaderDataType type) {
 	constexpr const char *arr[] = {
 		"NONE", "FLOAT", "FLOAT2", "FLOAT3", "FLOAT4",
-		"INT", "INT2", "INT3", "INT4"
+		"INT", "INT2", "INT3", "INT4", 	"FLOAT4x4",
+	"FLOAT3x3", "FLOAT2x2", "STRUCT", "POINTER", "SAMPLED_IMAGE",
+	"UNIFORM_BUFFER", "STORAGE_IMAGE"
 	};
 
 	return arr[(int)type];
@@ -39,12 +46,12 @@ ResourceShader::ResourceShader(
 
 ResourceShader::~ResourceShader() = default;
 
-ShaderField ShaderLayout::get_field(std::string str) {
+ShaderField ShaderLayout::get_field(std::string str) const {
 	if(field_map.find(str) == field_map.end()) {
 		RL_LOG_WARN("Field {} could not be found in shader layout", str);
 	}
 
-	return field_map[str];
+	return field_map.at(str);
 }
 
 void ShaderLayout::add_field_entry(ShaderField field) {

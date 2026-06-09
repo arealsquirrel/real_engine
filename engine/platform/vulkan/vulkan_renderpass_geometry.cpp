@@ -50,11 +50,13 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		depthImage = std::nullopt;
 	}
 
+	/*
 	DescriptorLayoutBuilder lb;
 	VulkanResourceShader *vshader = (VulkanResourceShader*)shaders[0].get();
 	for(size_t i = 0; i < vshader->descriptor_types.size(); i++) {
 		lb.add_binding(i, vshader->descriptor_types[i]);
 	}
+	*/
 
 	VkPushConstantRange pushConstant{};
 	pushConstant.offset = 0;
@@ -135,11 +137,11 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 			stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			stage.pNext = nullptr;
 			stage.module = dynamic_cast<VulkanResourceShader*>(s.get())->module;
-			if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderType_VERTEX) {
+			if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_VERTEX) {
 				stage.pName = "vertex_main";
 				stage.stage = VK_SHADER_STAGE_VERTEX_BIT;
 				shaderStages.push_back(stage);
-			} else if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderType_FRAGMENT) {
+			} else if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_FRAGMENT) {
 				stage.pName = "fragment_main";
 				stage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 				shaderStages.push_back(stage);
@@ -239,7 +241,7 @@ void VulkanRenderPassGeometry::draw_mesh(
 	FrameDataVulkan *frame = (FrameDataVulkan*)context;
 	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
 
-	static ShaderField f {ShaderFieldType::PUSH_CONSTANT, ShaderDataType::FLOAT4x4, "_vertex_buffer", 0, 64};
+	static ShaderField f {ShaderTypeFlag_VERTEX, ShaderFieldType::PUSH_CONSTANT, ShaderDataType::FLOAT4x4, false, 0,  "_vertex_buffer", 0, 64};
 	set_variable(f, (char*)&da_mesh->address, sizeof(VkDeviceAddress));
 
 	vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);

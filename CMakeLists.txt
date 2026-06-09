@@ -21,6 +21,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -DDEBUG")      # Debug flags
 set(CMAKE_CXX_FLAGS_MINSIZEREL "-g -Oz")      # Debug flags
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG") # Release flags
 
+include("cmake/docs.cmake")
 include("cmake/get_cpm.cmake")
 include("cmake/packages.cmake")
 include("cmake/imgui_cmake.cmake")
@@ -39,7 +40,6 @@ add_subdirectory(app)
 add_subdirectory(tests)
 add_subdirectory(runtime)
 add_subdirectory(editor)
-include("cmake/docs.cmake")
 
 add_custom_target(
     shaders

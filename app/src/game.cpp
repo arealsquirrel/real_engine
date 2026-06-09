@@ -60,6 +60,10 @@ void MyGame::start() {
 	auto shader = resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
 				instance.get(), "../engine/resources/shaders/gradient.slang.spv"), "gradient.slang");
+	
+	resource_database->register_resource(
+			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
+				instance.get(), "../engine/resources/shaders/test_shader.slang.spv"), "test_shader.slang");
 
 	auto flat_shader = resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceShader>(

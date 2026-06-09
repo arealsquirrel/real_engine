@@ -1,3 +1,5 @@
 build
 .cache
 engine/vendor/
+docs/generated_docs
+docs/Doxyfile

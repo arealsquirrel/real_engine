@@ -3,14 +3,11 @@
 #include "imgui.h"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
-#include "real/core/logging.hpp"
 #include "real/resource/resource.hpp"
-#include "real/resource/resource_database.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_shader.hpp"
 #include <algorithm>
 #include <optional>
-#include <utility>
 
 namespace editor {
 
@@ -18,11 +15,11 @@ template<>
 void PanelResourceViewer::display(real::ResourceShader *resource) {
 	ImGui::Text("fields");
 	for(auto &field : resource->layout.fields) {
-		ImGui::Text("%s %s %s %lu", 
+		ImGui::Text("name:%s type:%s format:%s offset:%lu loc:%lu dim:%i", 
 				field.name.c_str(),
-				real::ShaderFieldType_to_string(field.type),
-				real::ShaderDataType_to_string(field.data),
-				field.offset);
+				real::ShaderDataType_to_string(field.data_type),
+				ShaderFieldType_to_string(field.type),
+				field.offset, field.location, field.array_size);
 	}
 }
 
