@@ -81,6 +81,8 @@ VulkanRenderer::~VulkanRenderer() {
 
     ImGui_ImplVulkan_Shutdown();
 	vkDestroyDescriptorPool(device, imgui_descriptor_pool, nullptr);
+	vkDestroySampler(device, samplerLinear, nullptr);
+	vkDestroySampler(device, samplerNearest, nullptr);
 
     delete_queue.flush();
 
@@ -252,7 +254,7 @@ void VulkanRenderer::create_swapchain(u32 width, u32 height) {
 
 	vkb::Swapchain vkbSwapchain = swapchainBuilder
 		.set_desired_format(VkSurfaceFormatKHR{ .format = swapchain_image_format, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR })
-		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+		.set_desired_present_mode(VK_PRESENT_MODE_MAILBOX_KHR)//VK_PRESENT_MODE_FIFO_KHR)
 		.set_desired_extent(width, height)
 		.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 		.build()
@@ -313,8 +315,6 @@ void VulkanRenderer::create_device() {
 }
 
 FrameContext VulkanRenderer::start_frame() {
-    // RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
-    // WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
 	VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
@@ -339,8 +339,6 @@ FrameContext VulkanRenderer::start_frame() {
         VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
-    // transition our main draw image into general layout so we can write into it
-	// we will overwrite it all so we dont care about what was the older layout
 	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 
     ImGui_ImplVulkan_NewFrame();
@@ -351,8 +349,6 @@ FrameContext VulkanRenderer::start_frame() {
 }
 
 void VulkanRenderer::end_frame(FrameContext context) {
-    // RendererDataVulkan *rdata = (RendererDataVulkan*)render_data; 
-    // WindowBackendVulkan *window_backend = (WindowBackendVulkan*)window->backend_handle(); 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = (FrameDataVulkan*)context;
     VkCommandBuffer cmd = frame->main_command_buffer;
@@ -360,8 +356,6 @@ void VulkanRenderer::end_frame(FrameContext context) {
  
 	ImGui::Render();
 
-
-	//transition the draw image and the swapchain image into their correct transfer layouts
 	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 	vkutil::copy_image_to_image(cmd, render_image_handle->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);

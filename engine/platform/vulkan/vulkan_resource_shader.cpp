@@ -5,8 +5,6 @@
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
-#include "real/graphics/renderer.hpp"
-#include "real/graphics/window.hpp"
 #include "real/resource/resource.hpp"
 #include "vulkan_renderer.hpp"
 #include <cstddef>
@@ -91,8 +89,14 @@ VulkanResourceShader::VulkanResourceShader(
 	for(size_t i = 0; i < count; i++) {
 		SpvReflectDescriptorBinding *var = bindings[i];
 		SpvReflectDescriptorType t = var->descriptor_type;
-		descriptor_types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
-		layout.add_field_entry({ShaderFieldType::STORAGE_IMAGE, ShaderDataType::NONE, var->name, i, 0});
+		if(t == SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE) {
+			descriptor_types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+			layout.add_field_entry({ShaderFieldType::STORAGE_IMAGE, ShaderDataType::NONE, var->name, i, 0});
+		} else if (t == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE) {
+			RL_LOG_WARN("Found sampled image");
+			descriptor_types.push_back(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
+			layout.add_field_entry({ShaderFieldType::SAMPLED_IMAGE, ShaderDataType::NONE, var->name, i, 0});
+		}
 	}
 
 	/* ---------- PUSH CONSTANTS ---------- */	

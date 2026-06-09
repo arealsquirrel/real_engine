@@ -13,6 +13,7 @@
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_shader.hpp"
+#include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_mesh.hpp"
@@ -49,6 +50,12 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		depthImage = std::nullopt;
 	}
 
+	DescriptorLayoutBuilder lb;
+	VulkanResourceShader *vshader = (VulkanResourceShader*)shaders[0].get();
+	for(size_t i = 0; i < vshader->descriptor_types.size(); i++) {
+		lb.add_binding(i, vshader->descriptor_types[i]);
+	}
+
 	VkPushConstantRange pushConstant{};
 	pushConstant.offset = 0;
 	pushConstant.size = 128;
@@ -69,8 +76,8 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	VkPipelineRasterizationStateCreateInfo rasterizer = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.f;
-	rasterizer.cullMode = VK_CULL_MODE_NONE; // VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; //VK_FRONT_FACE_CLOCKWISE;
+	rasterizer.cullMode = VK_CULL_MODE_NONE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;

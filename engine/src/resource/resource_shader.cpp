@@ -16,7 +16,7 @@ const char *ShaderType_to_string(const ShaderType type) {
 
 const char *ShaderFieldType_to_string(const ShaderFieldType type) {
 	constexpr const char *arr[] = {
-		"UNIFORM", "STORAGE_IMAGE", "PUSH_CONSTANT"
+		"UNIFORM", "STORAGE_IMAGE", "SAMPLED_IMAGE", "PUSH_CONSTANT"
 	};
 
 	return arr[(int)type];

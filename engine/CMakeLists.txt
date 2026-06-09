@@ -1,48 +1,51 @@
 
 project (reallib VERSION 1.0.0)
 
-file(DOWNLOAD 
-     "https://raw.githubusercontent.com/KhronosGroup/SPIRV-Reflect/refs/heads/main/spirv_reflect.h"
-	 "${PROJECT_SOURCE_DIR}/vendor/spirv_reflect.h"
-)
-
-file(DOWNLOAD 
-     "https://raw.githubusercontent.com/KhronosGroup/SPIRV-Reflect/refs/heads/main/spirv_reflect.c"
-     "${PROJECT_SOURCE_DIR}/vendor/spirv_reflect.cpp"
-)
-
-file(DOWNLOAD
-	"https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/refs/heads/release/tiny_obj_loader.h"
-	"${PROJECT_SOURCE_DIR}/vendor/tiny_obj_loader.hpp"
-)
-
-file(DOWNLOAD
-	"https://raw.githubusercontent.com/nothings/stb/refs/heads/master/stb_image.h"
-	"${PROJECT_SOURCE_DIR}/vendor/stb_image.h"
-)
-
-file(GLOB_RECURSE SRCS src/*.cpp vendor/*.cpp vendor/*.c)
+file(GLOB_RECURSE ENGINE_SRCS src/*.cpp external/*.cpp external/*.c)
 
 configure_file(${PROJECT_SOURCE_DIR}/include/real/config/config.hpp.in
 			   ${PROJECT_SOURCE_DIR}/include/real/config/config.hpp)
 
-add_library(${PROJECT_NAME} SHARED ${SRCS})
+if("${REAL_RENDER_BACKEND}" STREQUAL "vulkan")
+	file(GLOB_RECURSE VULKAN_SRCS platform/vulkan/*.cpp)
+	list(APPEND ENGINE_SRCS ${VULKAN_SRCS})
+endif()
+
+if("${REAL_RENDER_BACKEND}" STREQUAL "opengl")
+	message(ERROR "we dont have anything for opengl")
+	file(GLOB_RECURSE OPENGL_SRCS platform/opengl/*.cpp)
+	list(APPEND ENGINE_SRCS ${OPENGL_SRCS})
+endif()
+
+add_library(${PROJECT_NAME} SHARED ${ENGINE_SRCS})
 
 target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden -fPIC)
-target_compile_definitions(${PROJECT_NAME} PUBLIC SPIRV_REFLECT_USE_SYSTEM_SPIRV_H)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/vendor
+	${PROJECT_SOURCE_DIR}/external
 )
 
-target_link_libraries(${PROJECT_NAME}
-	PRIVATE GPUOpen::VulkanMemoryAllocator
-	PUBLIC fmt
-	PRIVATE Vulkan::Vulkan
-	PRIVATE vk-bootstrap
-	PUBLIC glfw
-	PUBLIC imgui_cmake_wrapper
-	PUBLIC glm::glm
-)
+if("${REAL_RENDER_BACKEND}" STREQUAL "vulkan")
+	target_compile_definitions(${PROJECT_NAME} PUBLIC SPIRV_REFLECT_USE_SYSTEM_SPIRV_H)
 
+	target_link_libraries(${PROJECT_NAME}
+		PRIVATE GPUOpen::VulkanMemoryAllocator
+		PRIVATE Vulkan::Vulkan
+		PRIVATE vk-bootstrap
+		PUBLIC fmt
+		PUBLIC glfw
+		PUBLIC imgui_cmake_wrapper
+		PUBLIC glm::glm
+	)
+elseif("${REAL_RENDER_BACKEND}" STREQUAL "opengl")
+	target_link_libraries(${PROJECT_NAME}
+		PRIVATE GPUOpen::VulkanMemoryAllocator
+		PRIVATE Vulkan::Vulkan
+		PRIVATE vk-bootstrap
+		PUBLIC fmt
+		PUBLIC glfw
+		PUBLIC imgui_cmake_wrapper
+		PUBLIC glm::glm
+	)
+endif()

@@ -3,5 +3,6 @@
 #define RL_VERSION_MINOR 0
 #define RL_VERSION_PATCH 0
 
-#define RL_BUILD_TYPE 
+#define RL_BUILD_TYPE Release
+#define RL_RENDER_BACKEND vulkan
 

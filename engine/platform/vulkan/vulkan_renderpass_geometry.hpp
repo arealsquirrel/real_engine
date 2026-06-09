@@ -39,6 +39,9 @@ private:
 	VkPipelineLayout layout;
 	ShaderField addr_loc;
 
+	VkDescriptorSet descriptor_set;
+	VkDescriptorSetLayout descriptor_set_layout;
+
 	// size_t color_image_index {0};
 	// size_t depth_image_index {0};
 	ResourceHandle<VulkanResourceImage> renderImage;

@@ -23,6 +23,7 @@ enum ShaderType : u32 {
 enum class ShaderFieldType {
 	UNIFORM,
 	STORAGE_IMAGE,
+	SAMPLED_IMAGE,
 	PUSH_CONSTANT
 };
 
@@ -40,14 +41,6 @@ enum class ShaderDataType {
 	POINTER
 };
 
-struct ShaderField {
-    ShaderFieldType type;
-	ShaderDataType data;
-    std::string name;
-    size_t location;
-	size_t offset;
-};
-
 REALLIB_EXPORT 
 const char *ShaderType_to_string(const ShaderType type);
 
@@ -56,6 +49,14 @@ const char *ShaderFieldType_to_string(const ShaderFieldType type);
 
 REALLIB_EXPORT 
 const char *ShaderDataType_to_string(const ShaderDataType type);
+
+struct ShaderField {
+    ShaderFieldType type;
+	ShaderDataType data;
+    std::string name;
+    size_t location;
+	size_t offset;
+};
 
 struct REALLIB_EXPORT ShaderLayout {
 public:
@@ -66,9 +67,6 @@ public:
 	std::unordered_map<std::string, ShaderField> field_map;
 };
 
-/**
- * @brief the backend is entirly in the render folder of the API in use
- */
 class REALLIB_EXPORT ResourceShader : public Resource {
 RL_OBJECT(ResourceShader, Resource)
 EXPOSE_TO_EDITOR

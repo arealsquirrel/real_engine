@@ -1,7 +1,10 @@
 #ifndef REALLIB_VULKAN_UTIL_HPP
 #define REALLIB_VULKAN_UTIL_HPP
 
+#include "real/core/logging.hpp"
 #include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_enums.hpp>
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -13,7 +16,10 @@
 
 namespace real {
 
-#define VK_CHECK(cond) if(cond != VK_SUCCESS) { assert(false); }
+#define VK_CHECK(cond) {VkResult _result = (cond); if(_result) {  \
+	RL_LOG_ERROR("FATAL VULKAN ERROR {}", (u32)_result);  \
+	assert(false); \
+}}
 
 // as recommended by vk guide
 namespace vkutil {
