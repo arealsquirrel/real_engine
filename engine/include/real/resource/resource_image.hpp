@@ -36,8 +36,7 @@ protected:
 			Instance *_instance,
 			u32 width, u32 height, 
         	ColorFormat cformat, ImageFormat iformat,
-			void *data=nullptr,
-			std::optional<Path> _path=std::nullopt);
+			void *data=nullptr);
 
 public:
 	virtual ImTextureID get_imgui_textureID() = 0;

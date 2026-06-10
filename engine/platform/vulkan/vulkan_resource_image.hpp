@@ -22,8 +22,7 @@ public:
         Instance *_instance,
         u32 width, u32 height,
         ColorFormat cformat, ImageFormat iformat,
-		void *data=nullptr, int mips=0,
-		std::optional<Path> _path=std::nullopt);
+		void *data=nullptr, int mips=0);
 
 	VulkanResourceImage(
 		Instance *_instance,

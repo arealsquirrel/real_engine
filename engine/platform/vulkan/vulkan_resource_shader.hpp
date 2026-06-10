@@ -19,8 +19,7 @@ public:
 	VulkanResourceShader(
 			Instance *_instance, std::vector<char> data,
 			std::vector<ShaderField> fields={},
-			ShaderTypeFlags _type=ShaderTypeFlag_NONE,
-			std::optional<Path> _path=std::nullopt);
+			ShaderTypeFlags _type=ShaderTypeFlag_NONE);
 
 	~VulkanResourceShader();
 

@@ -65,9 +65,8 @@ static ShaderDataType reflect_to_datatype(SpvReflectTypeDescription* type) {
 
 VulkanResourceShader::VulkanResourceShader(
 		Instance *_instance, std::vector<char> data, 
-		std::vector<ShaderField> fields, u32 _type,
-		std::optional<Path> _path) 
-	: ResourceShader(_instance, data, fields, _type, _path), 
+		std::vector<ShaderField> fields, u32 _type) 
+	: ResourceShader(_instance, data, fields, _type), 
 		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
 			
 	serialize_shader(data);
@@ -202,20 +201,13 @@ void VulkanResourceShader::serialize_function_compute(SpvReflectEntryPoint fn) {
 }
 
 template<>
-ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-        Instance *instance,
-        Optional<Path> path) {
+ResourceHandle<ResourceShader> ResourceDatabase::load_resource_disk(Path path, std::string name) {
 
-    if(path.has_value() == false) {
-        RL_LOG_WARN("resource shader vulkan std::optional path does not have value");
-        return nullptr;
-    }
-
-    std::ifstream file(path.value(), std::ios::ate | std::ios::binary);
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        RL_LOG_WARN("std::ifstream failed to open file {}", path->c_str());
-        return nullptr;
+        RL_LOG_WARN("std::ifstream failed to open file {}", path.c_str());
+        // return nullptr;
     }
 
     size_t fileSize = (size_t)file.tellg();
@@ -224,7 +216,8 @@ ResourceShader *Resource::load<ResourceSerializerType::Disk, ResourceShader>(
     file.read((char*)buffer.data(), fileSize);
     file.close();
 
-    return (ResourceShader*)(new VulkanResourceShader(instance, buffer, {}, ShaderTypeFlag_NONE, path));
+    auto shader = (ResourceShader*)(new VulkanResourceShader(instance, buffer, {}, ShaderTypeFlag_NONE));
+	return register_resource(shader , name, UUID(), path);
 }
 
 }

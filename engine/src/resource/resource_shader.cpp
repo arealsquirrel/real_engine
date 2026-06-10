@@ -9,11 +9,6 @@
 namespace real {
 
 const char *ShaderType_to_string(const ShaderTypeFlags type) {
-	/*
-	constexpr const char *arr[] = {
-		"COMPUTE", "VERTEX", "FRAGMENT", "VERTEX_FRAGMENT"};
-	return arr[(int)type];
-	*/
 	RL_LOG_WARN("Function not implemented");
 
 	return "null";
@@ -40,9 +35,8 @@ const char *ShaderDataType_to_string(const ShaderDataType type) {
 
 ResourceShader::ResourceShader(
         Instance *_instance, std::vector<char> data,
-		std::vector<ShaderField> fields, u32 _type,
-		std::optional<Path> _path) 
-	: Resource(_instance, _path), type(_type) {}
+		std::vector<ShaderField> fields, u32 _type) 
+	: Resource(_instance), type(_type) {}
 
 ResourceShader::~ResourceShader() = default;
 

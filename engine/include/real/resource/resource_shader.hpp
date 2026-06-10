@@ -108,8 +108,7 @@ public:
 protected:
     ResourceShader(
         Instance *_instance, std::vector<char> data, 
-		std::vector<ShaderField> fields, u32 _type,
-		std::optional<Path> _path);
+		std::vector<ShaderField> fields, u32 _type);
 
 public:
     ~ResourceShader();

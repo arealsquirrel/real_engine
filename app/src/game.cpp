@@ -11,7 +11,9 @@
 #include "real/core/types.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
+#include "real/resource/resource_shader.hpp"
 #include <GLFW/glfw3.h>
 #include <optional>
 
@@ -61,26 +63,11 @@ static inline glm::mat4 get_projection() {
 void MyGame::start() {
 	auto [width, height] = window->get_glfw_window_dimensions();
 	
-	auto shader = resource_database->register_resource(
-			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-				instance.get(), "../engine/resources/shaders/gradient.slang.spv"), "gradient.slang");
-	
-	resource_database->register_resource(
-			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-				instance.get(), "../engine/resources/shaders/test_shader.slang.spv"), "test_shader.slang");
 
-	auto flat_shader = resource_database->register_resource(
-			Resource::load<ResourceSerializerType::Disk, ResourceShader>(
-				instance.get(), "../engine/resources/shaders/flat.slang.spv"), "flat.slang");
-
-	mesh_resource = resource_database->register_resource(
-			Resource::load<ResourceSerializerType::Disk, ResourceMesh>(
-				instance.get(), "../engine/resources/meshes/viking_room.obj"), "viking_room.obj");
-
-
-	mesh_texture = resource_database->register_resource(
-			Resource::load<ResourceSerializerType::Disk, ResourceImage>(
-		 		instance.get(), "../engine/resources/textures/viking_room.png"), "viking_room.png");
+	auto shader = resource_database->load_resource_disk<ResourceShader>("../engine/resources/shaders/gradient.slang.spv");
+	auto flat_shader = resource_database->load_resource_disk<ResourceShader>("../engine/resources/shaders/flat.slang.spv");
+	mesh_resource = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/viking_room.obj");
+	mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/viking_room.png");
 
 	auto renderColorImage = resource_database->get_resource<ResourceImage>("_render_color_texture");
 	auto renderDepthImage = resource_database->get_resource<ResourceImage>("_render_depth_texture");
@@ -122,8 +109,8 @@ MyGame::~MyGame() {
 	delete compute_pass;
 	delete geometry_pass;
 	
-	resource_database->unregister_resource("gradient.slang");
-	resource_database->unregister_resource("flat.slang");
+	resource_database->unregister_resource("gradient.slang.spv");
+	resource_database->unregister_resource("flat.slang.spv");
 	resource_database->unregister_resource("viking_room.png");
 	resource_database->unregister_resource("viking_room.obj");
 }

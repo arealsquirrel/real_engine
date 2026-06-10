@@ -30,11 +30,11 @@ ResourceDatabase::Entry ResourceDatabase::get_entry(UUID id) {
 
 void ResourceDatabase::unregister_resource(std::string name) {
 	// Entry e = get_entry(name);
-	UUID id = name_to_resource_UUID.at(name);
+	Entry en = name_to_resource_UUID.at(name);
 	name_to_resource_UUID.erase(name);
 	// uuid_to_entry.erase(id);
-	resource_map.at(id).unload();
-	resource_map.erase(id);
+	resource_map.at(en.id).unload();
+	resource_map.erase(en.id);
 	RL_LOG_TRACE("unloaded resource {}", name.c_str());
 }
 

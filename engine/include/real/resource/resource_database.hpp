@@ -1,12 +1,14 @@
 #ifndef REALLIB_RESOURCE_DATABASE_HPP
 #define REALLIB_RESOURCE_DATABASE_HPP
 
+#include "fmt/format.h"
 #include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_handle.hpp"
+#include <functional>
 #include <optional>
 #include <real/core/string_hash.hpp>
 #include <string>
@@ -28,15 +30,33 @@ public:
     ResourceDatabase(Instance *Instance);
     ~ResourceDatabase();
 
+	using ResourceLoadFn = std::optional<std::function<ResourceHandle<Resource>(Path)>>;
+
+	struct Entry {
+		UUID id;
+		std::string name;
+		std::optional<Path> load_path;
+		ResourceLoadFn load_fn;
+	};
+
 public:
 	template<typename T>
 	ResourceHandle<T> register_resource(
-			T *resource, std::string name,
-			UUID id=UUID()) {
+			T *resource, std::string name, UUID id=UUID(),
+			std::optional<Path> load_path=std::nullopt, ResourceLoadFn load_fn=std::nullopt) {
+
+		if(name == "") {
+			if(load_path.has_value() == false) {
+				RL_LOG_WARN("Registering resource without name or path, using UUID for name");
+				name = fmt::format("{}", id.uuid);
+			} else {
+				name = load_path->filename();
+			}
+		}
 
 		ResourceHandle<T> handle(this, resource, ResourceState::Loaded, id);
 		resource_map.emplace(id, handle);
-		name_to_resource_UUID.emplace(name, id);
+		name_to_resource_UUID.emplace(name, Entry{id, name, load_path, load_fn});
 		RL_LOG_TRACE("registered resource {}", name.c_str());
 		return handle;
 	}
@@ -49,35 +69,25 @@ public:
 
 	template<typename T>
 	ResourceHandle<T> get_resource(std::string name) {
-		return get_resource<T>(name_to_resource_UUID.find(name)->second);
+		return get_resource<T>(name_to_resource_UUID.find(name)->second.id);
 	}
 
 	void unregister_resource(std::string name);
 
-	/*
-	template<typename T, ResourceSerializerType ST>
-	void reload(std::string name) {
-		ResourceHandle<T> r = get_resource<T>(name);
-		Entry e = uuid_to_entry.at(r.get_uuid());
-
-		ResourceHandle<T> newResource(
-				this, Resource::load<ST, T>(instance.get()),
-				ResourceState::Loaded, r.get_uuid());
-
-		resource_array.at(e.arr_index) = newResource;
-	}
-	*/
-
 	void clean_non_references();
 	void clean_unloaded();
+
+	template<class R>
+	ResourceHandle<R> load_resource_disk(Path path, std::string name="");
+
+	template<class R>
+	ResourceHandle<R> load_resource_glob(Path path, std::string name="");
 
 private:
 	EXPOSE_TO_EDITOR;	
 
-	// std::vector<ResourceHandle<Resource>> resource_array;
 	std::unordered_map<UUID, ResourceHandle<Resource>> resource_map;
-	// std::unordered_map<UUID, Entry> uuid_to_entry;
-	std::unordered_map<std::string, UUID> name_to_resource_UUID;
+	std::unordered_map<std::string, Entry> name_to_resource_UUID;
 };
 
 }

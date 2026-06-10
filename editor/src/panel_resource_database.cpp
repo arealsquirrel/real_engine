@@ -29,7 +29,7 @@ void PanelResourceDatabase::draw() {
 		// clipper.Begin(db->resource_map.size());
 		// while (clipper.Step()) {
 		for (auto &[name, id] : db->name_to_resource_UUID) {
-			auto &handle = db->resource_map[id];
+			auto &handle = db->resource_map[id.id];
 
 			ImGui::TableNextRow();
 
@@ -48,8 +48,8 @@ void PanelResourceDatabase::draw() {
 			ImGui::TableSetColumnIndex(1);
 			ImGui::Text("%s", handle.get()->object_name());
 			ImGui::TableSetColumnIndex(2);
-			if(handle.get()->path.has_value())
-				ImGui::Text("%s", handle.get()->path->c_str());
+			if(id.load_path)
+				ImGui::Text("%s", id.load_path->c_str());
 			else
 				ImGui::Text("None");
 		}

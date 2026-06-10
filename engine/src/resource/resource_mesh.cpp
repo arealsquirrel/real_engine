@@ -2,6 +2,7 @@
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
+#include "real/core/uuid.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
@@ -28,7 +29,6 @@ struct Vertex {
 	bool operator==(const Vertex& other) const {
     	return pos == other.pos && color == other.color && uv_x == other.uv_x && uv_y == other.uv_y;
 	}
-
 };
 
 }
@@ -55,9 +55,7 @@ ResourceMesh::~ResourceMesh() {
 }
 
 template<>
-ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
-		Instance *instance, Optional<Path> path) {
-
+ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, std::string name) {
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
@@ -66,7 +64,7 @@ ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
 	std::vector<tinyobj::material_t> materials;
 	std::string warn;
 	std::string err;
-	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path->c_str());
+	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
 
 	for (const auto& shape : shapes) {
 		for (const auto& index : shape.mesh.indices) {
@@ -94,12 +92,9 @@ ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
 		}
 	}
 
-	// return new Vulkan
-	return Graphics::create_resource_mesh(instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex)).release();
+	auto *mesh = Graphics::create_resource_mesh(instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex)).release();
+
+	return register_resource(mesh, name, UUID(), path);
 }
 
 }
-
-/*
-*/
-
