@@ -32,7 +32,10 @@ public:
 	virtual void draw_mesh(FrameContext context, ResourceHandle<ResourceMesh> mesh) final override;
 
 private:
-	void enable_depth(VkPipelineDepthStencilStateCreateInfo &depth);
+	VkPipelineDepthStencilStateCreateInfo create_depth(RenderPassGeometryInfo info);
+	VkPipelineInputAssemblyStateCreateInfo create_input_assembly(RenderPassGeometryInfo info);
+	VkPipelineRasterizationStateCreateInfo create_rasterizer(RenderPassGeometryInfo info);
+	VkPipelineMultisampleStateCreateInfo create_multisample_control(RenderPassGeometryInfo info);
 
 private:
 	VkPipeline pipeline;

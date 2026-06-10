@@ -44,13 +44,12 @@ public:
 	static Unique<Renderer> create_renderer(Instance *instance, Shared<Window> window);
 
 	static Unique<RenderPassCompute> create_render_pass_compute(
-		Instance *instance, ResourceHandle<ResourceShader> shader,
-		std::vector<RenderPassResource> resources);
+		Instance *instance, ResourceHandle<ResourceShader> shader, std::vector<RenderPassResource> _resources);
 
 	static Unique<RenderPassGeometry> create_render_pass_geometry(
 		Instance *instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
-		std::vector<RenderPassResource> resources);
+		std::vector<RenderPassResource> _resources);
 
 	static Unique<ResourceMesh> create_resource_mesh(
 		Instance *instance, std::vector<uint32_t> indices, char *data, size_t size);

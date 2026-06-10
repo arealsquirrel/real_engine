@@ -9,6 +9,7 @@
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/render_pass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include <real/real.hpp>
@@ -88,7 +89,11 @@ void MyGame::start() {
 	geometry_pass = Graphics::create_render_pass_geometry(
 			instance.get(), {
 				.renderImage = renderColorImage,
-				.depthImage = renderDepthImage
+				.depthImage = renderDepthImage,
+				.topology = GeometryTopology::Triangle_list,
+				.polygon_mode = GeometryPolygonMode::Fill,
+				.front_face = GeometryFrontFace::Clockwise,
+				.cull_mode = GeometryCullMode::BACK
 			}, { flat_shader }, {}).release();
 }
 

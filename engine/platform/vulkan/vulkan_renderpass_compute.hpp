@@ -17,7 +17,7 @@ public:
 	VulkanRenderPassCompute(
 		Instance *_instance,
         ResourceHandle<ResourceShader> _shader,
-		std::vector<RenderPassResource> _resources);
+        std::vector<RenderPassResource> _resources);
 
 	~VulkanRenderPassCompute();
 

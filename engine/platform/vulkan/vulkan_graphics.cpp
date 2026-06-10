@@ -56,17 +56,17 @@ Unique<Renderer> Graphics::create_renderer(Instance *instance, Shared<Window> wi
 
 Unique<RenderPassCompute> Graphics::create_render_pass_compute(
 	Instance *instance, ResourceHandle<ResourceShader> shader,
-	std::vector<RenderPassResource> resources) {
+	std::vector<RenderPassResource> _resources) {
 
-	return std::make_unique<VulkanRenderPassCompute>(instance, shader, resources);
+	return std::make_unique<VulkanRenderPassCompute>(instance, shader, _resources);
 }
 
 Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
 		Instance *instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
-		std::vector<RenderPassResource> resources) {
+		std::vector<RenderPassResource> _resources) {
 	
-	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, resources);
+	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, _resources);
 }
 
 Unique<ResourceMesh> Graphics::create_resource_mesh(

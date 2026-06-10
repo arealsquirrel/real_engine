@@ -8,6 +8,7 @@
 #include <real/graphics/render_pass.hpp>
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_image.hpp>
+#include <vector>
 
 namespace real {
 
@@ -21,8 +22,7 @@ protected:
 	 * that that get read in by the render pass
 	 */
     RenderPassCompute(
-		Instance *_instance, ShaderLayout layout,
-		std::vector<RenderPassResource> _resources)
+		Instance *_instance, ShaderLayout layout, std::vector<RenderPassResource> _resources)
 		: RenderPass(_instance, layout, _resources) {};
 
 public:

@@ -1,10 +1,6 @@
 
 #include "vulkan_renderpass_geometry.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/vector_float3.hpp"
-#include "glm/trigonometric.hpp"
 #include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
@@ -13,7 +9,6 @@
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_shader.hpp"
-#include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_mesh.hpp"
@@ -35,28 +30,21 @@ struct GPUDrawPushConstants {
 VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		Instance *_instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
-		std::vector<RenderPassResource> resources)
-		: RenderPassGeometry(_instance, shaders[0].get()->get_layout(), resources) {
+		std::vector<RenderPassResource> _resources)
+		: RenderPassGeometry(_instance, shaders[0].get()->get_layout(), _resources) {
 
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	viewport_size.w = info.renderImage.get()->get_image_extent().first;
+	viewport_size.h = info.renderImage.get()->get_image_extent().second;
 	RL_LOG_TRACE("creating renderpass geometry");
 
 	renderImage = info.renderImage;
-	// depthImage = info.depthImage;
 
 	if(info.depthImage.has_value()) {
 		depthImage = std::make_optional<ResourceHandle<VulkanResourceImage>>(info.depthImage.value());
 	} else {
 		depthImage = std::nullopt;
 	}
-
-	/*
-	DescriptorLayoutBuilder lb;
-	VulkanResourceShader *vshader = (VulkanResourceShader*)shaders[0].get();
-	for(size_t i = 0; i < vshader->descriptor_types.size(); i++) {
-		lb.add_binding(i, vshader->descriptor_types[i]);
-	}
-	*/
 
 	VkPushConstantRange pushConstant{};
 	pushConstant.offset = 0;
@@ -71,45 +59,27 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstant;
 	VK_CHECK(vkCreatePipelineLayout(renderer->device, &pipelineLayoutCreateInfo, nullptr, &layout));
 
-	VkPipelineInputAssemblyStateCreateInfo inputAssembly =  { .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	
-	VkPipelineRasterizationStateCreateInfo rasterizer = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.f;
-	rasterizer.cullMode = VK_CULL_MODE_NONE;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-	
 	VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
 	colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     colorBlendAttachment.blendEnable = VK_FALSE;
 
-    VkPipelineMultisampleStateCreateInfo multisampling = { .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
-    multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-    multisampling.minSampleShading = 1.0f;
-    multisampling.pSampleMask = nullptr;
-    multisampling.alphaToCoverageEnable = VK_FALSE;
-    multisampling.alphaToOneEnable = VK_FALSE;
-	
-    VkPipelineDepthStencilStateCreateInfo depthStencil = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-    depthStencil.depthTestEnable = VK_TRUE;
-    depthStencil.depthWriteEnable = VK_TRUE;
-    depthStencil.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
-    depthStencil.depthBoundsTestEnable = VK_FALSE;
-    depthStencil.stencilTestEnable = VK_FALSE;
-    depthStencil.front = {};
-    depthStencil.back = {};
-    depthStencil.minDepthBounds = 0.f;
-    depthStencil.maxDepthBounds = 1.f;
+	VkPipelineColorBlendStateCreateInfo colorBlending = {};
+    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlending.pNext = nullptr;
+    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.logicOp = VK_LOGIC_OP_COPY;
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
 
-	if(info.depthImage.has_value()) enable_depth(depthStencil);
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly = create_input_assembly(info);
+	VkPipelineRasterizationStateCreateInfo rasterizer = create_rasterizer(info);
+	VkPipelineDepthStencilStateCreateInfo depthStencil = create_depth(info);
+	VkPipelineMultisampleStateCreateInfo multisampling = create_multisample_control(info);
+	
 
 	VkPipelineRenderingCreateInfo renderInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	std::vector<VkFormat> colorFormats;
 	colorFormats.push_back(renderImage.get()->imageFormat);
-
 	renderInfo.colorAttachmentCount = colorFormats.size();
 	renderInfo.pColorAttachmentFormats = colorFormats.data();
     renderInfo.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
@@ -118,15 +88,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.pNext = nullptr;
     viewportState.viewportCount = 1;
-    viewportState.scissorCount = 1;
-
-    VkPipelineColorBlendStateCreateInfo colorBlending = {};
-    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.pNext = nullptr;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.logicOp = VK_LOGIC_OP_COPY;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
+    viewportState.scissorCount = 1;    
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO };
 
@@ -145,7 +107,11 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 				stage.pName = "fragment_main";
 				stage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 				shaderStages.push_back(stage);
-			} 
+			} else if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_GEOMETRY) {
+				stage.pName = "geometry_main";
+				stage.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+				shaderStages.push_back(stage);
+			}
 		}
 	}
 
@@ -177,9 +143,10 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	addr_loc = shader_layout.get_field("_vertex_buffer");
 }
 
-void VulkanRenderPassGeometry::enable_depth(
-		VkPipelineDepthStencilStateCreateInfo &depth) {
+VkPipelineDepthStencilStateCreateInfo VulkanRenderPassGeometry::create_depth(
+		RenderPassGeometryInfo info) {
 	
+	VkPipelineDepthStencilStateCreateInfo depth = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
 	depth.depthTestEnable = VK_TRUE;
     depth.depthWriteEnable = true;
     depth.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
@@ -189,6 +156,40 @@ void VulkanRenderPassGeometry::enable_depth(
     depth.back = {};
     depth.minDepthBounds = 0.f;
     depth.maxDepthBounds = 1.f;
+	return depth;
+}
+
+VkPipelineInputAssemblyStateCreateInfo VulkanRenderPassGeometry::create_input_assembly(
+	RenderPassGeometryInfo info) {
+
+	VkPipelineInputAssemblyStateCreateInfo inputAssembly =  { .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	return inputAssembly;
+}
+
+VkPipelineRasterizationStateCreateInfo VulkanRenderPassGeometry::create_rasterizer(
+	RenderPassGeometryInfo info) {
+
+	VkPipelineRasterizationStateCreateInfo rasterizer = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };;
+    rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+    rasterizer.lineWidth = 1.f;
+	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	return rasterizer;
+}
+
+VkPipelineMultisampleStateCreateInfo VulkanRenderPassGeometry::create_multisample_control(
+	RenderPassGeometryInfo info) {
+
+	VkPipelineMultisampleStateCreateInfo multisampling = { .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
+    multisampling.sampleShadingEnable = VK_FALSE;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.minSampleShading = 1.0f;
+    multisampling.pSampleMask = nullptr;
+    multisampling.alphaToCoverageEnable = VK_FALSE;
+    multisampling.alphaToOneEnable = VK_FALSE;
+	return multisampling;
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
@@ -218,8 +219,8 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 	VkViewport viewport = {};
 	viewport.x = 0;
 	viewport.y = 0;
-	viewport.width = vimg->imageExtent.width;
-	viewport.height = vimg->imageExtent.height;
+	viewport.width = viewport_size.w;
+	viewport.height = viewport_size.h;
 	viewport.minDepth = 0.f;
 	viewport.maxDepth = 1.f;
 
@@ -228,8 +229,8 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 	VkRect2D scissor = {};
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
-	scissor.extent.width = vimg->imageExtent.width;
-	scissor.extent.height = vimg->imageExtent.height;
+	scissor.extent.width = viewport_size.w;
+	scissor.extent.height = viewport_size.h;
 
 	vkCmdSetScissor(frame->main_command_buffer, 0, 1, &scissor);
 }

@@ -10,6 +10,26 @@ public:
     int z;
 };
 
+struct Vec2Int {
+public:
+    union {
+        struct {
+            int x;
+            int y;
+        };
+
+        struct {
+            int w;
+            int h;
+        };
+
+        struct {
+            int u;
+            int v;
+        };
+    };
+};
+
 }
 
 #endif
