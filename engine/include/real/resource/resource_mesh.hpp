@@ -21,8 +21,8 @@ public:
 	ResourceMesh(Instance *_instance, std::vector<uint32_t> indexes, char *vertex_data, size_t vertex_data_size);
 	virtual ~ResourceMesh();
 
-	virtual void bind(FrameContext context) = 0;
-	virtual void unbind(FrameContext context) = 0;
+	virtual void bind() = 0;
+	virtual void unbind() = 0;
 	virtual MeshAddress get_address() = 0;
 
 private:

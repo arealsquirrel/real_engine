@@ -4,12 +4,12 @@
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/window.hpp"
+#include "real/resource/resource_handle.hpp"
 #include <real/core/core.hpp>
 
 namespace real {
 
-// typedef void* RendererData;
-typedef void* FrameContext;
+class ResourceImage;
 
 // class Instance;
 
@@ -29,8 +29,9 @@ public:
 	// some of the constructors need instance things to be initilized
 	virtual void init() = 0;
 
-    virtual FrameContext start_frame() = 0;
-    virtual void end_frame(FrameContext context) = 0;
+    virtual void start_frame() = 0;
+    virtual void end_frame() = 0;
+    virtual void copy_image_to_screen(ResourceHandle<ResourceImage> image) = 0;
 
 protected:
     Shared<Window> window;

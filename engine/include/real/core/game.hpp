@@ -46,9 +46,6 @@ public:
 	 */
 	virtual void update(u32 delta_time) = 0;
 
-
-	virtual void render(real::FrameContext frame) = 0;
-
 public:
 
 	/**

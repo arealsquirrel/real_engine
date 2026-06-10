@@ -22,8 +22,8 @@ public:
 	~VulkanRenderPassCompute();
 
 public:
-    void begin_pass(FrameContext context) override;
-    void end_pass(FrameContext context) override;
+    void begin_pass() override;
+    void end_pass() override;
 	void set_variable(ShaderField field, char *data, size_t size) override;
 
 private:

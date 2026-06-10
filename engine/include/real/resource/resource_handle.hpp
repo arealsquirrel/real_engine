@@ -8,6 +8,9 @@ namespace real {
 
 class ResourceDatabase;
 
+/**
+ * @brief defines the state of a resource pointer in a resource handle
+ */
 enum class ResourceState {
 	Loaded,
 
@@ -30,6 +33,11 @@ struct REALLIB_EXPORT ResourceHandleControlBlock {
 	UUID id;
 };
 
+/**
+ * @brief basicly a shared pointer implementation with extra state tracking. Manages a resource* and deletes it once all referances are out of scope.
+ * 
+ * @tparam T the resource type
+ */
 template<typename T>
 class REALLIB_EXPORT ResourceHandle {
 public:
@@ -95,7 +103,10 @@ public:
 	void set_state(ResourceState state) { block->state = state; }
 	UUID get_uuid() { return block->id; }
 
-	void unload() {
+	/**
+	 * @brief delete the resource if it is not already unloaded
+	 */
+	void free() {
 		if(block->state != ResourceState::Unloaded) {
 			block->state = ResourceState::Unloaded;
 			delete resource;

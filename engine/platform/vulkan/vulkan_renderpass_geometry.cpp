@@ -162,7 +162,7 @@ VkPipelineDepthStencilStateCreateInfo VulkanRenderPassGeometry::create_depth(
 		depth.depthWriteEnable = VK_FALSE;
 	}
 
-    depth.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
+    depth.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
     depth.depthBoundsTestEnable = VK_FALSE;
     depth.stencilTestEnable = VK_FALSE;
     depth.front = {};
@@ -259,20 +259,24 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
     vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }
 
-void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
-	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+void VulkanRenderPassGeometry::begin_pass() {
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceImage *vimg = renderImage.get();
 	VulkanResourceImage *dimg = depthImage.value().get();
 
 	VkRenderingAttachmentInfo depthAttachment = vkutil::depth_attachment_info(dimg->imageView, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 	VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(vimg->imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	VkRenderingInfo renderInfo = vkutil::rendering_info(frame->draw_extent, &colorAttachment, &depthAttachment);
+	VkRenderingInfo renderInfo = vkutil::rendering_info(frame.draw_extent, &colorAttachment, &depthAttachment);
 	
-	vkutil::transition_image(frame->main_command_buffer, vimg->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	vkutil::transition_image(frame->main_command_buffer, dimg->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+	// vkutil::transition_image(frame->main_command_buffer, vimg->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	// vkutil::transition_image(frame->main_command_buffer, dimg->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 
-	vkCmdBeginRendering(frame->main_command_buffer, &renderInfo);
-	vkCmdBindPipeline(frame->main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+	vimg->transition_image(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	dimg->transition_image(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+
+	vkCmdBeginRendering(frame.main_command_buffer, &renderInfo);
+	vkCmdBindPipeline(frame.main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
 	//set dynamic viewport and scissor
 	VkViewport viewport = {};
@@ -283,7 +287,7 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 	viewport.minDepth = 0.f;
 	viewport.maxDepth = 1.f;
 
-	vkCmdSetViewport(frame->main_command_buffer, 0, 1, &viewport);
+	vkCmdSetViewport(frame.main_command_buffer, 0, 1, &viewport);
 
 	VkRect2D scissor = {};
 	scissor.offset.x = 0;
@@ -291,27 +295,26 @@ void VulkanRenderPassGeometry::begin_pass(FrameContext context) {
 	scissor.extent.width = viewport_size.w;
 	scissor.extent.height = viewport_size.h;
 
-	vkCmdSetScissor(frame->main_command_buffer, 0, 1, &scissor);
+	vkCmdSetScissor(frame.main_command_buffer, 0, 1, &scissor);
 }
 
-void VulkanRenderPassGeometry::draw_mesh(
-		FrameContext context, 
-		ResourceHandle<ResourceMesh> mesh) {
-	
-	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
 
 	static ShaderField f {ShaderTypeFlag_VERTEX, ShaderFieldType::PUSH_CONSTANT, ShaderDataType::FLOAT4x4, false, 0,  "_vertex_buffer", 0, 64};
 	set_variable(f, (char*)&da_mesh->address, sizeof(VkDeviceAddress));
 
-	vkCmdPushConstants(frame->main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
-	vkCmdBindIndexBuffer(frame->main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(frame->main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
+	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
+	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(frame.main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
 }
 
-void VulkanRenderPassGeometry::end_pass(FrameContext context) {
-	FrameDataVulkan *frame = (FrameDataVulkan*)context;
-	vkCmdEndRendering(frame->main_command_buffer);
+void VulkanRenderPassGeometry::end_pass() {
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	FrameDataVulkan &frame = renderer->get_current_frame();
+	vkCmdEndRendering(frame.main_command_buffer);
 }
 
 void VulkanRenderPassGeometry::set_variable(

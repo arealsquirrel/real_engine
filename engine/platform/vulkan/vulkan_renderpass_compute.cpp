@@ -83,25 +83,32 @@ VulkanRenderPassCompute::~VulkanRenderPassCompute() {
     vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }
 
-void VulkanRenderPassCompute::begin_pass(FrameContext context) {
-	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+void VulkanRenderPassCompute::begin_pass() {
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	FrameDataVulkan &frame = renderer->get_current_frame();
+
+	for (auto &resource : resources) {
+		VulkanResourceImage *image = (VulkanResourceImage*)resource.texture.get();
+		image->transition_image(VK_IMAGE_LAYOUT_GENERAL);
+	}
 
 	vkCmdBindPipeline(
-		frame->main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+		frame.main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 
 	vkCmdBindDescriptorSets(
-		frame->main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, 0, 1, &descriptor_set, 0, nullptr);
+		frame.main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, 0, 1, &descriptor_set, 0, nullptr);
 }
 
-void VulkanRenderPassCompute::end_pass(FrameContext context) {
-	FrameDataVulkan *frame = (FrameDataVulkan*)context;
+void VulkanRenderPassCompute::end_pass() {
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	FrameDataVulkan &frame = renderer->get_current_frame();
 
 	vkCmdPushConstants(
-			frame->main_command_buffer, layout,
+			frame.main_command_buffer, layout,
 			VK_SHADER_STAGE_COMPUTE_BIT, 0, 128, push_constant_buffer);
 
 	vkCmdDispatch(
-			frame->main_command_buffer, std::ceil(frame->draw_extent.width / 16.0), std::ceil(frame->draw_extent.height / 16.0), 1);
+			frame.main_command_buffer, std::ceil(frame.draw_extent.width / 16.0), std::ceil(frame.draw_extent.height / 16.0), 1);
 }
 
 void VulkanRenderPassCompute::set_variable(

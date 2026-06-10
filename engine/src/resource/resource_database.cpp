@@ -12,39 +12,22 @@ ResourceDatabase::ResourceDatabase(Instance *instance)
 
 ResourceDatabase::~ResourceDatabase() {
 	for (auto &[id, resource] : resource_map) {
-		resource.unload();
+		resource.free();
 	}
 }
 
-/*
-ResourceDatabase::Entry ResourceDatabase::get_entry(std::string name) {
-	assert(name_to_resource_UUID.find(name) != name_to_resource_UUID.end());
-	return get_entry(name_to_resource_UUID.find(name)->second);
-}
-
-
-ResourceDatabase::Entry ResourceDatabase::get_entry(UUID id) {
-	return uuid_to_entry.find(id)->second;
-}
-*/
-
 void ResourceDatabase::unregister_resource(std::string name) {
-	// Entry e = get_entry(name);
-	Entry en = name_to_resource_UUID.at(name);
+	auto f = name_to_resource_UUID.find(name);
+	if(f == name_to_resource_UUID.end()) {
+		RL_LOG_WARN("can not find resource {}", name);
+		return;
+	}
+
+	Entry en = f->second;
 	name_to_resource_UUID.erase(name);
-	// uuid_to_entry.erase(id);
-	resource_map.at(en.id).unload();
+	resource_map.at(en.id).free();
 	resource_map.erase(en.id);
 	RL_LOG_TRACE("unloaded resource {}", name.c_str());
-}
-
-
-void ResourceDatabase::clean_non_references() {
-
-}
-
-void ResourceDatabase::clean_unloaded() {
-	
 }
 
 }

@@ -24,34 +24,28 @@ public:
         ColorFormat cformat, ImageFormat iformat,
 		void *data=nullptr, int mips=0);
 
-	VulkanResourceImage(
-		Instance *_instance,
-		VkImage _image, VkImageView _view,
-		VkExtent3D _extent, VkFormat _format,
-		bool _internaly_managed=false);
-
     ~VulkanResourceImage();
 
 	ImageHandle get_handle() override;
-	ColorFormat get_color_format() override { return cformat; }
-	std::pair<u32, u32> get_image_extent() override { return std::make_pair(imageExtent.width, imageExtent.height); }
-	void transition_image(FrameContext context, ImageFormat to) override;
-	ImageFormat get_image_format() override { return iformat; };
-
 	ImTextureID get_imgui_textureID() override;
+
+	void transition_image(VkImageLayout to_layout);
 
 private:
 	void make_image_from_data(
 			void* data, VkImageUsageFlags usage, bool mipmapped);
 
+	void expose_to_imgui();
+
 public:
-	const bool internaly_managed;
     VkImage image;
     VkImageView imageView;
     VmaAllocation allocation;
     VkExtent3D imageExtent;
     VkFormat imageFormat;
 	VulkanRenderer *renderer;
+
+	VkImageLayout current_layout;
 
 	VkDescriptorSet imgui_descriptorset;
 };

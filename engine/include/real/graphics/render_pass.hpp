@@ -38,8 +38,8 @@ public:
 
     virtual ~RenderPass() = default;
 
-    virtual void begin_pass(FrameContext context) = 0;
-    virtual void end_pass(FrameContext context) = 0;
+    virtual void begin_pass() = 0;
+    virtual void end_pass() = 0;
 
 	template<typename T>
 	void set_variable(std::string name, T value) {

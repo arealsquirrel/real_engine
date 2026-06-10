@@ -51,7 +51,7 @@ TEST(Resources, ResourceHandleArray) {
 		EXPECT_EQ(r.get_state(), ResourceState::NeverDelete);
 	}
 
-	arr[1].unload();
+	arr[1].free();
 
 	delete db;
 }
@@ -66,7 +66,7 @@ TEST(Resources, ResourceDatabase) {
 	{
 		auto handle = db->get_resource<TestResource>("80");
 		EXPECT_EQ(handle.get()->i, 80);
-		handle.unload();
+		handle.free();
 	}
 
 	{

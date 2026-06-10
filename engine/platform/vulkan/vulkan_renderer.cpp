@@ -52,11 +52,6 @@ void VulkanRenderer::init() {
 	create_descriptors();
 	create_imgui();
 
-	renderImage = instance->resource_database->register_resource(
- 		Graphics::create_resource_image(instance, width, height,
-			ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR).release(),
-		"_render_color_texture");
-
 	instance->resource_database->register_resource(
 			Graphics::create_resource_image(instance, width, height,
 				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH).release(),
@@ -312,12 +307,13 @@ void VulkanRenderer::create_device() {
 	chosenGPU = physicalDevice.physical_device;
 }
 
-FrameContext VulkanRenderer::start_frame() {
+void VulkanRenderer::start_frame() {
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
-	VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
-    frame->draw_extent.width = render_image_handle->imageExtent.width;
-    frame->draw_extent.height = render_image_handle->imageExtent.height;
+    frame->draw_extent = swapchain_extent;
+	// VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
+    // frame->draw_extent.width = render_image_handle->imageExtent.width;
+    // frame->draw_extent.height = render_image_handle->imageExtent.height;
 
     VK_CHECK(vkWaitForFences(
         device, 1,
@@ -337,63 +333,74 @@ FrameContext VulkanRenderer::start_frame() {
         VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
-	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+    // render_image_handle->transition_image(VK_IMAGE_LAYOUT_GENERAL);
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    
-    return frame;
+
+    vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 }
 
-void VulkanRenderer::end_frame(FrameContext context) {
+void VulkanRenderer::copy_image_to_screen(ResourceHandle<ResourceImage> image) {
+    VulkanResourceImage *vi = (VulkanResourceImage*)image.get();
+    vi->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	vkutil::copy_image_to_image(get_current_frame().main_command_buffer, vi->image, swapchain_images[get_current_frame().swapchain_index], get_current_frame().draw_extent, swapchain_extent);
+}
+
+void VulkanRenderer::end_frame() {
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
-    FrameDataVulkan *frame = (FrameDataVulkan*)context;
-    VkCommandBuffer cmd = frame->main_command_buffer;
-	VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
+    FrameDataVulkan &frame = get_current_frame();
+    VkCommandBuffer cmd = frame.main_command_buffer;
+	// VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
+
+    // copy_image_to_screen(renderImage);
+
+    // vkutil::transition_image(cmd, swapchain_images[frame.swapchain_index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
  
 	ImGui::Render();
 
-	vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	vkutil::copy_image_to_image(cmd, render_image_handle->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);
-	vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	// vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	// vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	// vkutil::copy_image_to_image(cmd, render_image_handle->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);
+	
+    vkutil::transition_image(cmd, swapchain_images[frame.swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-    VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame->swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame.swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkRenderingInfo renderInfo = vkutil::rendering_info(swapchain_extent, &colorAttachment, nullptr);
 	vkCmdBeginRendering(cmd, &renderInfo);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 	vkCmdEndRendering(cmd);
 
-    vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+    vkutil::transition_image(cmd, swapchain_images[frame.swapchain_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     VK_CHECK(vkEndCommandBuffer(cmd));
     
     VkCommandBufferSubmitInfo cmdinfo = vkutil::command_buffer_submit_info(cmd);	
     VkSemaphoreSubmitInfo waitInfo = vkutil::semaphore_submit_info(
         VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT_KHR,
-        frame->swapchain_semaphores);
+        frame.swapchain_semaphores);
     VkSemaphoreSubmitInfo signalInfo = vkutil::semaphore_submit_info(
         VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
-            	render_semaphore[frame->swapchain_index]);	
+            	render_semaphore[frame.swapchain_index]);	
     VkSubmitInfo2 submit = vkutil::submit_info(
         &cmdinfo,&signalInfo
         ,&waitInfo);	
     VK_CHECK(vkQueueSubmit2(
         graphics_queue, 1,
-        &submit, frame->render_fence));
+        &submit, frame.render_fence));
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.pNext = nullptr;
     presentInfo.pSwapchains = &swapchain;
     presentInfo.swapchainCount = 1;
-    presentInfo.pWaitSemaphores = &render_semaphore[frame->swapchain_index];
+    presentInfo.pWaitSemaphores = &render_semaphore[frame.swapchain_index];
     presentInfo.waitSemaphoreCount = 1;
 
-    presentInfo.pImageIndices = &frame->swapchain_index;
+    presentInfo.pImageIndices = &frame.swapchain_index;
 
     VK_CHECK(vkQueuePresentKHR(graphics_queue, &presentInfo));
-    frame->delete_queue.flush();
+    frame.delete_queue.flush();
     frame_number++;
 }
 

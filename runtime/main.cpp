@@ -25,11 +25,9 @@ int main() {
 	game->start();
 
 	while(instance->should_close() == false) {
+		instance->renderer->start_frame();
 		game->update(0);
-
-		auto frame = instance->renderer->start_frame();
-		game->render(frame);
-		instance->renderer->end_frame(frame);
+		instance->renderer->end_frame();
 	}
 
 	instance.reset();

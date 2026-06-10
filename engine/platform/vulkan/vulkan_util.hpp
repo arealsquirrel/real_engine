@@ -3,7 +3,6 @@
 
 #include "real/core/logging.hpp"
 #include <vulkan/vulkan_core.h>
-// #include <vulkan/vulkan_enums.hpp>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -21,7 +20,6 @@ namespace real {
 	assert(false); \
 }}
 
-// as recommended by vk guide
 namespace vkutil {
 
 struct DeletionQueue {
@@ -50,8 +48,7 @@ static inline VkCommandPoolCreateInfo command_pool_create_info(uint32_t queueFam
     return info;
 }
 
-static VkRenderingAttachmentInfo depth_attachment_info(
-    VkImageView view, VkImageLayout layout /*= VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL*/) {
+static VkRenderingAttachmentInfo depth_attachment_info(VkImageView view, VkImageLayout layout) {
     VkRenderingAttachmentInfo depthAttachment {};
     depthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
     depthAttachment.pNext = nullptr;
@@ -60,7 +57,7 @@ static VkRenderingAttachmentInfo depth_attachment_info(
     depthAttachment.imageLayout = layout;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    depthAttachment.clearValue.depthStencil.depth = 0.0f;
+    depthAttachment.clearValue.depthStencil.depth = 1.0f;
 
     return depthAttachment;
 }

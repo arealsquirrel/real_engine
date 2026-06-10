@@ -40,6 +40,17 @@ public:
 	};
 
 public:
+	/**
+	 * @brief gives a resource over for managment by the resource database.
+	 * 
+	 * @tparam T the type of the resource
+	 * @param resource 
+	 * @param name the name of the resource it will be known as in the resource database
+	 * @param id the id of the resource in the lookup
+	 * @param load_path 
+	 * @param load_fn 
+	 * @return ResourceHandle<T> a handle to the resource as it is stored in the database
+	 */
 	template<typename T>
 	ResourceHandle<T> register_resource(
 			T *resource, std::string name, UUID id=UUID(),
@@ -52,6 +63,16 @@ public:
 			} else {
 				name = load_path->filename();
 			}
+		}
+
+		if (name_to_resource_UUID.find(name) != name_to_resource_UUID.end()) {
+			RL_LOG_WARN("name collision, renaming resource {}", name);
+			name.append("_");
+		}
+
+		if(resource_map.find(id) != resource_map.end()) {
+			RL_LOG_WARN("UUID collision, giving new ID to resource {}", id.uuid);
+			id = UUID(); // lets hope this works :D
 		}
 
 		ResourceHandle<T> handle(this, resource, ResourceState::Loaded, id);
@@ -72,10 +93,12 @@ public:
 		return get_resource<T>(name_to_resource_UUID.find(name)->second.id);
 	}
 
+	/**
+	 * @brief removes a resource from the database. Deletes and unloads the resource handle
+	 * 
+	 * @param name the name of the resource to be unloaded
+	 */
 	void unregister_resource(std::string name);
-
-	void clean_non_references();
-	void clean_unloaded();
 
 	template<class R>
 	ResourceHandle<R> load_resource_disk(Path path, std::string name="");

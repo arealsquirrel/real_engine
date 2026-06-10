@@ -15,11 +15,11 @@ public:
 
     void start() override;
 	void update(u32 delta_time) override;
-	void render(real::FrameContext frame) override;
 
 private:
     RenderPassCompute *compute_pass;
     RenderPassGeometry *geometry_pass;
     ResourceHandle<ResourceMesh> mesh_resource;
     ResourceHandle<ResourceImage> mesh_texture;
+    ResourceHandle<ResourceImage> render_texture;
 };

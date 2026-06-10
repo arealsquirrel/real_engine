@@ -26,10 +26,10 @@ public:
 	~VulkanRenderPassGeometry();
 
 public:
-	void begin_pass(FrameContext context) final override;
-	void end_pass(FrameContext context) final override;
+	void begin_pass() final override;
+	void end_pass() final override;
 	void set_variable(ShaderField field, char *data, size_t size) final override;
-	virtual void draw_mesh(FrameContext context, ResourceHandle<ResourceMesh> mesh) final override;
+	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh) final override;
 
 private:
 	VkPipelineDepthStencilStateCreateInfo create_depth(RenderPassGeometryInfo info);

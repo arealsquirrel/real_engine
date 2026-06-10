@@ -28,8 +28,8 @@ protected:
 public:
     ~RenderPassCompute() = default;
 
-    virtual void begin_pass(FrameContext context) override = 0;
-    virtual void end_pass(FrameContext context) override = 0;
+    virtual void begin_pass() override = 0;
+    virtual void end_pass() override = 0;
 };
 
 

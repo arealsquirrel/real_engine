@@ -16,20 +16,11 @@
 namespace real {
 
 VulkanResourceImage::VulkanResourceImage(
-		Instance *_instance,
-		VkImage _image, VkImageView _view,
-		VkExtent3D _extent, VkFormat _format,
-		bool _internaly_managed)
-	: ResourceImage(_instance, _extent.width, _extent.height,
-			ColorFormat::UNKNOWN, ImageFormat::UNKNOWN,  nullptr), internaly_managed(_internaly_managed),
-		image(_image), imageView(_view), imageExtent(_extent), imageFormat(_format) {}
-
-VulkanResourceImage::VulkanResourceImage(
     Instance *_instance,
     u32 width, u32 height, 
 	ColorFormat _cformat, ImageFormat _iformat,
 	void *data, int mips)
-    : ResourceImage(_instance, width, height, _cformat, _iformat, data), internaly_managed(false) {
+    : ResourceImage(_instance, width, height, _cformat, _iformat, data) {
 
 	renderer = (VulkanRenderer*)(instance->renderer.get());
 
@@ -37,7 +28,7 @@ VulkanResourceImage::VulkanResourceImage(
 
 	VkImageCreateInfo rimg_info = {};
 	VmaAllocationCreateInfo rimg_allocinfo = {};
-	VkImageUsageFlags imageUsages = {}; //VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+	VkImageUsageFlags imageUsages = {};
 	VkImageAspectFlags aspect = 0;
 	rimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 	rimg_allocinfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -87,6 +78,7 @@ VulkanResourceImage::VulkanResourceImage(
 
 	// rimg_info.mipLevels = mips;
 	VK_CHECK(vmaCreateImage(renderer->allocator, &rimg_info, &rimg_allocinfo, &image, &allocation, nullptr));
+	current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 	if(data != nullptr) {
 		make_image_from_data(data, imageUsages, mips != 0);
@@ -95,6 +87,10 @@ VulkanResourceImage::VulkanResourceImage(
 	VkImageViewCreateInfo rview_info = vkutil::imageview_create_info(imageFormat, image, aspect);
 	VK_CHECK(vkCreateImageView(renderer->device, &rview_info, nullptr, &imageView));
 
+	expose_to_imgui();
+}
+
+void VulkanResourceImage::expose_to_imgui() {
 	VkImageLayout layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
 	switch (iformat) {
@@ -117,7 +113,6 @@ void VulkanResourceImage::make_image_from_data(
 			void *data, VkImageUsageFlags usage, bool mipmapped) {
 
 	size_t data_size = imageExtent.depth * imageExtent.width * imageExtent.height * 4;
-	RL_LOG_INFO("here {}", data_size);
 	vkutil::AllocatedBuffer uploadbuffer = vkutil::create_buffer(renderer, data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	memcpy(uploadbuffer.info.pMappedData, data, data_size);
@@ -146,24 +141,29 @@ void VulkanResourceImage::make_image_from_data(
 		});
 
 	vkutil::destroy_buffer(renderer, uploadbuffer);
+	current_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
 
 VulkanResourceImage::~VulkanResourceImage() {
-
-	if(internaly_managed == false) {
-    	vkDestroyImageView(renderer->device, imageView, nullptr);
-		vmaDestroyImage(renderer->allocator, image, allocation);
-	}
+	vkDestroyImageView(renderer->device, imageView, nullptr);
+	vmaDestroyImage(renderer->allocator, image, allocation);
 }
 
 ImTextureID VulkanResourceImage::get_imgui_textureID() {
+	// transition_image(VK_IMAGE_LAYOUT_GENERAL);
 	return (ImTextureID)imgui_descriptorset;
 }
 
-void VulkanResourceImage::transition_image(FrameContext context, ImageFormat to) {
-	FrameDataVulkan *data = (FrameDataVulkan*)context;
-	
+void VulkanResourceImage::transition_image(VkImageLayout to_layout) {
+	if(current_layout == to_layout) {
+		return;
+	}
 
+	vkutil::transition_image(
+		renderer->get_current_frame().main_command_buffer,
+		image, current_layout, to_layout);
+
+	current_layout = to_layout;
 }
 
 ImageHandle VulkanResourceImage::get_handle() {

@@ -62,9 +62,9 @@ protected:
 public:
 	virtual ~RenderPassGeometry() = default;
 
-	virtual void begin_pass(FrameContext context) override = 0;
-	virtual void end_pass(FrameContext context) override = 0;
-	virtual void draw_mesh(FrameContext context, ResourceHandle<ResourceMesh> mesh) = 0;
+	virtual void begin_pass() override = 0;
+	virtual void end_pass() override = 0;
+	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh) = 0;
 
 	void set_vieport(Vec2Int _viewport);
 	Vec2Int get_viewport() const;

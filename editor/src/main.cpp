@@ -31,11 +31,10 @@ reload_game:
 	log_buffer->index = 0;
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
+		game->renderer->start_frame();
 		game->update(0);
-		auto frame = game->renderer->start_frame();
 		reason = ed->render();
-		game->render(frame);
-		game->renderer->end_frame(frame);
+		game->renderer->end_frame();
 	}
 
 	Game::destroy_game_dll(game, dll);

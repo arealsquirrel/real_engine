@@ -20,8 +20,8 @@ protected:
     }
     
     ~ResourceShaderTestFixture() {
-        compute_shader.unload();
-        frag_vert_shader.unload();
+        compute_shader.free();
+        frag_vert_shader.free();
         delete instance;
     }
 
