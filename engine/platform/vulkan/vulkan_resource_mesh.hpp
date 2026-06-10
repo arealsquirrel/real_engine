@@ -62,8 +62,6 @@ public:
 	vkutil::AllocatedBuffer indexBuffer;
 	VkDeviceAddress address;
 	VulkanRenderer *renderer;
-
-	uint32_t indices_count {0};
 };
 
 }

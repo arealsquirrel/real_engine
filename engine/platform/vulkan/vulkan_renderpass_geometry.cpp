@@ -309,6 +309,8 @@ void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
 	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
 	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(frame.main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
+	renderer->stats.indicies += da_mesh->indices_count;
+	renderer->stats.verticies += da_mesh->verticie_count;
 }
 
 void VulkanRenderPassGeometry::end_pass() {

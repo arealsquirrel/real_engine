@@ -3,6 +3,7 @@
 
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
+#include "real/debug/timer.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_handle.hpp"
 #include <real/core/core.hpp>
@@ -10,6 +11,13 @@
 namespace real {
 
 class ResourceImage;
+
+struct RendererStats {
+    Timer frame_time;
+    u32 verticies;
+    u32 indicies;
+    u32 draw_calls;
+};
 
 // class Instance;
 
@@ -32,8 +40,13 @@ public:
     virtual void start_frame() = 0;
     virtual void end_frame() = 0;
 
+    void imgui_draw_stats();
+
 protected:
     Shared<Window> window;
+
+public:
+    RendererStats stats;
 };
 
 }

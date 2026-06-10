@@ -93,6 +93,8 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 	}
 
 	auto *mesh = Graphics::create_resource_mesh(instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex)).release();
+	mesh->verticie_count = vertices.size();
+	mesh->indices_count = indices.size();
 
 	return register_resource(mesh, name, UUID(), path);
 }

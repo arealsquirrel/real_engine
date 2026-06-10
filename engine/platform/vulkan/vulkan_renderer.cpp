@@ -313,12 +313,14 @@ void VulkanRenderer::create_device() {
 }
 
 void VulkanRenderer::start_frame() {
+    stats.draw_calls = 0;
+    stats.verticies = 0;
+    stats.indicies = 0;
+    stats.frame_time.restart();
+
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
     frame->draw_extent = swapchain_extent;
-	// VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
-    // frame->draw_extent.width = render_image_handle->imageExtent.width;
-    // frame->draw_extent.height = render_image_handle->imageExtent.height;
 
     VK_CHECK(vkWaitForFences(
         device, 1,
@@ -338,7 +340,6 @@ void VulkanRenderer::start_frame() {
         VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
-    // render_image_handle->transition_image(VK_IMAGE_LAYOUT_GENERAL);
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -356,18 +357,9 @@ void VulkanRenderer::end_frame() {
     VulkanResourceImage *vi = (VulkanResourceImage*)renderImage.get();
     vi->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 	vkutil::copy_image_to_image(get_current_frame().main_command_buffer, vi->image, swapchain_images[get_current_frame().swapchain_index], get_current_frame().draw_extent, swapchain_extent);
-	// VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
 
-    // copy_image_to_screen(renderImage);
-
-    // vkutil::transition_image(cmd, swapchain_images[frame.swapchain_index], VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
- 
 	ImGui::Render();
 
-	// vkutil::transition_image(cmd, render_image_handle->image, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	// vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	// vkutil::copy_image_to_image(cmd, render_image_handle->image, swapchain_images[frame->swapchain_index], frame->draw_extent, swapchain_extent);
-	
     vkutil::transition_image(cmd, swapchain_images[frame.swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
     VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame.swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -406,6 +398,7 @@ void VulkanRenderer::end_frame() {
     VK_CHECK(vkQueuePresentKHR(graphics_queue, &presentInfo));
     frame.delete_queue.flush();
     frame_number++;
+    stats.frame_time.stop();
 }
 
 FrameDataVulkan &VulkanRenderer::get_current_frame() {

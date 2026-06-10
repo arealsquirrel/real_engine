@@ -29,6 +29,10 @@ private:
 	ResourceMeshBuffer buffer;
 
 	friend RenderPassGeometry;
+
+public:
+	uint32_t indices_count {0};
+	uint32_t verticie_count {0};
 };
 
 }

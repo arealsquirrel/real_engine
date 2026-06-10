@@ -63,9 +63,8 @@ void MyGame::start() {
 }
 
 void MyGame::update(u32 delta_time) {
-	ImGui::ShowMetricsWindow();
-
 	compute_pass->begin_pass();
+
 	static glm::vec4 oneCol {1.0f, 0.8f, 0.8f, 1.0f};
 	static glm::vec4 twoCol {0.1f, 0.1f, 1.0f, 1.0f};
 	compute_pass->set_variable("topColor", oneCol);
@@ -76,6 +75,8 @@ void MyGame::update(u32 delta_time) {
 	geometry_pass->set_variable("sampler", mesh_texture.get()->get_handle());
 	geometry_pass->set_variable("render_matrix", get_projection());
 	geometry_pass->draw_mesh(mesh_resource);
+
+	
 	geometry_pass->end_pass();
 }
 

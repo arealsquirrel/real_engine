@@ -6,6 +6,8 @@
 
 namespace real {
 
+class Timer;
+
 class Instrumentation {
 private:
 	Instrumentation();
@@ -24,18 +26,6 @@ public:
 		const char *function;
 		int line;
 		size_t thread;
-	};
-
-	struct Timer {
-		Timer(Data d);
-		~Timer();
-
-		void stop();
-
-		std::chrono::time_point<std::chrono::high_resolution_clock> start;
-		Data data;
-		long micro_seconds;
-		bool stopped {false};
 	};
 
 public:

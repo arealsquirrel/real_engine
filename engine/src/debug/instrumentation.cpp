@@ -2,6 +2,7 @@
 #include <chrono>
 #include <real/debug/instrumentation.hpp>
 #include <real/core/logging.hpp>
+#include <real/debug/timer.hpp>
 
 namespace real {
 
@@ -55,24 +56,6 @@ void Instrumentation::end_profile() {
 	out_file << "]}";
 	out_file.flush();
 	out_file.close();
-}
-
-Instrumentation::Timer::Timer(Data d)
-	: data(d) {
-	start = std::chrono::high_resolution_clock::now();
-}
-
-Instrumentation::Timer::~Timer() {
-	if(stopped == false)
-		stop();
-	Instrumentation::get().log_timer(*this);
-}
-
-void Instrumentation::Timer::stop() {
-	auto stop = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-	micro_seconds = duration.count();
-	stopped = true;
 }
 
 }
