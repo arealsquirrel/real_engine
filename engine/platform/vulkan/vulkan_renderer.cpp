@@ -52,7 +52,7 @@ void VulkanRenderer::init() {
 	create_descriptors();
 	create_imgui();
 
-	instance->resource_database->register_resource(
+	renderImage = instance->resource_database->register_resource(
  		Graphics::create_resource_image(instance, width, height,
 			ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR).release(),
 		"_render_color_texture");
@@ -61,8 +61,6 @@ void VulkanRenderer::init() {
 			Graphics::create_resource_image(instance, width, height,
 				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH).release(),
 			"_render_depth_texture");
-
-	renderImage = instance->resource_database->get_resource<ResourceImage>("_render_color_texture");
 
 	VkSamplerCreateInfo sampl = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
 
@@ -397,6 +395,10 @@ void VulkanRenderer::end_frame(FrameContext context) {
     VK_CHECK(vkQueuePresentKHR(graphics_queue, &presentInfo));
     frame->delete_queue.flush();
     frame_number++;
+}
+
+FrameDataVulkan &VulkanRenderer::get_current_frame() {
+    return frame_data[frame_number % VULKAN_FRAME_OVERLAP];
 }
 
 ImVec4 ImGuiIntRGBToFloatRGB(int r, int g, int b){

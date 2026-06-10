@@ -38,6 +38,8 @@ public:
 	void end_frame(FrameContext context) override;
 	void init() override;
 
+    FrameDataVulkan &get_current_frame();
+
 private:
 	void create_imgui();
 	void create_descriptors();
@@ -48,6 +50,8 @@ private:
 	void create_vma();
 
 	void destroy_swapchain();
+
+    
 
 public:
 	VkDevice device;
@@ -78,6 +82,7 @@ private:
     vkutil::DeletionQueue delete_queue;
 	ResourceHandle<ResourceImage> renderImage;
     VkDescriptorPool imgui_descriptor_pool;
+    u32 current_swapchain_number=0;
     u32 frame_number=0;
 };
 

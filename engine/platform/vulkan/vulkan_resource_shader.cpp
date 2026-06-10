@@ -162,7 +162,7 @@ void VulkanResourceShader::serialize_shader(std::vector<char> data) {
 		field.offset = 0;
 		field.location = var->binding;
 
-		RL_LOG_TRACE(" 		variable {}", var->name);
+		RL_LOG_TRACE(" 		variable {} type {}", var->name, (u32)t);
 
 		if(CHECK_FLAG(var->type_description->type_flags, SPV_REFLECT_TYPE_FLAG_ARRAY)) {
 			if(var->array.dims_count > 1)
@@ -177,7 +177,7 @@ void VulkanResourceShader::serialize_shader(std::vector<char> data) {
 		if(t == SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE) {
 			descriptor_types.push_back(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 			field.data_type = ShaderDataType::STORAGE_IMAGE;
-		} else if (t == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE) {
+		} else if (t == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
 			descriptor_types.push_back(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE);
 			field.data_type = ShaderDataType::SAMPLED_IMAGE;
 		} else if (t == SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {

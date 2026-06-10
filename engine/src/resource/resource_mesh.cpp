@@ -78,7 +78,6 @@ ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
 				attrib.vertices[3 * index.vertex_index + 2]
 			};
 
-
 			vertex.normal = {
 				attrib.normals[3 * index.normal_index + 0],
 				attrib.normals[3 * index.normal_index + 1],
@@ -87,26 +86,8 @@ ResourceMesh *Resource::load<ResourceSerializerType::Disk,ResourceMesh>(
 
 			vertex.color = {1.0f, 1.0f, 1.0f, 1.0f};
 
-			/*
-			vertex.color = {
-				attrib.colors[4 * index.vertex_index + 0],
-				attrib.colors[4 * index.vertex_index + 1],
-				attrib.colors[4 * index.vertex_index + 2],
-				attrib.colors[4 * index.vertex_index + 3]
-			};
-			*/
-
-			// vertex.uv_x = attrib.texcoords[2 * index.texcoord_index + 0];
-			// vertex.uv_y = attrib.texcoords[2 * index.texcoord_index + 1];
-
-			/*
-			if (uniqueVertices.count(vertex) == 0) {
-				uniqueVertices.emplace(vertex, static_cast<uint32_t>(vertices.size()));
-				vertices.push_back(vertex);
-			}
-
-			indices.push_back(uniqueVertices.at(vertex));
-			*/
+			vertex.uv_x = attrib.texcoords[2 * index.texcoord_index + 0],
+    		vertex.uv_y = 1.0f - attrib.texcoords[2 * index.texcoord_index + 1];
 
 			vertices.push_back(vertex);
 	        indices.push_back(indices.size());

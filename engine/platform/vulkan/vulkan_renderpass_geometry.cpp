@@ -8,7 +8,9 @@
 #include "real/graphics/render_pass.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
+#include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_shader.hpp"
+#include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_mesh.hpp"
@@ -46,6 +48,10 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		depthImage = std::nullopt;
 	}
 
+	DescriptorLayoutBuilder builder;
+	builder.add_binding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+	descriptor_set_layout = builder.build(renderer->device, VK_SHADER_STAGE_FRAGMENT_BIT);
+
 	VkPushConstantRange pushConstant{};
 	pushConstant.offset = 0;
 	pushConstant.size = 128;
@@ -54,7 +60,8 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.pNext = nullptr;
-	pipelineLayoutCreateInfo.setLayoutCount = 0;
+	pipelineLayoutCreateInfo.setLayoutCount = 1;
+	pipelineLayoutCreateInfo.pSetLayouts = &descriptor_set_layout;
 	pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
 	pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstant;
 	VK_CHECK(vkCreatePipelineLayout(renderer->device, &pipelineLayoutCreateInfo, nullptr, &layout));
@@ -75,7 +82,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	VkPipelineRasterizationStateCreateInfo rasterizer = create_rasterizer(info);
 	VkPipelineDepthStencilStateCreateInfo depthStencil = create_depth(info);
 	VkPipelineMultisampleStateCreateInfo multisampling = create_multisample_control(info);
-	
 
 	VkPipelineRenderingCreateInfo renderInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	std::vector<VkFormat> colorFormats;
@@ -147,8 +153,15 @@ VkPipelineDepthStencilStateCreateInfo VulkanRenderPassGeometry::create_depth(
 		RenderPassGeometryInfo info) {
 	
 	VkPipelineDepthStencilStateCreateInfo depth = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-	depth.depthTestEnable = VK_TRUE;
-    depth.depthWriteEnable = true;
+	if(info.depthImage.has_value()) {
+		RL_LOG_TRACE("Depthing it");
+		depth.depthTestEnable = VK_TRUE;
+		depth.depthWriteEnable = VK_TRUE;
+	} else {
+		depth.depthTestEnable = VK_FALSE;
+		depth.depthWriteEnable = VK_FALSE;
+	}
+
     depth.depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
     depth.depthBoundsTestEnable = VK_FALSE;
     depth.stencilTestEnable = VK_FALSE;
@@ -164,18 +177,64 @@ VkPipelineInputAssemblyStateCreateInfo VulkanRenderPassGeometry::create_input_as
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly =  { .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO };
     inputAssembly.primitiveRestartEnable = VK_FALSE;
-	inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	switch (info.topology) {
+	case GeometryTopology::Triangle_list:
+		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		break;
+	case GeometryTopology::Line_list:
+		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+		break;
+	case GeometryTopology::Point_list:
+		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+		break;
+	}
+	
 	return inputAssembly;
 }
 
 VkPipelineRasterizationStateCreateInfo VulkanRenderPassGeometry::create_rasterizer(
 	RenderPassGeometryInfo info) {
 
-	VkPipelineRasterizationStateCreateInfo rasterizer = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };;
-    rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+	VkPipelineRasterizationStateCreateInfo rasterizer = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO };
+	switch (info.polygon_mode) {
+	case GeometryPolygonMode::Fill:
+		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+		break;
+	case GeometryPolygonMode::Line:
+		rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+		break;
+	case GeometryPolygonMode::Point:
+		rasterizer.polygonMode = VK_POLYGON_MODE_POINT;
+		break;
+	}
+    
     rasterizer.lineWidth = 1.f;
-	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+
+	switch (info.cull_mode) {
+	case GeometryCullMode::BACK:
+		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+		break;
+	case GeometryCullMode::FRONT:
+		rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
+		break;
+	case GeometryCullMode::NONE:
+		rasterizer.cullMode = VK_CULL_MODE_NONE;
+		break;
+	}
+
+	rasterizer.cullMode = VK_CULL_MODE_NONE;
+
+	switch (info.front_face) {
+	case GeometryFrontFace::Clockwise:
+		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		break;
+	case GeometryFrontFace::CounterClockwise:
+		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+		break;
+	}
+
+	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
 	return rasterizer;
 }
 
@@ -258,10 +317,28 @@ void VulkanRenderPassGeometry::end_pass(FrameContext context) {
 void VulkanRenderPassGeometry::set_variable(
 		ShaderField field, char *data, size_t size) {
 
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+
 	switch (field.type) {
 	case(ShaderFieldType::PUSH_CONSTANT): {
 		memcpy(push_constant_buffer+field.offset, data, size);
 		return; 
+	}
+
+	case (ShaderFieldType::UNIFORM): {
+		if(field.data_type == ShaderDataType::SAMPLED_IMAGE) {
+			VkImageView view = *(VkImageView*)data;
+			VkDescriptorSet imageSet = renderer->get_current_frame().frameDescriptors.allocate(renderer->device, descriptor_set_layout);
+			{
+				DescriptorWriter writer;
+				writer.write_image(0, view, renderer->samplerLinear, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+				writer.update_set(renderer->device, imageSet);
+			}
+
+			vkCmdBindDescriptorSets(renderer->get_current_frame().main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &imageSet, 0, nullptr);
+		}
+
+		return;
 	}
 
 	default:

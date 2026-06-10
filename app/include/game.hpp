@@ -2,6 +2,8 @@
 #pragma once
 
 #include "real/core/game.hpp"
+#include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
 
 using namespace real;
@@ -19,4 +21,5 @@ private:
     RenderPassCompute *compute_pass;
     RenderPassGeometry *geometry_pass;
     ResourceHandle<ResourceMesh> mesh_resource;
+    ResourceHandle<ResourceImage> mesh_texture;
 };

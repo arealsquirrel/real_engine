@@ -42,8 +42,8 @@ private:
 	VkPipelineLayout layout;
 	ShaderField addr_loc;
 
-	// VkDescriptorSet descriptor_set;
-	// VkDescriptorSetLayout descriptor_set_layout;
+	VkDescriptorSet descriptor_set;
+	VkDescriptorSetLayout descriptor_set_layout;
 
 	ResourceHandle<VulkanResourceImage> renderImage;
 	std::optional<ResourceHandle<VulkanResourceImage>> depthImage;

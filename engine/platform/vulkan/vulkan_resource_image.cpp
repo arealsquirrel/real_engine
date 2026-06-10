@@ -46,6 +46,7 @@ VulkanResourceImage::VulkanResourceImage(
 	// hardcoding the draw format to 32 bit float
 	switch (cformat) {
 		case (ColorFormat::DEPTH): {
+			RL_LOG_TRACE("strait up depthing it rn");
 			imageFormat = VK_FORMAT_D32_SFLOAT;
 			imageUsages |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 			imageUsages |= VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -168,15 +169,5 @@ void VulkanResourceImage::transition_image(FrameContext context, ImageFormat to)
 ImageHandle VulkanResourceImage::get_handle() {
 	return imageView;
 }
-
-/*
-ResourceImage *ResourceImage::create(
-		Instance *instance,
-		u32 width, u32 height, 
-		ColorFormat cformat, ImageFormat iformat, void *data) {
-
-	return new VulkanResourceImage(instance, width, height, cformat, iformat, data);
-}
-*/
 
 }

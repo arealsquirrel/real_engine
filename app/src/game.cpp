@@ -12,6 +12,10 @@
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_mesh.hpp"
+#include <GLFW/glfw3.h>
+#include <optional>
+
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <real/real.hpp>
 #include <imgui.h>
 #include <real/real.hpp>
@@ -40,10 +44,9 @@ static inline glm::mat4 get_projection() {
 	ImGui::InputFloat3("Position", &position.x);
 
 	glm::mat4 view(1.0f);
-	view = glm::scale(view, glm::vec3(1.0f, 1.0f, 1.0f));
     view = glm::translate(view, position);
  	view = glm::rotate(view, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
- 	view = glm::rotate(view, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+ 	view = glm::rotate(view, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
  	view = glm::rotate(view, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
 	glm::mat4 projection;
 	float aspect = (float)1200 / 800;
@@ -75,7 +78,7 @@ void MyGame::start() {
 				instance.get(), "../engine/resources/meshes/viking_room.obj"), "viking_room.obj");
 
 
-	resource_database->register_resource(
+	mesh_texture = resource_database->register_resource(
 			Resource::load<ResourceSerializerType::Disk, ResourceImage>(
 		 		instance.get(), "../engine/resources/textures/viking_room.png"), "viking_room.png");
 
@@ -89,10 +92,10 @@ void MyGame::start() {
 	geometry_pass = Graphics::create_render_pass_geometry(
 			instance.get(), {
 				.renderImage = renderColorImage,
-				.depthImage = renderDepthImage,
+				.depthImage = std::make_optional(renderDepthImage),
 				.topology = GeometryTopology::Triangle_list,
 				.polygon_mode = GeometryPolygonMode::Fill,
-				.front_face = GeometryFrontFace::Clockwise,
+				.front_face = GeometryFrontFace::CounterClockwise,
 				.cull_mode = GeometryCullMode::BACK
 			}, { flat_shader }, {}).release();
 }
@@ -105,7 +108,8 @@ void MyGame::render(real::FrameContext frame) {
 	compute_pass->set_variable("bottomColor", twoCol);
 	compute_pass->end_pass(frame);
 
-	geometry_pass->begin_pass(frame);	
+	geometry_pass->begin_pass(frame);
+	geometry_pass->set_variable("sampler", mesh_texture.get()->get_handle());
 	geometry_pass->set_variable("render_matrix", get_projection());
 	geometry_pass->draw_mesh(frame, mesh_resource);
 	geometry_pass->end_pass(frame);

@@ -25,7 +25,7 @@ cbuffer PushConstants {
 	Vertex *_vertex_buffer; // SET INTERNALY BY THE ENGINE
 };
 
-// Sampler2D sampler;
+Sampler2D sampler;
 
 [shader("vertex")]
 VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
@@ -42,6 +42,6 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
 	// float4 color = in_texture.Sample(input.uv);
-	return float4(input.color, 1.0f); // * sampler.Sample(input.uv);
+	return float4(input.color, 1.0f) * sampler.Sample(input.uv);
 }
 
