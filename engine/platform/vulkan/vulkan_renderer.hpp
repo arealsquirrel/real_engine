@@ -36,7 +36,6 @@ public:
 
 	void start_frame() override;
 	void end_frame() override;
-    void copy_image_to_screen(ResourceHandle<ResourceImage> image) override;
 	void init() override;
 
     FrameDataVulkan &get_current_frame();
@@ -79,7 +78,7 @@ private:
 
     FrameDataVulkan frame_data[VULKAN_FRAME_OVERLAP];
     vkutil::DeletionQueue delete_queue;
-	// ResourceHandle<ResourceImage> renderImage;
+	ResourceHandle<ResourceImage> renderImage;
     VkDescriptorPool imgui_descriptor_pool;
     u32 current_swapchain_number=0;
     u32 frame_number=0;

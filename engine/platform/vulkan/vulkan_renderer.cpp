@@ -55,7 +55,12 @@ void VulkanRenderer::init() {
 	instance->resource_database->register_resource(
 			Graphics::create_resource_image(instance, width, height,
 				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH).release(),
-			"_render_depth_texture");
+			"_screen_depth_texture");
+
+    renderImage = instance->resource_database->register_resource(
+ 		Graphics::create_resource_image(instance, width, height,
+			ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR).release(),
+		"_screen_color_texture");
 
 	VkSamplerCreateInfo sampl = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
 
@@ -342,16 +347,15 @@ void VulkanRenderer::start_frame() {
     vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 }
 
-void VulkanRenderer::copy_image_to_screen(ResourceHandle<ResourceImage> image) {
-    VulkanResourceImage *vi = (VulkanResourceImage*)image.get();
-    vi->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	vkutil::copy_image_to_image(get_current_frame().main_command_buffer, vi->image, swapchain_images[get_current_frame().swapchain_index], get_current_frame().draw_extent, swapchain_extent);
-}
 
 void VulkanRenderer::end_frame() {
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan &frame = get_current_frame();
     VkCommandBuffer cmd = frame.main_command_buffer;
+
+    VulkanResourceImage *vi = (VulkanResourceImage*)renderImage.get();
+    vi->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	vkutil::copy_image_to_image(get_current_frame().main_command_buffer, vi->image, swapchain_images[get_current_frame().swapchain_index], get_current_frame().draw_extent, swapchain_extent);
 	// VulkanResourceImage *render_image_handle = (VulkanResourceImage*)(renderImage.get());
 
     // copy_image_to_screen(renderImage);

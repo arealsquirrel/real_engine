@@ -15,8 +15,6 @@ resource refactors
 	- make a create function from Graphics class and then the load functions out of the platform dependednt area
 	- make a good set of primitaves
 	- make a load directory function
-	- it has to be memory safe from hottime reloading
-	- move the path variable to the resource manager and away from the resource class
 
 infrastructure for making imgui debug menus
 	- CVARS system-ish
@@ -28,8 +26,6 @@ infrastructure for making imgui debug menus
 
 App and actual development environment
 	- adding command line args for configuring the project
-	- dll injection
-	- so improving the launcher
 
 Graphics API
 	- overall
@@ -54,18 +50,3 @@ Graphics API
 	- Renderer
 		- render stats
 		- better per frame data
-	
-	- Subpass
-		- more abstracted descriptor sets
-			- images
-			- buffers
-		- abstract
-			- updating descriptor sets
-			- the shader layout
-			- the dynamic state needs to be good
-		- graphics
-			- the actual pipeline settings
-			- standardized input, output for slang vertex's
-		- compute
-			- the dispatch function should specify the x,y,z
-			- compute queue???

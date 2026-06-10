@@ -21,5 +21,4 @@ private:
     RenderPassGeometry *geometry_pass;
     ResourceHandle<ResourceMesh> mesh_resource;
     ResourceHandle<ResourceImage> mesh_texture;
-    ResourceHandle<ResourceImage> render_texture;
 };

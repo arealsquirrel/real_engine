@@ -31,7 +31,6 @@ public:
 
     virtual void start_frame() = 0;
     virtual void end_frame() = 0;
-    virtual void copy_image_to_screen(ResourceHandle<ResourceImage> image) = 0;
 
 protected:
     Shared<Window> window;
