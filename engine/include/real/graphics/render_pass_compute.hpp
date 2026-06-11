@@ -30,6 +30,8 @@ public:
 
     virtual void begin_pass() override = 0;
     virtual void end_pass() override = 0;
+	virtual void dispatch(u32 groupCountX, u32 groupCountY, u32 groupCountZ) = 0;
+	virtual void bind_descriptors() override = 0;
 };
 
 

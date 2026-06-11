@@ -65,6 +65,7 @@ public:
 	virtual void begin_pass() override = 0;
 	virtual void end_pass() override = 0;
 	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh) = 0;
+	virtual void bind_descriptors() override = 0;
 
 	void set_vieport(Vec2Int _viewport);
 	Vec2Int get_viewport() const;

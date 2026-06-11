@@ -94,12 +94,17 @@ void VulkanRenderPassCompute::begin_pass() {
 
 	vkCmdBindPipeline(
 		frame.main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+}
+
+void VulkanRenderPassCompute::bind_descriptors() {
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	FrameDataVulkan &frame = renderer->get_current_frame();
 
 	vkCmdBindDescriptorSets(
 		frame.main_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, layout, 0, 1, &descriptor_set, 0, nullptr);
 }
 
-void VulkanRenderPassCompute::end_pass() {
+void VulkanRenderPassCompute::dispatch(u32 groupCountX, u32 groupCountY, u32 groupCountZ) {
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 
@@ -107,8 +112,11 @@ void VulkanRenderPassCompute::end_pass() {
 			frame.main_command_buffer, layout,
 			VK_SHADER_STAGE_COMPUTE_BIT, 0, 128, push_constant_buffer);
 
-	vkCmdDispatch(
-			frame.main_command_buffer, std::ceil(frame.draw_extent.width / 16.0), std::ceil(frame.draw_extent.height / 16.0), 1);
+	vkCmdDispatch(frame.main_command_buffer, groupCountX, groupCountY, groupCountZ);
+}
+
+void VulkanRenderPassCompute::end_pass() {
+	/* does literaly nothing lmao */
 }
 
 void VulkanRenderPassCompute::set_variable(

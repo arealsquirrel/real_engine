@@ -20,25 +20,29 @@ struct PSInput {
 };
 
 struct SceneData {
-    float3 color;
+    float4x4 projection;
+    float4x4 view;
+    float ambient;
+    float3 light_color;
+    float3 light_position;
 };
 
 [[vk::push_constant]]
 cbuffer PushConstants {
-    float4x4 render_matrix;
+    float4x4 model;
 	Vertex *_vertex_buffer; // SET INTERNALY BY THE ENGINE
 };
 
 Sampler2D sampler;
-ConstantBuffer<SceneData> data;
+ConstantBuffer<SceneData> scene_data;
 
 [shader("vertex")]
 VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
     VSOutput output;
     Vertex v = _vertex_buffer[vertexIndex];
 
-    output.position = mul(render_matrix, float4(v.position, 1.0f));
-    output.color = v.color.xyz * data.color;
+    output.position = output.position = mul(scene_data.projection, mul(scene_data.view, mul(model, float4(v.position, 1.0f))));
+    output.color = v.color.xyz;
     output.uv = float2(v.uv_x, v.uv_y);
 
     return output;
@@ -46,7 +50,6 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
 
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
-	// float4 color = in_texture.Sample(input.uv);
 	return float4(input.color, 1.0f) * sampler.Sample(input.uv);
 }
 

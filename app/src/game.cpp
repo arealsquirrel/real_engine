@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "real/graphics/buffer.hpp"
@@ -13,7 +14,11 @@
 using namespace real;
 
 struct SceneData {
-	glm::vec3 color;
+	alignas(16) glm::mat4 projection;
+	alignas(16) glm::mat4 view;
+	alignas(16) float ambient;
+	alignas(16) glm::vec3 light_color;
+	alignas(16) glm::vec3 light_position;
 };
 
 extern "C" {
@@ -28,21 +33,6 @@ extern "C" {
 	}
 }
 
-static inline glm::mat4 get_projection() {
-	static glm::vec3 rot {};
-	static glm::vec3 position {0.0f, 0.0f, -3.0f};
-	static float aspect = (float)1200 / 800;
-
-	glm::mat4 view(1.0f);
-    view = glm::translate(view, position);
- 	view = glm::rotate(view, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection;
-	projection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 100.0f);
-	projection[1][1] *= -1;
-
-	return projection * view;
-}
-
 void MyGame::start() {
 	auto [width, height] = window->get_glfw_window_dimensions();
 	
@@ -51,7 +41,7 @@ void MyGame::start() {
 	mesh_resource = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/viking_room.obj");
 	mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/viking_room.png");
 
-	auto render_texture = resource_database->get_resource<ResourceImage>("_screen_color_texture");
+	render_texture = resource_database->get_resource<ResourceImage>("_screen_color_texture");
 	auto depth_texture = resource_database->get_resource<ResourceImage>("_screen_depth_texture");
 
 	compute_pass = Graphics::create_render_pass_compute(
@@ -68,24 +58,32 @@ void MyGame::start() {
 			}, { flat_shader }, {}).release();
 
 	buffer = UniformBuffer::create(instance.get(), sizeof(SceneData)).release();
+
+	static float aspect = (float)width / height;
+	camera_projection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 100.0f);
+	camera_view = glm::mat4x4(1.0f);
+	camera_view = glm::translate(camera_view, glm::vec3(0.0f, 0.0f, -4.0f));
 }
 
 void MyGame::update(u32 delta_time) {
 	compute_pass->begin_pass();
-
-	static glm::vec4 oneCol {1.0f, 0.8f, 0.8f, 1.0f};
-	static glm::vec4 twoCol {0.1f, 0.1f, 1.0f, 1.0f};
-	compute_pass->set_variable("topColor", oneCol);
-	compute_pass->set_variable("bottomColor", twoCol);
+	compute_pass->set_variable("topColor", topGradientColor);
+	compute_pass->set_variable("bottomColor", bottomGradientColor);
+	compute_pass->bind_descriptors();
+	compute_pass->dispatch(std::ceil(render_texture.get()->get_image_extent().first / 16.0), std::ceil(render_texture.get()->get_image_extent().second / 16.0), 1);
 	compute_pass->end_pass();
 
 	geometry_pass->begin_pass();
+	SceneData *scene_data = buffer->get_data<SceneData>();
+	scene_data->projection = camera_projection;
+	scene_data->view = camera_view;
+	model = glm::mat4x4(1.0f);
+ 	model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+	geometry_pass->set_variable("scene_data", buffer->get_handle());
+	geometry_pass->set_variable("model", model);
 	geometry_pass->set_variable("sampler", mesh_texture.get()->get_handle());
-	geometry_pass->set_variable("data", buffer->get_handle());
-	geometry_pass->set_variable("render_matrix", get_projection());
+	geometry_pass->bind_descriptors();
 	geometry_pass->draw_mesh(mesh_resource);
-
-	
 	geometry_pass->end_pass();
 }
 
@@ -95,7 +93,7 @@ MyGame::~MyGame() {
 	delete buffer;
 	
 	resource_database->unregister_resource("gradient.slang.spv");
-	resource_database->unregister_resource("flat.slang.spv");
+	resource_database->unregister_resource("diffuse.slang.spv");
 	resource_database->unregister_resource("viking_room.png");
 	resource_database->unregister_resource("viking_room.obj");
 }

@@ -9,56 +9,63 @@ struct Vertex {
 };
 
 struct VSOutput {
-    float4 position : SV_Position;
-    float3 color;
-    float2 uv;
-	float3 vert_norm;
-	float3 vert_pos;
+    float4 position     : SV_Position;
+    float4 color        : COLOR0;
+    float2 uv           : UV0;
+	float4 vert_norm    : NORM0;
+	float4 vert_pos     :  POS0;
 };
 
 struct PSInput {
-	float3 color  : COLOR0;
-	float2 uv;
-	float3 vert_norm;
-	float3 vert_pos;
+    float4 color : COLOR0;
+    float2 uv : UV0;
+    float4 vert_norm : NORM0;
+    float4 vert_pos : POS0;
+};
+
+struct SceneData {
+    float4x4 projection;
+    float4x4 view;
+    float ambient;
+    float3 light_color;
+    float3 light_position;
 };
 
 [[vk::push_constant]]
 cbuffer PushConstants {
-    float4x4 render_matrix;
-	Vertex *_vertex_buffer; // SET INTERNALY BY THE ENGINE
+    float4x4 model;
+    float3x3 model_inv;
+    Vertex *_vertex_buffer; // SET INTERNALY BY THE ENGINE
 };
+
+Sampler2D sampler;
+ConstantBuffer<SceneData> scene_data;
 
 [shader("vertex")]
 VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
     VSOutput output;
     Vertex v = _vertex_buffer[vertexIndex];
+    float4 mpos = mul(model, float4(v.position, 1.0f));
 
-    output.position = mul(render_matrix, float4(v.position, 1.0f));
-    output.color = v.color.xyz;
+    output.position = mul(scene_data.projection, mul(scene_data.view, mpos));
+    output.color = v.color;
     output.uv = float2(v.uv_x, v.uv_y);
-	output.vert_pos = v.position;
-	output.vert_norm = v.normal;
+    output.vert_pos = mpos;
+    output.vert_norm = float4(mul(model_inv, v.normal), 1.0f);
 
     return output;
 }
 
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
-	float3 objectColor = input.color;
-	float3 lightColor = float3(1.0f, 1.0f, 1.0f);
-	float3 lightPos = float3(0.0f, 0.0f, 0.0f);
+    float3 norm = normalize(input.vert_norm.xyz);
+    float3 lightDir = normalize(scene_data.light_position - input.vert_pos.xyz);
+    float diff = max(dot(norm, lightDir), 0.0);
+    float4 diffuse = float4(diff * scene_data.light_color, 1.0f);
 
-	float ambientStrength = 0.1;
-    float3 ambient = ambientStrength * lightColor;
+    float4 ambient = float4(scene_data.ambient * scene_data.light_color, 1.0f);
+    float4 flat_color = input.color * sampler.Sample(input.uv);
 
-	float3 norm = normalize(input.vert_norm);
-	float3 lightDir = normalize(lightPos - input.vert_pos);
-	float diff = max(dot(norm, lightDir), 0.0);
-	float3 diffuse = diff * lightColor;
-
-    float3 result = (ambient + diffuse) * objectColor;
-
-	return float4(result, 1.0f);
+    return (ambient + diffuse) * flat_color;
 }
 

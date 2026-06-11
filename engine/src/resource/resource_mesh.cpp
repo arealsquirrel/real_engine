@@ -27,7 +27,7 @@ struct Vertex {
 	glm::vec4 color;
 
 	bool operator==(const Vertex& other) const {
-    	return pos == other.pos && color == other.color && uv_x == other.uv_x && uv_y == other.uv_y;
+    	return pos == other.pos && color == other.color && uv_x == other.uv_x && uv_y == other.uv_y && other.normal == normal;
 	}
 };
 
@@ -66,6 +66,8 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 	std::string err;
 	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
 
+	std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
 	for (const auto& shape : shapes) {
 		for (const auto& index : shape.mesh.indices) {
 			Vertex vertex{};
@@ -87,8 +89,13 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 			vertex.uv_x = attrib.texcoords[2 * index.texcoord_index + 0],
     		vertex.uv_y = 1.0f - attrib.texcoords[2 * index.texcoord_index + 1];
 
-			vertices.push_back(vertex);
-	        indices.push_back(indices.size());
+			if (uniqueVertices.count(vertex) == 0) {
+            	uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+				vertices.push_back(vertex);
+			}
+
+			indices.push_back(uniqueVertices[vertex]);
+
 		}
 	}
 

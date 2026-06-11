@@ -6,6 +6,7 @@
 #include "vulkan_backend.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_mesh.hpp"
+#include <cstring>
 #include <memory>
 #include <vulkan/vulkan_core.h>
 
@@ -18,7 +19,7 @@ VulkanUniformBuffer::VulkanUniformBuffer(Instance *_instance, size_t _size)
         renderer, _size,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-    RL_LOG_INFO("{}", buffer.info.size);
+    memset(buffer.info.pMappedData, 0, size);
 }
 
 VulkanUniformBuffer::~VulkanUniformBuffer() {

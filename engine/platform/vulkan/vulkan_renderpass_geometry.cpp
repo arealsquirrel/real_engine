@@ -1,11 +1,9 @@
 
 #include "vulkan_renderpass_geometry.hpp"
-#include "glm/ext/matrix_float4x4.hpp"
 #include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
-#include "real/graphics/buffer.hpp"
 #include "real/graphics/render_pass.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
@@ -26,10 +24,12 @@
 
 namespace real {
 
+/*
 struct GPUDrawPushConstants {
     glm::mat4 worldMatrix;
     VkDeviceAddress vertexBuffer;
 };
+*/
 
 VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		Instance *_instance, RenderPassGeometryInfo info,
@@ -285,9 +285,6 @@ void VulkanRenderPassGeometry::begin_pass() {
 	VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(vimg->imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkRenderingInfo renderInfo = vkutil::rendering_info(frame.draw_extent, &colorAttachment, &depthAttachment);
 	
-	// vkutil::transition_image(frame->main_command_buffer, vimg->image, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	// vkutil::transition_image(frame->main_command_buffer, dimg->image, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
-
 	vimg->transition_image(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	dimg->transition_image(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 
@@ -320,17 +317,19 @@ void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
+	RenderPass::set_variable("_vertex_buffer", da_mesh->address);
 
-	static ShaderField f {ShaderTypeFlag_VERTEX, ShaderFieldType::PUSH_CONSTANT, ShaderDataType::FLOAT4x4, false, 0,  "_vertex_buffer", 0, 64};
-	set_variable(f, (char*)&da_mesh->address, sizeof(VkDeviceAddress));
-
-	writer.update_set(renderer->device, descriptor_set);
-	vkCmdBindDescriptorSets(renderer->get_current_frame().main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptor_set, 0, nullptr);
 	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
 	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(frame.main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
 	renderer->stats.indicies += da_mesh->indices_count;
 	renderer->stats.verticies += da_mesh->verticie_count;
+}
+
+void VulkanRenderPassGeometry::bind_descriptors() {
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	writer.update_set(renderer->device, descriptor_set);
+	vkCmdBindDescriptorSets(renderer->get_current_frame().main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptor_set, 0, nullptr);
 }
 
 void VulkanRenderPassGeometry::end_pass() {
@@ -353,11 +352,11 @@ void VulkanRenderPassGeometry::set_variable(
 	case (ShaderFieldType::UNIFORM): {
 		if(field.data_type == ShaderDataType::SAMPLED_IMAGE) {
 			VkImageView view = *(VkImageView*)data;
-			writer.write_image(0, view, renderer->samplerLinear, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+			writer.write_image(field.location, view, renderer->samplerLinear, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 			return;
 		} else if (field.data_type == ShaderDataType::UNIFORM_BUFFER) {
 			VulkanUniformBuffer *buffer = *(VulkanUniformBuffer**)data;
-			writer.write_buffer(1, buffer->buffer.buffer, buffer->size, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+			writer.write_buffer(field.location, buffer->buffer.buffer, buffer->size, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		}
 	}
 

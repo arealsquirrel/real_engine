@@ -3,7 +3,6 @@
 
 #include "real/core/object.hpp"
 #include "real/resource/resource_shader.hpp"
-#include "vulkan_resource_shader.hpp"
 
 #include <vulkan/vulkan_core.h>
 #include <real/graphics/render_pass_compute.hpp>
@@ -22,9 +21,11 @@ public:
 	~VulkanRenderPassCompute();
 
 public:
-    void begin_pass() override;
-    void end_pass() override;
-	void set_variable(ShaderField field, char *data, size_t size) override;
+    void begin_pass() final override;
+    void end_pass() final override;
+	void set_variable(ShaderField field, char *data, size_t size) final override;
+    void bind_descriptors() final override;
+    void dispatch(u32 groupCountX, u32 groupCountY, u32 groupCountZ) final override;
 
 private:
 	PushConstantBuffer push_constant_buffer;
