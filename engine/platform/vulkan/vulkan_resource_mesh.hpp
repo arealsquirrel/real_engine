@@ -1,5 +1,5 @@
-#ifndef REALLIB_VULKAN_BUFFER_HPP
-#define REALLIB_VULKAN_BUFFER_HPP
+#ifndef REALLIB_VULKAN_RESOURCE_MESH_HPP
+#define REALLIB_VULKAN_RESOURCE_MESH_HPP
 
 #include "real/core/game.hpp"
 #include "real/core/object.hpp"

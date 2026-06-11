@@ -296,6 +296,8 @@ void VulkanRenderPassGeometry::begin_pass() {
 	scissor.extent.height = viewport_size.h;
 
 	vkCmdSetScissor(frame.main_command_buffer, 0, 1, &scissor);
+	writer.clear();
+	descriptor_set = renderer->get_current_frame().frameDescriptors.allocate(renderer->device, descriptor_set_layout);
 }
 
 void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
@@ -306,6 +308,8 @@ void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
 	static ShaderField f {ShaderTypeFlag_VERTEX, ShaderFieldType::PUSH_CONSTANT, ShaderDataType::FLOAT4x4, false, 0,  "_vertex_buffer", 0, 64};
 	set_variable(f, (char*)&da_mesh->address, sizeof(VkDeviceAddress));
 
+	writer.update_set(renderer->device, descriptor_set);
+	vkCmdBindDescriptorSets(renderer->get_current_frame().main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptor_set, 0, nullptr);
 	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
 	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(frame.main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
@@ -333,14 +337,7 @@ void VulkanRenderPassGeometry::set_variable(
 	case (ShaderFieldType::UNIFORM): {
 		if(field.data_type == ShaderDataType::SAMPLED_IMAGE) {
 			VkImageView view = *(VkImageView*)data;
-			VkDescriptorSet imageSet = renderer->get_current_frame().frameDescriptors.allocate(renderer->device, descriptor_set_layout);
-			{
-				DescriptorWriter writer;
-				writer.write_image(0, view, renderer->samplerLinear, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-				writer.update_set(renderer->device, imageSet);
-			}
-
-			vkCmdBindDescriptorSets(renderer->get_current_frame().main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &imageSet, 0, nullptr);
+			writer.write_image(0, view, renderer->samplerLinear, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 		}
 
 		return;

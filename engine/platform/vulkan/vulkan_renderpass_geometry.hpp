@@ -7,6 +7,7 @@
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_shader.hpp"
+#include "vulkan_descriptor_allocator.hpp"
 #include "vulkan_resource_image.hpp"
 #include <cstddef>
 #include <vector>
@@ -49,6 +50,7 @@ private:
 	std::optional<ResourceHandle<VulkanResourceImage>> depthImage;
 
 	PushConstantBuffer push_constant_buffer;
+	DescriptorWriter writer;
 };
 
 };
