@@ -2,6 +2,7 @@
 #pragma once
 
 #include "real/core/game.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
@@ -21,4 +22,6 @@ private:
     RenderPassGeometry *geometry_pass;
     ResourceHandle<ResourceMesh> mesh_resource;
     ResourceHandle<ResourceImage> mesh_texture;
+
+    UniformBuffer *buffer;
 };

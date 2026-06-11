@@ -19,6 +19,10 @@ struct PSInput {
 	float2 uv;
 };
 
+struct SceneData {
+    float3 color;
+};
+
 [[vk::push_constant]]
 cbuffer PushConstants {
     float4x4 render_matrix;
@@ -26,6 +30,7 @@ cbuffer PushConstants {
 };
 
 Sampler2D sampler;
+ConstantBuffer<SceneData> data;
 
 [shader("vertex")]
 VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
@@ -33,7 +38,7 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
     Vertex v = _vertex_buffer[vertexIndex];
 
     output.position = mul(render_matrix, float4(v.position, 1.0f));
-    output.color = v.color.xyz;
+    output.color = v.color.xyz * data.color;
     output.uv = float2(v.uv_x, v.uv_y);
 
     return output;

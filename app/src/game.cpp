@@ -6,9 +6,15 @@
 #include <glm/glm.hpp>
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/resource/resource_image.hpp"
 
 using namespace real;
+
+struct SceneData {
+	glm::vec3 color;
+};
 
 extern "C" {
 	REALLIB_EXPORT
@@ -60,6 +66,8 @@ void MyGame::start() {
 				.front_face = GeometryFrontFace::CounterClockwise,
 				.cull_mode = GeometryCullMode::BACK
 			}, { flat_shader }, {}).release();
+
+	buffer = UniformBuffer::create(instance.get(), sizeof(SceneData)).release();
 }
 
 void MyGame::update(u32 delta_time) {
@@ -73,6 +81,7 @@ void MyGame::update(u32 delta_time) {
 
 	geometry_pass->begin_pass();
 	geometry_pass->set_variable("sampler", mesh_texture.get()->get_handle());
+	geometry_pass->set_variable("data", buffer->get_handle());
 	geometry_pass->set_variable("render_matrix", get_projection());
 	geometry_pass->draw_mesh(mesh_resource);
 
@@ -83,6 +92,7 @@ void MyGame::update(u32 delta_time) {
 MyGame::~MyGame() {
 	delete compute_pass;
 	delete geometry_pass;
+	delete buffer;
 	
 	resource_database->unregister_resource("gradient.slang.spv");
 	resource_database->unregister_resource("flat.slang.spv");

@@ -5,11 +5,13 @@
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/render_pass.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_shader.hpp"
+#include "vulkan_buffer.hpp"
 #include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
@@ -49,8 +51,22 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	}
 
 	DescriptorLayoutBuilder builder;
-	builder.add_binding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-	descriptor_set_layout = builder.build(renderer->device, VK_SHADER_STAGE_FRAGMENT_BIT);
+	for (auto field : shaders[0].get()->get_layout().fields) {
+		if(field.type == ShaderFieldType::UNIFORM) {
+			switch (field.data_type) {
+			case ShaderDataType::SAMPLED_IMAGE:
+				builder.add_binding(field.location, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+				break;
+			case ShaderDataType::UNIFORM_BUFFER:
+				builder.add_binding(field.location, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+				break;
+			default:
+				RL_LOG_WARN("We dont do uniforms of that type {}", ShaderDataType_to_string(field.data_type));
+			}
+		}
+	}
+
+	descriptor_set_layout = builder.build(renderer->device, VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT);
 
 	VkPushConstantRange pushConstant{};
 	pushConstant.offset = 0;
@@ -338,9 +354,11 @@ void VulkanRenderPassGeometry::set_variable(
 		if(field.data_type == ShaderDataType::SAMPLED_IMAGE) {
 			VkImageView view = *(VkImageView*)data;
 			writer.write_image(0, view, renderer->samplerLinear, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+			return;
+		} else if (field.data_type == ShaderDataType::UNIFORM_BUFFER) {
+			VulkanUniformBuffer *buffer = *(VulkanUniformBuffer**)data;
+			writer.write_buffer(1, buffer->buffer.buffer, buffer->size, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 		}
-
-		return;
 	}
 
 	default:
