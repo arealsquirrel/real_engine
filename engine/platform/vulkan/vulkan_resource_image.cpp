@@ -21,6 +21,8 @@ VulkanResourceImage::VulkanResourceImage(
 	ColorFormat _cformat, ImageFormat _iformat,
 	void *data, int mips)
     : ResourceImage(_instance, width, height, _cformat, _iformat, data) {
+	
+	RL_INSTRUMENT_FUNCTION
 
 	renderer = (VulkanRenderer*)(instance->renderer.get());
 
@@ -112,6 +114,8 @@ void VulkanResourceImage::expose_to_imgui() {
 void VulkanResourceImage::make_image_from_data(
 			void *data, VkImageUsageFlags usage, bool mipmapped) {
 
+	RL_INSTRUMENT_FUNCTION
+
 	size_t data_size = imageExtent.depth * imageExtent.width * imageExtent.height * 4;
 	vkutil::AllocatedBuffer uploadbuffer = vkutil::create_buffer(renderer, data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
@@ -145,6 +149,7 @@ void VulkanResourceImage::make_image_from_data(
 }
 
 VulkanResourceImage::~VulkanResourceImage() {
+	RL_INSTRUMENT_FUNCTION
 	vkDestroyImageView(renderer->device, imageView, nullptr);
 	vmaDestroyImage(renderer->allocator, image, allocation);
 }

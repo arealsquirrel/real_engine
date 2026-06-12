@@ -2,6 +2,7 @@
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/object.hpp"
+#include "real/debug/timer.hpp"
 #include <GLFW/glfw3.h>
 #include <real/graphics/window.hpp>
 #include <assert.h>
@@ -13,6 +14,8 @@ u32 Window::s_window_count = 0;
 
 Window::Window(Instance *_instance, const WindowInfo &info)
 	: Object(_instance) {
+    RL_INSTRUMENT_FUNCTION
+
     if(s_window_count++ == 0) {
         RL_LOG_INFO("initilizing GLFW {}:{}", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR);
         glfwSetErrorCallback(real_glfw_error_callback);
@@ -25,6 +28,7 @@ Window::Window(Instance *_instance, const WindowInfo &info)
 }
 
 Window::~Window() {
+    RL_INSTRUMENT_FUNCTION
     glfwDestroyWindow(window);
 
     if(--s_window_count == 0) {

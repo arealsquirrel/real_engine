@@ -1,5 +1,6 @@
 
 #include "real/core/instance.hpp"
+#include "real/debug/timer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource_database.hpp"
 #include <GLFW/glfw3.h>
@@ -9,6 +10,7 @@
 namespace real {
 
 Instance::Instance() {
+	RL_INSTRUMENT_FUNCTION
 	WindowInfo info;
 	info.width = 1200;
 	info.height = 800;
@@ -20,6 +22,7 @@ Instance::Instance() {
 }
 
 Instance::~Instance() {
+	RL_INSTRUMENT_FUNCTION
 	resource_database.reset();
     renderer.reset();
     window.reset();

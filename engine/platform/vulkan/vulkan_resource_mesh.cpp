@@ -16,6 +16,8 @@ VulkanResourceMesh::VulkanResourceMesh(
 	: ResourceMesh(_instance, indices, vertex_data, size),
 	renderer((VulkanRenderer*)instance->renderer.get()) {
 
+	RL_INSTRUMENT_FUNCTION
+
 	const size_t vertexBufferSize = size;
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
 
@@ -70,6 +72,7 @@ VulkanResourceMesh::VulkanResourceMesh(
 }
 
 VulkanResourceMesh::~VulkanResourceMesh() {
+	RL_INSTRUMENT_FUNCTION
 	vkutil::destroy_buffer(renderer, vertexBuffer);
 	vkutil::destroy_buffer(renderer, indexBuffer);
 }

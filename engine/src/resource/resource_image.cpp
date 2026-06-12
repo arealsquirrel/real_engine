@@ -2,6 +2,7 @@
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/uuid.hpp"
+#include "real/debug/timer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource.hpp"
 #include <real/resource/resource_image.hpp>
@@ -36,6 +37,8 @@ ColorFormat ResourceImage::get_color_format() {
 template<>
 ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 	Path path, std::string name) {
+	
+	RL_INSTRUMENT_FUNCTION
 
 	int x,y,n = 0;
 	unsigned char *data = stbi_load(path.c_str(), &x, &y, &n, STBI_rgb_alpha);

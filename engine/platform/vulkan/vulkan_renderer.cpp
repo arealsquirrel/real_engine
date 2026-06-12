@@ -41,6 +41,8 @@ VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
     : Renderer(_instance, _window) {}
 
 void VulkanRenderer::init() {
+    RL_INSTRUMENT_FUNCTION
+
 	RL_LOG_TRACE("Creating vulkan renderer");
 	auto [width, height] = window->get_glfw_window_dimensions();
 
@@ -74,6 +76,8 @@ void VulkanRenderer::init() {
 }
 
 VulkanRenderer::~VulkanRenderer() {
+    RL_INSTRUMENT_FUNCTION
+
 	RL_LOG_TRACE("destroying vulkan renderer");
     vkDeviceWaitIdle(device);
 
@@ -108,6 +112,8 @@ VulkanRenderer::~VulkanRenderer() {
 }
 
 void VulkanRenderer::create_imgui() {
+    RL_INSTRUMENT_FUNCTION
+
 	RL_LOG_TRACE("Vulkan renderer creating imgui");
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 
@@ -162,6 +168,8 @@ void VulkanRenderer::create_imgui() {
 }
 
 void VulkanRenderer::create_descriptors() {
+    RL_INSTRUMENT_FUNCTION
+
 	RL_LOG_TRACE("Vulkan renderer creating descriptors");
 	descriptor_allocator.init_pool(device, 10,{
 		{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1 } 
@@ -169,6 +177,7 @@ void VulkanRenderer::create_descriptors() {
 }
 
 void VulkanRenderer::create_vma() {
+    RL_INSTRUMENT_FUNCTION
 	RL_LOG_TRACE("Vulkan renderer creating vma");
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 	VmaAllocatorCreateInfo allocatorInfo = {};
@@ -180,12 +189,14 @@ void VulkanRenderer::create_vma() {
 }
 
 void VulkanRenderer::create_queues() {
+    RL_INSTRUMENT_FUNCTION
 	RL_LOG_TRACE("Vulkan renderer creating queues");
     graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
 	graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 }
 
 void VulkanRenderer::create_frame_objects() {
+    RL_INSTRUMENT_FUNCTION
 	RL_LOG_TRACE("Vulkan renderer creating frame objects");
     VkFenceCreateInfo fenceCreateInfo = vkutil::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vkutil::semaphore_create_info();
@@ -245,6 +256,7 @@ void VulkanRenderer::create_frame_objects() {
 }
 
 void VulkanRenderer::create_swapchain(u32 width, u32 height) {
+    RL_INSTRUMENT_FUNCTION
 	RL_LOG_TRACE("Vulkan renderer creating swapchain");
     vkb::SwapchainBuilder swapchainBuilder{ chosenGPU, device, surface };
 
@@ -265,6 +277,7 @@ void VulkanRenderer::create_swapchain(u32 width, u32 height) {
 }
 
 void VulkanRenderer::destroy_swapchain() {
+    RL_INSTRUMENT_FUNCTION
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     vkDestroySwapchainKHR(device, swapchain, nullptr);
 
@@ -277,6 +290,7 @@ void VulkanRenderer::destroy_swapchain() {
 }
 
 void VulkanRenderer::create_device() {
+    RL_INSTRUMENT_FUNCTION
 	RL_LOG_TRACE("Vulkan renderer creating device");
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 
@@ -313,6 +327,7 @@ void VulkanRenderer::create_device() {
 }
 
 void VulkanRenderer::start_frame() {
+    RL_INSTRUMENT_FUNCTION
     stats.draw_calls = 0;
     stats.verticies = 0;
     stats.indicies = 0;
@@ -350,6 +365,7 @@ void VulkanRenderer::start_frame() {
 
 
 void VulkanRenderer::end_frame() {
+    RL_INSTRUMENT_FUNCTION
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan &frame = get_current_frame();
     VkCommandBuffer cmd = frame.main_command_buffer;
@@ -409,7 +425,7 @@ ImVec4 ImGuiIntRGBToFloatRGB(int r, int g, int b){
     return ImVec4(r / 256.0f, g / 256.0f, b / 256.0f, 1.0f);
 }
 
-void style_imgui() {      
+void style_imgui() {
     ImGuiStyle *style = &ImGui::GetStyle();
     style->WindowMinSize = ImVec2(160, 20);
     style->FramePadding = ImVec2(4, 4);

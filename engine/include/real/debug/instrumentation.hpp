@@ -1,6 +1,8 @@
 #ifndef REALLIB_INSTRUMENTATION_HPP
 #define REALLIB_INSTRUMENTATION_HPP
 
+#include "real/core/core.hpp"
+#include "real/core/types.hpp"
 #include <chrono>
 #include <fstream>
 
@@ -8,7 +10,7 @@ namespace real {
 
 class Timer;
 
-class Instrumentation {
+class REALLIB_EXPORT Instrumentation {
 private:
 	Instrumentation();
 
@@ -38,13 +40,9 @@ private:
 	bool active {true};
 	std::string profile;
 	std::ofstream out_file;
+	std::chrono::time_point<std::chrono::high_resolution_clock> start_time;
 };
 
 };
-
-
-#define RL_INSTRUMENT_PROFILE_END ::real::Instrumentation::get().end_profile();
-#define RL_INSTRUMENT_PROFILE_START(name) ::real::Instrumentation::get().start_profile(name);
-#define RL_INSTRUMENT_FUNCTION ::real::Instrumentation::Timer t({__FILE_NAME__, __FUNCTION__, __LINE__});
 
 #endif

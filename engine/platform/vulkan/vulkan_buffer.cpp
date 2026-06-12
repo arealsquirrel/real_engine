@@ -2,6 +2,7 @@
 #include "vulkan_buffer.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
+#include "real/debug/timer.hpp"
 #include "real/graphics/buffer.hpp"
 #include "vulkan_backend.hpp"
 #include "vulkan_renderer.hpp"
@@ -14,6 +15,8 @@ namespace real {
 
 VulkanUniformBuffer::VulkanUniformBuffer(Instance *_instance, size_t _size) 
     : UniformBuffer(_instance, _size), renderer((VulkanRenderer*)_instance->renderer.get()) {
+    
+    RL_INSTRUMENT_FUNCTION
 
     buffer = vkutil::create_buffer(
         renderer, _size,
@@ -23,6 +26,7 @@ VulkanUniformBuffer::VulkanUniformBuffer(Instance *_instance, size_t _size)
 }
 
 VulkanUniformBuffer::~VulkanUniformBuffer() {
+    RL_INSTRUMENT_FUNCTION
     vkutil::destroy_buffer(renderer, buffer);
 }
 

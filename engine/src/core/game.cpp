@@ -1,6 +1,7 @@
 
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
+#include "real/debug/timer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource_database.hpp"
 #include <GLFW/glfw3.h>
@@ -23,6 +24,8 @@ Game::Game(Shared<Instance> _instance)
 Game::~Game() {}
 
 std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance) {
+    RL_INSTRUMENT_FUNCTION
+
 	DLLGameLoad load;
 	load.game_dll_handle = dlopen("./app/libapp.so", RTLD_LAZY);
     if (!load.game_dll_handle) {
@@ -50,6 +53,7 @@ std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance) {
 }
 
 void Game::destroy_game_dll(Game* game, DLLGameLoad load) {
+    RL_INSTRUMENT_FUNCTION
 	load.destroy_game(game);
 	dlclose(load.game_dll_handle);
 }

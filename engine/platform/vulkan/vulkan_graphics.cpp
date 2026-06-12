@@ -5,6 +5,8 @@
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/types.hpp"
+#include "real/debug/instrumentation.hpp"
+#include "real/debug/timer.hpp"
 #include "real/graphics/render_pass_geometry.hpp"
 #include "real/graphics/render_pass_compute.hpp"
 #include "real/graphics/window.hpp"
@@ -24,6 +26,8 @@ namespace real {
 static GraphicsBackendVulkan backend;
 
 void Graphics::init_backend(const GraphicsInfo &info) {
+	RL_INSTRUMENT_FUNCTION;
+
     vkb::InstanceBuilder builder;
     auto inst_ret = builder.set_app_name(info.name)
 		.request_validation_layers(true)
@@ -42,6 +46,7 @@ GraphicsBackend Graphics::get_backend() {
 }
 
 void Graphics::destroy_backend() {
+	RL_INSTRUMENT_FUNCTION
     vkb::destroy_debug_utils_messenger(backend.instance, backend.debug_messenger);
     vkDestroyInstance(backend.instance, nullptr);
 }

@@ -1,6 +1,7 @@
 
 #include "real/core/logging.hpp"
 #include "real/core/object.hpp"
+#include "real/debug/timer.hpp"
 #include "real/resource/resource_handle.hpp"
 #include <cassert>
 #include <real/resource/resource_database.hpp>
@@ -17,6 +18,7 @@ ResourceDatabase::~ResourceDatabase() {
 }
 
 void ResourceDatabase::unregister_resource(std::string name) {
+	RL_INSTRUMENT_FUNCTION
 	auto f = name_to_resource_UUID.find(name);
 	if(f == name_to_resource_UUID.end()) {
 		RL_LOG_WARN("can not find resource {}", name);

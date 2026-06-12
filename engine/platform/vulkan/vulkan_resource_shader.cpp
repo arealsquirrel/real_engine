@@ -68,6 +68,8 @@ VulkanResourceShader::VulkanResourceShader(
 		std::vector<ShaderField> fields, u32 _type) 
 	: ResourceShader(_instance, data, fields, _type), 
 		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
+
+	RL_INSTRUMENT_FUNCTION
 			
 	serialize_shader(data);
 
@@ -83,10 +85,12 @@ VulkanResourceShader::VulkanResourceShader(
 }
 
 VulkanResourceShader::~VulkanResourceShader() {
+	RL_INSTRUMENT_FUNCTION
     vkDestroyShaderModule(renderer->device, module, nullptr);
 }
 
 void VulkanResourceShader::serialize_shader(std::vector<char> data) {
+	RL_INSTRUMENT_FUNCTION
 	SpvReflectShaderModule spvmodule;
 	SpvReflectResult result = spvReflectCreateShaderModule(data.size(), (uint32_t*)data.data(), &spvmodule);
 	assert(result == SPV_REFLECT_RESULT_SUCCESS);
@@ -202,6 +206,8 @@ void VulkanResourceShader::serialize_function_compute(SpvReflectEntryPoint fn) {
 
 template<>
 ResourceHandle<ResourceShader> ResourceDatabase::load_resource_disk(Path path, std::string name) {
+
+	RL_INSTRUMENT_FUNCTION
 
     std::ifstream file(path, std::ios::ate | std::ios::binary);
 

@@ -37,6 +37,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		std::vector<RenderPassResource> _resources)
 		: RenderPassGeometry(_instance, shaders[0].get()->get_layout(), _resources) {
 
+	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	viewport_size.w = info.renderImage.get()->get_image_extent().first;
 	viewport_size.h = info.renderImage.get()->get_image_extent().second;
@@ -268,6 +269,7 @@ VkPipelineMultisampleStateCreateInfo VulkanRenderPassGeometry::create_multisampl
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
+	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	free(push_constant_buffer);
     vkDeviceWaitIdle(renderer->device);
@@ -276,6 +278,7 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
 }
 
 void VulkanRenderPassGeometry::begin_pass() {
+	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceImage *vimg = renderImage.get();
@@ -314,6 +317,7 @@ void VulkanRenderPassGeometry::begin_pass() {
 }
 
 void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
+	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
@@ -327,12 +331,14 @@ void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
 }
 
 void VulkanRenderPassGeometry::bind_descriptors() {
+	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	writer.update_set(renderer->device, descriptor_set);
 	vkCmdBindDescriptorSets(renderer->get_current_frame().main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptor_set, 0, nullptr);
 }
 
 void VulkanRenderPassGeometry::end_pass() {
+	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	vkCmdEndRendering(frame.main_command_buffer);
@@ -341,6 +347,7 @@ void VulkanRenderPassGeometry::end_pass() {
 void VulkanRenderPassGeometry::set_variable(
 		ShaderField field, char *data, size_t size) {
 
+	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	switch (field.type) {

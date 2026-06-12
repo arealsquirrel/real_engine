@@ -5,7 +5,7 @@
 
 namespace real {
 
-struct Timer {
+struct REALLIB_EXPORT Timer {
     Timer(bool instrumented=false, Instrumentation::Data d={});
     ~Timer();
 
@@ -18,6 +18,18 @@ struct Timer {
     bool stopped {false};
     bool instr;
 };
+
+/* lowkinienuly dont give a fuck. thats how nonchilliant I be. */
+
+#ifdef RL_ENABLE_INSTRUMENATION
+#define RL_INSTRUMENT_PROFILE_END ::real::Instrumentation::get().end_profile();
+#define RL_INSTRUMENT_PROFILE_START(name) ::real::Instrumentation::get().start_profile(name);
+#define RL_INSTRUMENT_FUNCTION ::real::Timer t(true, {__FILE_NAME__, __FUNCTION__, __LINE__});
+#else
+#define RL_INSTRUMENT_PROFILE_END
+#define RL_INSTRUMENT_PROFILE_START(name)
+#define RL_INSTRUMENT_FUNCTION
+#endif
 
 }
 

@@ -3,6 +3,7 @@
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
+#include "real/debug/timer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
@@ -56,6 +57,8 @@ ResourceMesh::~ResourceMesh() {
 
 template<>
 ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, std::string name) {
+	RL_INSTRUMENT_FUNCTION
+
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 

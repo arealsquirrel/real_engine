@@ -24,7 +24,8 @@ void Instrumentation::log_timer(Timer &timer) {
 	}
 
 	std::stringstream json;
-
+	u32 ts = std::chrono::duration_cast<std::chrono::microseconds>(timer.start - start_time).count();
+	
 	json << std::setprecision(3) << std::fixed;
 	json << ",{";
 	json << "\"cat\":\"function\",";
@@ -33,7 +34,7 @@ void Instrumentation::log_timer(Timer &timer) {
 	json << "\"ph\":\"X\",";
 	json << "\"pid\":0,";
 	json << "\"tid\":" << timer.data.thread << ",";
-	json << "\"ts\":" << timer.start.time_since_epoch().count();
+	json << "\"ts\":" << (ts);
 	json << "}";
 
 	out_file << json.str();
@@ -50,6 +51,7 @@ void Instrumentation::start_profile(std::string name, size_t thread) {
 
 	out_file << "{\"otherData\": {},\"traceEvents\":[{}";
 	out_file.flush();
+	start_time = std::chrono::high_resolution_clock::now();
 }
 
 void Instrumentation::end_profile() {
