@@ -2,12 +2,14 @@
 #define REALLIB_INSTANCE_HPP
 
 #include "real/core/types.hpp"
-#include "real/graphics/renderer.hpp"
-#include "real/graphics/window.hpp"
-#include "real/resource/resource_database.hpp"
 #include <real/core/core.hpp>
 
 namespace real {
+
+class EventMessenger;
+class ResourceDatabase;
+class Window;
+class Renderer;
 
 class REALLIB_EXPORT Instance {
 public:
@@ -21,6 +23,7 @@ public:
 	Shared<ResourceDatabase> resource_database;
 	Shared<Window> window;
     Shared<Renderer> renderer;
+	Unique<EventMessenger> event_messenger;
 };
 
 }

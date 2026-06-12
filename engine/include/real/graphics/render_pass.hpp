@@ -1,6 +1,7 @@
 #ifndef REALLIB_RENDER_PASS_HPP
 #define REALLIB_RENDER_PASS_HPP
 
+#include <real/core/event.hpp>
 #include "real/core/object.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_handle.hpp"

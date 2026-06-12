@@ -1,6 +1,7 @@
 #ifndef REALLIB_RENDER_PASS_GEOMETRY_HPP
 #define REALLIB_RENDER_PASS_GEOMETRY_HPP
 
+#include <real/core/event.hpp>
 #include "real/core/object.hpp"
 #include "real/core/vec.hpp"
 #include "real/graphics/render_pass.hpp"

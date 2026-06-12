@@ -1,6 +1,7 @@
 #ifndef REALLIB_RENDERER_HPP
 #define REALLIB_RENDERER_HPP
 
+#include <real/core/event.hpp>
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/debug/timer.hpp"

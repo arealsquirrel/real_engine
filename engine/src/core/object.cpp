@@ -10,5 +10,5 @@ Object::Object(Instance *_instance) {
 Object::~Object() {
 
 }
-    
+
 }

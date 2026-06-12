@@ -1,4 +1,5 @@
 
+#include <real/core/event.hpp>
 #include "real/resource/resource.hpp"
 #include "real/core/uuid.hpp"
 #include "real/resource/resource_database.hpp"

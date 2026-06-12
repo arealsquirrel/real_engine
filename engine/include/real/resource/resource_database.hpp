@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_DATABASE_HPP
 #define REALLIB_RESOURCE_DATABASE_HPP
 
+#include <real/core/event.hpp>
 #include "fmt/format.h"
 #include "real/core/logging.hpp"
 #include "real/core/object.hpp"

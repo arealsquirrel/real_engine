@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_SHADER_HPP
 #define REALLIB_RESOURCE_SHADER_HPP
 
+#include <real/core/event.hpp>
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"

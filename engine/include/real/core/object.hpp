@@ -2,11 +2,10 @@
 #define REALLIB_OBJECT_HPP
 
 #include "real/core/core.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/uuid.hpp"
 
 namespace real {
-
-class Instance;
 
 struct TypeInfo {
     const char *name;
@@ -24,9 +23,11 @@ public:
     static const TypeInfo *object_parent_typeinfo_static() { return nullptr; }
     virtual const char *object_name() const { return Object::object_typeinfo_static()->name; };
 	virtual const TypeInfo *object_typeinfo() const { return Object::object_parent_typeinfo_static(); }
+    UUID get_instance_uuid() const { return object_id; }
 
 protected:
     Instance *instance {nullptr};
+    UUID object_id;
 };
 
 #define RL_OBJECT(CLASS_NAME, CLASS_PARENT) public: \
@@ -34,7 +35,15 @@ protected:
     static const TypeInfo *object_parent_typeinfo_static() { return CLASS_NAME::object_typeinfo_static()->parent; } \
     virtual const char *object_name() const override { return CLASS_NAME::object_typeinfo()->name; }; \
 	virtual const TypeInfo *object_typeinfo() const override { return CLASS_NAME::object_typeinfo_static(); }
+}
 
+namespace std {
+	template<>
+	struct hash<real::Object> {
+		std::size_t operator()(const real::Object &object) const {
+			return object.get_instance_uuid().uuid;
+		}
+	};
 }
 
 #endif

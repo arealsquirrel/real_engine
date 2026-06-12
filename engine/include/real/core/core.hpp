@@ -1,12 +1,19 @@
 #ifndef REALLIB_CORE_HPP
 #define REALLIB_CORE_HPP
 
+#include <functional>
+
 namespace real {
 
 /**
  * @brief basic sanity check for the library.
  */
 void print_version();
+
+class Object;
+
+template<typename T>
+using EventFunctionPtr = std::function<void(T &event, Object *from)>;
 
 }
 

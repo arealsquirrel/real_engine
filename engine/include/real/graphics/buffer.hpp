@@ -1,9 +1,9 @@
 #ifndef REALLIB_BUFFER_HPP
 #define REALLIB_BUFFER_HPP
 
+#include <real/core/event.hpp>
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
-#include "real/graphics/renderer.hpp"
 #include <cstddef>
 
 namespace real {

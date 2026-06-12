@@ -2,6 +2,7 @@
 #define REALLIB_RESOURCE_IMAGE_HPP
 
 #include "imgui.h"
+#include <real/core/event.hpp>
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"

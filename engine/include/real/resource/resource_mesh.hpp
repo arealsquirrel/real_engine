@@ -2,6 +2,7 @@
 #define REALLIB_RESOURCE_MESH_HPP
 
 #include "real/core/core.hpp"
+#include <real/core/event.hpp>
 #include "real/core/object.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"

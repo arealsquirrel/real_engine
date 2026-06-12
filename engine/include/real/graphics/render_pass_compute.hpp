@@ -1,6 +1,7 @@
 #ifndef REALLIB_RENDER_PASS_COMPUTE_HPP
 #define REALLIB_RENDER_PASS_COMPUTE_HPP
 
+#include <real/core/event.hpp>
 #include "real/core/object.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_mesh.hpp"
