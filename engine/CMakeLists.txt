@@ -38,6 +38,7 @@ if("${REAL_RENDER_BACKEND}" STREQUAL "vulkan")
 		PUBLIC imgui_cmake_wrapper
 		PUBLIC glm::glm
 	)
+
 elseif("${REAL_RENDER_BACKEND}" STREQUAL "opengl")
 	target_link_libraries(${PROJECT_NAME}
 		PRIVATE GPUOpen::VulkanMemoryAllocator

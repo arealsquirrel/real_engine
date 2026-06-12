@@ -27,6 +27,7 @@ CPMAddPackage(
     GITHUB_REPOSITORY g-truc/glm
     GIT_TAG 1.0.3  # Specify a stable version or "master"
 )
+
 set(BUILD_SHARED_LIBS OFF)
 
 file(DOWNLOAD 

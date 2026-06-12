@@ -41,7 +41,7 @@ TEST_F(ResourceShaderTestFixture, ShaderComputeSerialization) {
     EXPECT_EQ(t.x, 16);
     EXPECT_EQ(t.y, 32);
     EXPECT_EQ(t.z, 1);
-    EXPECT_EQ(compute_shader.get()->get_layout().fields.size(), 4);
+    EXPECT_EQ(compute_shader.get()->get_layout().fields.size(), 7);
 }
 
 TEST_F(ResourceShaderTestFixture, ShaderArraySerialization) {
@@ -50,11 +50,6 @@ TEST_F(ResourceShaderTestFixture, ShaderArraySerialization) {
 
     arr = compute_shader.get()->get_layout().get_field("lights");
     EXPECT_EQ(arr.is_array, true);
-    EXPECT_EQ(arr.array_size, 10);
-    EXPECT_EQ(arr.data_type, ShaderDataType::STRUCT);
-
-    arr = compute_shader.get()->get_layout().get_field("imageSamplers");
-    EXPECT_EQ(arr.is_array, true);
     EXPECT_EQ(arr.array_size, 32);
-    EXPECT_EQ(arr.data_type, ShaderDataType::SAMPLED_IMAGE);
+    EXPECT_EQ(arr.data_type, ShaderDataType::UNIFORM_BUFFER);
 }

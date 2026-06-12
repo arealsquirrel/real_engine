@@ -30,7 +30,6 @@ cbuffer PushConstants {
 RWTexture2D<float4> image;
 ConstantBuffer<LightData> lights[32];
 ConstantBuffer<SceneData> data;
-ConstantBuffer<Sampler2D> imageSamplers[32];
 
 [shader("compute")]
 [numthreads(16, 32, 1)]
