@@ -25,7 +25,6 @@ void PanelResourceViewer::display(real::ResourceShader *resource) {
 
 template<>
 void PanelResourceViewer::display(real::ResourceImage *resource) {
-	// ImVec2 size {500, 500};
 	auto [width, height] = resource->get_image_extent();
 	ImVec2 room_avail = ImGui::GetContentRegionAvail();
 	float scale = std::min(room_avail.x / width, room_avail.y / height);

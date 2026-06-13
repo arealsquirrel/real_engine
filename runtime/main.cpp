@@ -3,6 +3,7 @@
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
+#include "real/debug/cvars.hpp"
 #include "real/debug/instrumentation.hpp"
 #include <iostream>
 #include <memory>
@@ -10,8 +11,6 @@
 #include <real/real.hpp>
 
 using namespace real;
-
-REAL_ENTRY
 
 int main() {
 	Log &log = Log::get();
@@ -36,8 +35,10 @@ int main() {
 	RL_INSTRUMENT_PROFILE_END;
 
 	RL_INSTRUMENT_PROFILE_START("Shutdown");
-	instance.reset();
+	CVarSystem::get().clear_cvars();
     Game::destroy_game_dll(game, dll);
+
+	instance.reset();
 	Graphics::destroy_backend();
 	RL_INSTRUMENT_PROFILE_END;
 }

@@ -95,7 +95,7 @@ VulkanResourceImage::VulkanResourceImage(
 }
 
 void VulkanResourceImage::expose_to_imgui() {
-	VkImageLayout layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+	VkImageLayout layout = VK_IMAGE_LAYOUT_GENERAL;
 
 	switch (iformat) {
 	case(ImageFormat::RENDER_ATTACHMENT_COLOR):

@@ -25,6 +25,13 @@ void RealImguiStyle::style_imgui() {
     style->ScrollbarSize = 12.0f;
     style->ScrollbarRounding = 16.0f;
     style->WindowRounding = 8.0f;
+	style->WindowBorderSize = 0;
+	style->DockingSeparatorSize = 6.0f;
+	style->SeparatorSize = 6.0f;
+	style->CellPadding = ImVec2{10.0f, 6.0f};
+	style->FramePadding = ImVec2{10.0f, 4.0f};
+	style->ItemInnerSpacing = ImVec2{6.0f, 4.0f};
+	style->ItemSpacing = ImVec2{6.0f, 6.0f};
     // style->DockingSeparatorSize = 6.0f;
 
     ImVec4 darkWindowBackground = ImGuiIntRGBToFloatRGB(29, 32, 33);
@@ -99,8 +106,8 @@ void RealImguiStyle::style_imgui() {
     style->Colors[ImGuiCol_DockingPreview] = active;
     style->Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0, 0, 0, 0);
 
-    // ImGuiIO& io = ImGui::GetIO();
-    // io.Fonts->AddFontFromFileTTF("../engine/resources/fonts/Roboto-Light.ttf");
+    ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->AddFontFromFileTTF("../engine/resources/fonts/FiraMono-Regular.ttf", 15.0f);
 }
 
 }

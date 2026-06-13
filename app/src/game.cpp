@@ -8,9 +8,6 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
-#include "glm/ext/vector_float4.hpp"
-#include "real/core/color.hpp"
-#include "real/core/event.hpp"
 #include "real/core/object.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/graphics/buffer.hpp"
@@ -93,8 +90,6 @@ void MyGame::update(u32 delta_time) {
 	compute_pass->bind_descriptors();
 	compute_pass->dispatch(std::ceil(render_texture.get()->get_image_extent().first / 16.0), std::ceil(render_texture.get()->get_image_extent().second / 16.0), 1);
 	compute_pass->end_pass();
-
-	CVarSystem::get().render_imgui();
 }
 
 MyGame::~MyGame() {
@@ -103,7 +98,7 @@ MyGame::~MyGame() {
 	delete buffer;
 	
 	resource_database->unregister_resource("gradient.slang.spv");
-	resource_database->unregister_resource("diffuse.slang.spv");
+	resource_database->unregister_resource("flat.slang.spv");
 	resource_database->unregister_resource("viking_room.png");
 	resource_database->unregister_resource("viking_room.obj");
 }

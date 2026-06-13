@@ -2,13 +2,22 @@
 #include "glm/ext/vector_float3.hpp"
 #include "glm/ext/vector_float4.hpp"
 #include "imgui.h"
+#include "real/core/logging.hpp"
 #include <real/debug/cvars.hpp>
 #include <real/core/color.hpp>
 
 namespace real {
 
 CVarSystem::CVarSystem() = default;
-CVarSystem::~CVarSystem() = default;
+
+CVarSystem::~CVarSystem() {
+	if(cvars.empty() == false)
+		RL_LOG_ERROR("ts gunna crash please call clear_cvars");
+}
+
+void CVarSystem::clear_cvars() {
+	cvars.clear();
+}
 
 CVarSystem &CVarSystem::get() {
     static CVarSystem system;

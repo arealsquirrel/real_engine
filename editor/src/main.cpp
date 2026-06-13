@@ -6,9 +6,12 @@
 #include "panel_resource_viewer.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
+#include "real/debug/cvars.hpp"
+#include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
 
 using namespace real;
+
 int main() {
 	real::LogSink_Buffer *log_buffer;
 	Log &log = Log::get();
@@ -18,10 +21,10 @@ int main() {
 	log.sinks.push_back(new real::LogSink_Console());
 	log.sinks.push_back(log_buffer);
 	Graphics::init_backend({});
-	editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
 	Shared<Instance> instance = std::make_shared<Instance>();
-	editor::Editor *ed = new editor::Editor(instance);
 
+	editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
+	editor::Editor *ed = new editor::Editor(instance);
 	ed->add_panel<editor::PanelResourceDatabase>();
 	ed->add_panel<editor::PanelLogs>(log_buffer);
 	ed->add_panel<editor::PanelResourceViewer>();
@@ -31,27 +34,25 @@ reload_game:
 	auto [game, dll] = Game::load_game_dll(instance);
 	game->start();
 	log_buffer->index = 0;
+	ed->editor_viewport = instance->resource_database->get_resource<ResourceImage>("_screen_color_resolve_texture");
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
-		
-		// game->renderer->start_frame();
 		instance->renderer->start_frame();
 		ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 		game->update(0);
+		CVarSystem::get().render_imgui();
 		reason = ed->render();
-		ImGui::ShowStyleEditor();
 		instance->renderer->end_frame();
-		// game->renderer->end_frame();
 	}
 
+	CVarSystem::get().clear_cvars();
 	Game::destroy_game_dll(game, dll);
 	if(reason == editor::EditorExitReason::Reload) {
 		goto reload_game;
 	}
 
 	delete ed;
-	instance.reset();	
-
+	instance.reset();
 	Graphics::destroy_backend();
 }
 

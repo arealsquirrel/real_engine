@@ -27,7 +27,7 @@ class REALLIB_EXPORT CVarWrapper {
 public:
     CVarWrapper(std::string _name, CVarEditParamers _params)
         : params(_params), name(_name) {};
-    ~CVarWrapper() = default;
+    virtual ~CVarWrapper() = default;
 
 public:
     virtual void render_imgui() = 0;
@@ -42,7 +42,7 @@ class REALLIB_EXPORT CVar : public CVarWrapper {
 public:
     CVar(T init, std::string _name, CVarEditParamers _params)
         : CVarWrapper(_name,  _params), value(init) {}
-    ~CVar() = default;
+    ~CVar() override = default;
 
 public:
     static CVarType get_static_cvar_type();
@@ -52,6 +52,8 @@ public:
 public:
     T get_value() const { return value; }
     void set_value(T n) { value = n; }
+
+	void clear_cvars();
 
 private:
     T value;
@@ -71,6 +73,8 @@ public:
         cvars.emplace(name, var);
         return var;
     }
+
+	void clear_cvars();
     
 public:
     static CVarSystem &get();
