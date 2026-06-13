@@ -5,7 +5,7 @@
 namespace real {
 
 EventListener::EventListener(Instance *_instance, Object *_attached)
-    : Object(_instance), attached(_attached) {}
+    : instance(_instance), attached(_attached) {}
 
 EventListener::~EventListener() {
     for (UUID id : subscribed_events) {

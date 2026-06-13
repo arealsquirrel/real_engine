@@ -1,6 +1,7 @@
 #ifndef REALLIB_GAME_HPP
 #define REALLIB_GAME_HPP
 
+#include "real/core/event_listener.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_database.hpp"
@@ -28,7 +29,7 @@ struct DLLGameLoad {
 /**
  * @brief Exposes a virtual class that the user will hook into via DLL injection to actualy program
  */
-class REALLIB_EXPORT Game {
+class REALLIB_EXPORT Game : public EventListener {
 public:
 	Game(Shared<Instance> _instance);
 	~Game();
@@ -66,7 +67,6 @@ public:
 
 public:
 	Shared<Instance> instance;
-
 	Shared<ResourceDatabase> resource_database;
 	Shared<Window> window;
     Shared<Renderer> renderer;

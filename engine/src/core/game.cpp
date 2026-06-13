@@ -1,4 +1,5 @@
 
+#include "real/core/event_listener.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
@@ -14,7 +15,7 @@
 namespace real {
 
 Game::Game(Shared<Instance> _instance) 
-	: instance(_instance) {
+	: EventListener(_instance.get(), nullptr), instance(_instance) {
 
 	window = _instance->window; 
 	resource_database = _instance->resource_database;

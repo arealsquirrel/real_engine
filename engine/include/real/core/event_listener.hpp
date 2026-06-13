@@ -11,9 +11,7 @@
 
 namespace real {
 
-class EventListener : public Object {
-RL_OBJECT(EventListener, Object)
-
+class REALLIB_EXPORT EventListener {
 public:
     EventListener(Instance *_instance, Object *_attached);
     ~EventListener();
@@ -51,6 +49,7 @@ public:
 private:
     std::set<UUID> subscribed_events;
     Object *attached;
+    Instance *instance;
 };
 
 }

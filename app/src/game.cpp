@@ -8,6 +8,11 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
+#include "glm/ext/vector_float4.hpp"
+#include "real/core/color.hpp"
+#include "real/core/event.hpp"
+#include "real/core/object.hpp"
+#include "real/debug/cvars.hpp"
 #include "real/graphics/buffer.hpp"
 #include "real/resource/resource_image.hpp"
 
@@ -59,16 +64,18 @@ void MyGame::start() {
 
 	buffer = UniformBuffer::create(instance.get(), sizeof(SceneData)).release();
 
-	static float aspect = (float)width / height;
-	camera_projection = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 100.0f);
-	camera_view = glm::mat4x4(1.0f);
-	camera_view = glm::translate(camera_view, glm::vec3(0.0f, 0.0f, -4.0f));
+	
 }
 
 void MyGame::update(u32 delta_time) {
+	static float aspect = (float)1200 / 800;
+	camera_projection = glm::perspective(glm::radians(pov->get_value()), aspect, 0.1f, 100.0f);
+	camera_view = glm::mat4x4(1.0f);
+	camera_view = glm::translate(camera_view, glm::vec3(0.0f, 0.0f, -4.0f));
+
 	compute_pass->begin_pass();
-	compute_pass->set_variable("topColor", topGradientColor);
-	compute_pass->set_variable("bottomColor", bottomGradientColor);
+	compute_pass->set_variable("topColor", topGradientColor->get_value());
+	compute_pass->set_variable("bottomColor", bottomGradientColor->get_value());
 	compute_pass->bind_descriptors();
 	compute_pass->dispatch(std::ceil(render_texture.get()->get_image_extent().first / 16.0), std::ceil(render_texture.get()->get_image_extent().second / 16.0), 1);
 	compute_pass->end_pass();
@@ -85,6 +92,8 @@ void MyGame::update(u32 delta_time) {
 	geometry_pass->bind_descriptors();
 	geometry_pass->draw_mesh(mesh_resource);
 	geometry_pass->end_pass();
+
+	CVarSystem::get().render_imgui();
 }
 
 MyGame::~MyGame() {

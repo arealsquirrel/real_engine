@@ -2,6 +2,7 @@
 #define REALLIB_WINDOW_HPP
 
 #include <real/core/event.hpp>
+#include "real/core/instance.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include <utility>

@@ -51,6 +51,8 @@ private:
 
 	void destroy_swapchain();
 
+    void swapchain_resize();
+
 public:
 	VkDevice device;
     DescriptorAllocator descriptor_allocator;
@@ -80,8 +82,8 @@ private:
     vkutil::DeletionQueue delete_queue;
 	ResourceHandle<ResourceImage> renderImage;
     VkDescriptorPool imgui_descriptor_pool;
-    u32 current_swapchain_number=0;
     u32 frame_number=0;
+    bool should_resize {false};
 };
 
 }

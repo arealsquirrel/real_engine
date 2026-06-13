@@ -326,8 +326,21 @@ void VulkanRenderer::create_device() {
 	chosenGPU = physicalDevice.physical_device;
 }
 
+void VulkanRenderer::swapchain_resize() {
+    RL_LOG_TRACE("Resizing window");
+    should_resize = false;
+
+    auto [width, height] = window->get_glfw_window_dimensions();
+
+    destroy_swapchain();
+    create_swapchain(width, height);
+}
+
 void VulkanRenderer::start_frame() {
     RL_INSTRUMENT_FUNCTION
+    if(should_resize)
+        swapchain_resize();
+
     stats.draw_calls = 0;
     stats.verticies = 0;
     stats.indicies = 0;
@@ -343,18 +356,24 @@ void VulkanRenderer::start_frame() {
 	VK_CHECK(vkResetFences(
         device, 1,
         &frame->render_fence));
-	VK_CHECK(vkAcquireNextImageKHR(
+	VkResult res = vkAcquireNextImageKHR(
         device,
         swapchain,
         1000000000, frame->swapchain_semaphores,
-        nullptr, &frame->swapchain_index));
+        nullptr, &frame->swapchain_index);
+
+    if(res == VK_ERROR_OUT_OF_DATE_KHR) {
+        RL_LOG_INFO("out of date in start");
+        swapchain_resize();
+        start_frame();
+        return;
+    }
 
     VkCommandBuffer cmd = frame->main_command_buffer;
 	VK_CHECK(vkResetCommandBuffer(cmd, 0));
 	VkCommandBufferBeginInfo cmdBeginInfo = vkutil::command_buffer_begin_info(
         VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
 	VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
-
 
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -411,7 +430,12 @@ void VulkanRenderer::end_frame() {
 
     presentInfo.pImageIndices = &frame.swapchain_index;
 
-    VK_CHECK(vkQueuePresentKHR(graphics_queue, &presentInfo));
+    VkResult res = vkQueuePresentKHR(graphics_queue, &presentInfo);
+    if(res == VK_ERROR_OUT_OF_DATE_KHR) {
+        RL_LOG_INFO("out of date");
+        should_resize = true;
+    }
+
     frame.delete_queue.flush();
     frame_number++;
     stats.frame_time.stop();

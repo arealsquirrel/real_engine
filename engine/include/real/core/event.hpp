@@ -22,6 +22,18 @@ public:
     ~Event() = default;
 };
 
+struct REALLIB_EXPORT EventWindowResize : public Event {
+RL_EVENT(EventWindowResize)
+
+public:
+    EventWindowResize(int _width, int _height)
+        : width(_width), height(_height) {}
+    ~EventWindowResize() = default;
+
+    int width;
+    int height;
+};
+
 class REALLIB_EXPORT EventMessenger {
 public:
     struct EventFunctionHandle {
