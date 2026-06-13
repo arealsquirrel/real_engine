@@ -20,8 +20,12 @@ void compute_main(
     int2 texelCoord = int2(globalID.xy);
 
     if(texelCoord.x < width && texelCoord.y < height) {
-        float blend = float(texelCoord.y)/(height); 
-    
-        image[texelCoord] = lerp(topColor, bottomColor, blend);
+		if(image[texelCoord].w == 1) {
+			return;
+		}
+
+        float blend = float(texelCoord.y) / (height);
+		float4 gradient_color = lerp(topColor, bottomColor, blend);
+    	image[texelCoord] = lerp(gradient_color, image[texelCoord], image[texelCoord].w);
     }
 }

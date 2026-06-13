@@ -36,9 +36,10 @@ public:
 	VulkanRenderer(Instance *_instance, Shared<Window> _window);
 	~VulkanRenderer();
 
-	void start_frame() override;
-	void end_frame() override;
-	void init() override;
+	void start_frame() final override;
+	void end_frame() final override;
+	void init() final override;
+	void resolve_frame() final override;
 
     FrameDataVulkan &get_current_frame();
 
@@ -66,6 +67,8 @@ public:
 
 	VkSampler samplerNearest;
 	VkSampler samplerLinear;
+
+	VkSampleCountFlagBits samples;
 	
 private:
 	vkb::Device vkbDevice;
@@ -82,10 +85,12 @@ private:
 
     FrameDataVulkan frame_data[VULKAN_FRAME_OVERLAP];
     vkutil::DeletionQueue delete_queue;
-	ResourceHandle<ResourceImage> renderImage;
     VkDescriptorPool imgui_descriptor_pool;
     u32 frame_number=0;
     bool should_resize {false};
+
+	ResourceHandle<ResourceImage> renderImage;
+	ResourceHandle<ResourceImage> resolveImage;
 };
 
 }

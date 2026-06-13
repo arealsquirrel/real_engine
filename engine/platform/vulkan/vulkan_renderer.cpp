@@ -39,6 +39,9 @@
 
 namespace real {
 
+constexpr int OFFSCEEN_WIDTH = 1280;
+constexpr int OFFSCEEN_HEIGHT = 720;
+
 VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
     : Renderer(_instance, _window), EventListener(_instance, this) {}
 
@@ -56,15 +59,17 @@ void VulkanRenderer::init() {
 	create_descriptors();
 	create_imgui();
 
-	instance->resource_database->register_resource(
-			Graphics::create_resource_image(instance, width, height,
-				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH).release(),
-			"_screen_depth_texture");
+	instance->resource_database->register_resource<ResourceImage>(
+			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
+				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH, nullptr, 0, samples), "_screen_depth_texture");
 
-    renderImage = instance->resource_database->register_resource(
- 		Graphics::create_resource_image(instance, width, height,
-			ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR).release(),
-		"_screen_color_texture");
+	renderImage = instance->resource_database->register_resource<ResourceImage>(
+			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
+				ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR, nullptr, 0, samples), "_screen_color_texture");
+
+	resolveImage = instance->resource_database->register_resource<ResourceImage>(
+			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
+				ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR), "_screen_color_resolve_texture");
 
 	VkSamplerCreateInfo sampl = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
 
@@ -78,14 +83,14 @@ void VulkanRenderer::init() {
 
 	event_subscribe<EventWindowResize>(
 		[&](EventWindowResize &resize, Object *object){
-		
-		swapchain_resize();
+		should_resize = true;
 	});
 }
 
 VulkanRenderer::~VulkanRenderer() {
     RL_INSTRUMENT_FUNCTION
 
+    GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 	RL_LOG_TRACE("destroying vulkan renderer");
     vkDeviceWaitIdle(device);
 
@@ -95,6 +100,12 @@ VulkanRenderer::~VulkanRenderer() {
 	vkDestroySampler(device, samplerNearest, nullptr);
 
     delete_queue.flush();
+
+
+	for (int i = 0; i < swapchain_views.size(); i++) {
+		vkDestroySemaphore(device, render_semaphore[i], nullptr);
+	}
+
 
     for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
 		frame_data[i].frameDescriptors.destroy_pools(device);
@@ -111,6 +122,7 @@ VulkanRenderer::~VulkanRenderer() {
     vkDestroyCommandPool(device, imm_command_pool, nullptr);
 
 	destroy_swapchain();
+	vkDestroySurfaceKHR(vulkan_backend->instance, surface, nullptr);
 
 	descriptor_allocator.destroy_pool(device);
 
@@ -274,7 +286,7 @@ void VulkanRenderer::create_swapchain(u32 width, u32 height) {
 
 	vkb::Swapchain vkbSwapchain = swapchainBuilder
 		.set_desired_format(VkSurfaceFormatKHR{ .format = swapchain_image_format, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR })
-		.set_desired_present_mode(VK_PRESENT_MODE_MAILBOX_KHR)//VK_PRESENT_MODE_FIFO_KHR)
+		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
 		.set_desired_extent(width, height)
 		.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 		.build()
@@ -292,11 +304,8 @@ void VulkanRenderer::destroy_swapchain() {
     vkDestroySwapchainKHR(device, swapchain, nullptr);
 
 	for (int i = 0; i < swapchain_views.size(); i++) {
-		vkDestroySemaphore(device, render_semaphore[i], nullptr);
 		vkDestroyImageView(device, swapchain_views[i], nullptr);
 	}
-    
-    vkDestroySurfaceKHR(vulkan_backend->instance, surface, nullptr);
 }
 
 void VulkanRenderer::create_device() {
@@ -329,7 +338,14 @@ void VulkanRenderer::create_device() {
 		.value();
 
     RL_LOG_INFO("vulkan rendering device found: {}", physicalDevice.name);
-
+	VkSampleCountFlags counts = physicalDevice.properties.limits.framebufferDepthSampleCounts & physicalDevice.properties.limits.framebufferColorSampleCounts;
+    if (counts & VK_SAMPLE_COUNT_2_BIT)  { samples = VK_SAMPLE_COUNT_2_BIT; }
+    if (counts & VK_SAMPLE_COUNT_4_BIT)  { samples = VK_SAMPLE_COUNT_4_BIT; }
+    if (counts & VK_SAMPLE_COUNT_8_BIT)  { samples = VK_SAMPLE_COUNT_8_BIT; }
+    if (counts & VK_SAMPLE_COUNT_16_BIT) { samples = VK_SAMPLE_COUNT_16_BIT; }
+    
+	RL_LOG_INFO("Picked multisampling {}", counts);
+	
     vkb::DeviceBuilder deviceBuilder{ physicalDevice };
 	vkbDevice = deviceBuilder.build().value();
 	device = vkbDevice.device;
@@ -341,7 +357,8 @@ void VulkanRenderer::swapchain_resize() {
     should_resize = false;
 
     auto [width, height] = window->get_glfw_window_dimensions();
-
+	
+	vkDeviceWaitIdle(device);
     destroy_swapchain();
     create_swapchain(width, height);
 }
@@ -358,7 +375,8 @@ void VulkanRenderer::start_frame() {
 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
-    frame->draw_extent = swapchain_extent;
+	frame->draw_extent.width = std::min(swapchain_extent.width, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.width);
+	frame->draw_extent.height = std::min(swapchain_extent.height, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.height);
 
     VK_CHECK(vkWaitForFences(
         device, 1,
@@ -390,8 +408,42 @@ void VulkanRenderer::start_frame() {
     ImGui::NewFrame();
 
     vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	// clear the render image
+	VkImageSubresourceRange range{};
+	range.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+	range.baseMipLevel   = 0;
+	range.levelCount     = 1;
+	range.baseArrayLayer = 0;
+	range.layerCount     = 1;
+    VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
+	vk_render_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	VkClearColorValue clearColor = {{1.0f, 1.0f, 1.0f, 0.0f}}; // Black
+	vkCmdClearColorImage(
+			cmd, vk_render_image->image, vk_render_image->current_layout,
+			&clearColor, 1, &range);
 }
 
+void VulkanRenderer::resolve_frame() {
+    FrameDataVulkan &frame = get_current_frame();
+    VkCommandBuffer cmd = frame.main_command_buffer;
+    VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
+    VulkanResourceImage *vk_resolve_image = (VulkanResourceImage*)resolveImage.get();
+    vk_render_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	VkImageResolve resolveRegion{};
+	resolveRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	resolveRegion.srcOffset = { 0, 0, 0 };
+	resolveRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+	resolveRegion.dstOffset = { 0, 0, 0 };
+	resolveRegion.extent = { OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT, 1 };
+
+	vkCmdResolveImage(cmd, 
+					  vk_render_image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+					  vk_resolve_image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+					  1, &resolveRegion);
+}
 
 void VulkanRenderer::end_frame() {
     RL_INSTRUMENT_FUNCTION
@@ -399,9 +451,15 @@ void VulkanRenderer::end_frame() {
     FrameDataVulkan &frame = get_current_frame();
     VkCommandBuffer cmd = frame.main_command_buffer;
 
-    VulkanResourceImage *vi = (VulkanResourceImage*)renderImage.get();
-    vi->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	vkutil::copy_image_to_image(get_current_frame().main_command_buffer, vi->image, swapchain_images[get_current_frame().swapchain_index], get_current_frame().draw_extent, swapchain_extent);
+    VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
+    VulkanResourceImage *vk_resolve_image = (VulkanResourceImage*)resolveImage.get();
+
+	vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	
+	vkutil::copy_image_to_image(
+			get_current_frame().main_command_buffer,
+			vk_resolve_image->image, swapchain_images[get_current_frame().swapchain_index],
+			get_current_frame().draw_extent, swapchain_extent);
 
 	ImGui::Render();
 

@@ -19,8 +19,9 @@ VulkanResourceImage::VulkanResourceImage(
     Instance *_instance,
     u32 width, u32 height, 
 	ColorFormat _cformat, ImageFormat _iformat,
-	void *data, int mips)
-    : ResourceImage(_instance, width, height, _cformat, _iformat, data) {
+	void *data, int mips, VkSampleCountFlagBits _samples)
+    : ResourceImage(_instance, width, height, _cformat, _iformat, data),
+	  samples(_samples) {
 	
 	RL_INSTRUMENT_FUNCTION
 
@@ -52,7 +53,8 @@ VulkanResourceImage::VulkanResourceImage(
 			imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
 			imageUsages |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 			imageUsages |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-			imageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
+			if(samples == VK_SAMPLE_COUNT_1_BIT)
+				imageUsages |= VK_IMAGE_USAGE_STORAGE_BIT;
 			imageUsages |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			imageUsages |= VK_IMAGE_USAGE_SAMPLED_BIT;
 			rimg_info = vkutil::image_create_info(imageFormat, imageUsages, drawImageExtent);
@@ -78,7 +80,7 @@ VulkanResourceImage::VulkanResourceImage(
 		rimg_info.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(imageExtent.width, imageExtent.height)))) + 1;
 	}
 
-	// rimg_info.mipLevels = mips;
+	rimg_info.samples = samples;
 	VK_CHECK(vmaCreateImage(renderer->allocator, &rimg_info, &rimg_allocinfo, &image, &allocation, nullptr));
 	current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 

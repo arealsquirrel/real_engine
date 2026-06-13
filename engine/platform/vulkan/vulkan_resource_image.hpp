@@ -22,7 +22,7 @@ public:
         Instance *_instance,
         u32 width, u32 height,
         ColorFormat cformat, ImageFormat iformat,
-		void *data=nullptr, int mips=0);
+		void *data=nullptr, int mips=0, VkSampleCountFlagBits samples=VK_SAMPLE_COUNT_1_BIT);
 
     ~VulkanResourceImage();
 
@@ -48,6 +48,7 @@ public:
 	VkImageLayout current_layout;
 
 	VkDescriptorSet imgui_descriptorset;
+	VkSampleCountFlagBits samples;
 };
 
 }

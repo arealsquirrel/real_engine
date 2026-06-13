@@ -48,9 +48,10 @@ void MyGame::start() {
 
 	render_texture = resource_database->get_resource<ResourceImage>("_screen_color_texture");
 	auto depth_texture = resource_database->get_resource<ResourceImage>("_screen_depth_texture");
+	auto resolve_texture = resource_database->get_resource<ResourceImage>("_screen_color_resolve_texture");
 
 	compute_pass = Graphics::create_render_pass_compute(
-			instance.get(), shader, {{render_texture, ImageFormat::RENDER_ATTACHMENT_COLOR}}).release();
+			instance.get(), shader, {{resolve_texture, ImageFormat::RENDER_ATTACHMENT_COLOR}}).release();
 
 	geometry_pass = Graphics::create_render_pass_geometry(
 			instance.get(), {
@@ -63,8 +64,6 @@ void MyGame::start() {
 			}, { flat_shader }, {}).release();
 
 	buffer = UniformBuffer::create(instance.get(), sizeof(SceneData)).release();
-
-	
 }
 
 void MyGame::update(u32 delta_time) {
@@ -72,13 +71,6 @@ void MyGame::update(u32 delta_time) {
 	camera_projection = glm::perspective(glm::radians(pov->get_value()), aspect, 0.1f, 100.0f);
 	camera_view = glm::mat4x4(1.0f);
 	camera_view = glm::translate(camera_view, glm::vec3(0.0f, 0.0f, -4.0f));
-
-	compute_pass->begin_pass();
-	compute_pass->set_variable("topColor", topGradientColor->get_value());
-	compute_pass->set_variable("bottomColor", bottomGradientColor->get_value());
-	compute_pass->bind_descriptors();
-	compute_pass->dispatch(std::ceil(render_texture.get()->get_image_extent().first / 16.0), std::ceil(render_texture.get()->get_image_extent().second / 16.0), 1);
-	compute_pass->end_pass();
 
 	geometry_pass->begin_pass();
 	SceneData *scene_data = buffer->get_data<SceneData>();
@@ -92,6 +84,15 @@ void MyGame::update(u32 delta_time) {
 	geometry_pass->bind_descriptors();
 	geometry_pass->draw_mesh(mesh_resource);
 	geometry_pass->end_pass();
+
+	instance->renderer->resolve_frame();
+
+	compute_pass->begin_pass();
+	compute_pass->set_variable("topColor", topGradientColor->get_value());
+	compute_pass->set_variable("bottomColor", bottomGradientColor->get_value());
+	compute_pass->bind_descriptors();
+	compute_pass->dispatch(std::ceil(render_texture.get()->get_image_extent().first / 16.0), std::ceil(render_texture.get()->get_image_extent().second / 16.0), 1);
+	compute_pass->end_pass();
 
 	CVarSystem::get().render_imgui();
 }

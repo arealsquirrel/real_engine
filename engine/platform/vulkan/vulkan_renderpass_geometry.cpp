@@ -260,7 +260,7 @@ VkPipelineMultisampleStateCreateInfo VulkanRenderPassGeometry::create_multisampl
 
 	VkPipelineMultisampleStateCreateInfo multisampling = { .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.rasterizationSamples = ((VulkanResourceImage*)info.renderImage.get())->samples;
     multisampling.minSampleShading = 1.0f;
     multisampling.pSampleMask = nullptr;
     multisampling.alphaToCoverageEnable = VK_FALSE;
@@ -273,6 +273,7 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	free(push_constant_buffer);
     vkDeviceWaitIdle(renderer->device);
+	vkDestroyDescriptorSetLayout(renderer->device, descriptor_set_layout, nullptr);
 	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
     vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }

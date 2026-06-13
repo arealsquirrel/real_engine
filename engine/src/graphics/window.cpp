@@ -19,6 +19,7 @@ static Instance *s_instance;
 static Window *s_window;
 
 static void glfw_resize_callback(GLFWwindow *window, int width, int height) {
+	RL_LOG_INFO("RESIZING");
     s_instance->event_messenger->emit_event<EventWindowResize>(s_window, width, height);
 }
 
