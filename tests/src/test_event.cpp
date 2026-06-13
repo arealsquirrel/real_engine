@@ -18,7 +18,7 @@ int x;
 };
 
 TEST(Events, event) {
-    EventMessenger messenger(nullptr);
+    EventMessenger messenger;
 
     int trigger = 0;
 

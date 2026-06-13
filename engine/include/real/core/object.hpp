@@ -2,10 +2,13 @@
 #define REALLIB_OBJECT_HPP
 
 #include "real/core/core.hpp"
-#include "real/core/instance.hpp"
 #include "real/core/uuid.hpp"
+#include <set>
 
 namespace real {
+
+class Instance;
+class EventListener;
 
 struct TypeInfo {
     const char *name;
