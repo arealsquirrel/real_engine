@@ -32,7 +32,12 @@ void CVarSystem::render_imgui() {
     void CVar<type>::render_imgui()
 
 CVAR_DEFINITION(float, Float) {
-    ImGui::InputFloat(name.c_str(), &value);
+    switch (params) {
+        case CVarEditParamers::ReadOnly:
+            ImGui::Text("%s: %f", name.c_str(), value);
+        case CVarEditParamers::ReadWrite:
+            ImGui::InputFloat(name.c_str(), &value);
+    }
 }
 
 CVAR_DEFINITION(Color4,Color4) {

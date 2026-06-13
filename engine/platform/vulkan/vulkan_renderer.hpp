@@ -1,6 +1,7 @@
 #ifndef REALLIB_VULKAN_RENDERER_HPP
 #define REALLIB_VULKAN_RENDERER_HPP
 
+#include "real/core/event.hpp"
 #include "real/core/object.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
@@ -11,6 +12,7 @@
 #include "vulkan_util.hpp"
 #include <VkBootstrap.h>
 #include <vulkan/vulkan_core.h>
+#include <real/core/event_listener.hpp>
 
 namespace real {
 
@@ -27,7 +29,7 @@ struct FrameDataVulkan {
 	DescriptorAllocatorGrowable frameDescriptors;
 };
 
-class VulkanRenderer : public Renderer {
+class VulkanRenderer : public Renderer, EventListener {
 RL_OBJECT(VulkanRenderer, Renderer)
 
 public:

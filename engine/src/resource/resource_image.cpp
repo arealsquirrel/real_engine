@@ -48,7 +48,7 @@ ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 	}
 
 	auto *image = Graphics::create_resource_image(instance, (u32)x, (u32)y, ColorFormat::RGBA_FLOAT8, ImageFormat::RENDER_ATTACHMENT_COLOR, data).release();
-	delete data;
+	free(data);
 	return register_resource(image, name, UUID(), path);
 }
 

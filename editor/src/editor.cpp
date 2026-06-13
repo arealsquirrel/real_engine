@@ -20,8 +20,6 @@ Editor::~Editor() {
 EditorExitReason Editor::render() {
 	EditorExitReason r = EditorExitReason::NotExiting;
 
-	ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
-
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("Project")) {
 			if (ImGui::MenuItem("Exit")) { 

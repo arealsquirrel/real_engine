@@ -16,11 +16,11 @@ enum class REALLIB_EXPORT CVarEditParamers {
 };
 
 enum class REALLIB_EXPORT CVarType : u32 {
-    Float,
     Int,
     Color4,
     Float4,
     Float3,
+    Float,
 };
 
 class REALLIB_EXPORT CVarWrapper {
@@ -71,20 +71,7 @@ public:
         cvars.emplace(name, var);
         return var;
     }
-
-    /*
-    template<typename T>
-    const CVar<T> *get_cvar(std::string name) {
-        auto un = cvars[name].get();
-        if(un->get_cvar_type() != CVar<T>::get_static_cvar_type()) {
-            RL_LOG_ERROR("attempting to get a cvar with different type than name assigned");
-            return nullptr;
-        }
-
-        return (CVar<T>*)un;
-    }
-    */
-
+    
 public:
     static CVarSystem &get();
     std::map<std::string, Shared<CVarWrapper>> cvars;

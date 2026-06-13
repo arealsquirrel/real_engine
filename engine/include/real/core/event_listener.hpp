@@ -28,7 +28,7 @@ public:
 
         subscribed_events.emplace(T::get_event_id());
 
-        instance->event_messenger->subscribe<T>(fn);
+        ev_instance->event_messenger->subscribe<T>(attached, fn);
     }
 
     template<typename T>
@@ -43,13 +43,13 @@ public:
 
         f.erase();
 
-        instance->event_messenger->unsubscribe<T>(attached);
+        ev_instance->event_messenger->unsubscribe<T>(attached);
     }
 
 private:
     std::set<UUID> subscribed_events;
     Object *attached;
-    Instance *instance;
+    Instance *ev_instance;
 };
 
 }

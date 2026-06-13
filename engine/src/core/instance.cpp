@@ -29,6 +29,8 @@ Instance::~Instance() {
 	resource_database.reset();
     renderer.reset();
     window.reset();
+	auto *p = event_messenger.release();
+	delete p;
 }
 
 bool Instance::should_close() {

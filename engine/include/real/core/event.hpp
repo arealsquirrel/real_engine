@@ -39,7 +39,7 @@ public:
     struct EventFunctionHandle {
         EventFunctionHandle(Object *attached);
 
-        ~EventFunctionHandle() = default;
+        virtual ~EventFunctionHandle() = default;
 
         virtual void call(Event &event, Object *from) = 0;
     
@@ -72,9 +72,7 @@ public:
     template<typename T>
     void subscribe(Object *attached, EventFunctionPtr<T> fn) {
         static_assert(std::is_base_of<Event, T>::value, "can not subscribe to event that does not derive from Event");
-        subscribe(attached, T::get_event_id(),
-            std::move(std::unique_ptr<EventFunctionHandle>(
-                new EventFunction<T>(fn, attached))));
+        subscribe(attached, T::get_event_id(), new EventFunction<T>(fn, attached));
     }
 
     template<typename T>
@@ -83,7 +81,7 @@ public:
         unsubscribe(object, T::get_event_id());
     }
 
-    void subscribe(Object *attached, UUID eventID, std::unique_ptr<EventFunctionHandle> &&unq);
+    void subscribe(Object *attached, UUID eventID, EventFunctionHandle *unq);
     void emit_event(Object *from, UUID eventID, Event &event);
     void unsubscribe(Object *object, UUID eventID);
 

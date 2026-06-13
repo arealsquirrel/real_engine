@@ -1,5 +1,6 @@
 
 #include "editor.hpp"
+#include "imgui.h"
 #include "panel_logs.hpp"
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
@@ -20,6 +21,7 @@ int main() {
 	editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
 	Shared<Instance> instance = std::make_shared<Instance>();
 	editor::Editor *ed = new editor::Editor(instance);
+
 	ed->add_panel<editor::PanelResourceDatabase>();
 	ed->add_panel<editor::PanelLogs>(log_buffer);
 	ed->add_panel<editor::PanelResourceViewer>();
@@ -31,10 +33,15 @@ reload_game:
 	log_buffer->index = 0;
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
-		game->renderer->start_frame();
+		
+		// game->renderer->start_frame();
+		instance->renderer->start_frame();
+		ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 		game->update(0);
 		reason = ed->render();
-		game->renderer->end_frame();
+		ImGui::ShowStyleEditor();
+		instance->renderer->end_frame();
+		// game->renderer->end_frame();
 	}
 
 	Game::destroy_game_dll(game, dll);

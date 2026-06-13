@@ -5,11 +5,11 @@
 namespace real {
 
 EventListener::EventListener(Instance *_instance, Object *_attached)
-    : instance(_instance), attached(_attached) {}
+    : ev_instance(_instance), attached(_attached) {}
 
 EventListener::~EventListener() {
     for (UUID id : subscribed_events) {
-        instance->event_messenger->unsubscribe(attached, id);
+        ev_instance->event_messenger->unsubscribe(attached, id);
     }
 }
 
