@@ -8,6 +8,7 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
+#include "glm/trigonometric.hpp"
 #include "real/core/object.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/graphics/buffer.hpp"
@@ -67,14 +68,15 @@ void MyGame::update(u32 delta_time) {
 	static float aspect = (float)1200 / 800;
 	camera_projection = glm::perspective(glm::radians(pov->get_value()), aspect, 0.1f, 100.0f);
 	camera_view = glm::mat4x4(1.0f);
-	camera_view = glm::translate(camera_view, glm::vec3(0.0f, 0.0f, -4.0f));
+	camera_view = glm::translate(camera_view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 	geometry_pass->begin_pass();
 	SceneData *scene_data = buffer->get_data<SceneData>();
 	scene_data->projection = camera_projection;
 	scene_data->view = camera_view;
 	model = glm::mat4x4(1.0f);
- 	model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+ 	model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+ 	model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 	geometry_pass->set_variable("scene_data", buffer->get_handle());
 	geometry_pass->set_variable("model", model);
 	geometry_pass->set_variable("sampler", mesh_texture.get()->get_handle());

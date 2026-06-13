@@ -2,6 +2,7 @@
 #pragma once
 
 #include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/vector_float3.hpp"
 #include "real/core/color.hpp"
 #include "real/core/game.hpp"
 #include "real/core/types.hpp"
