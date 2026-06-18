@@ -3,6 +3,11 @@
 
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
+#include "real/core/uuid.hpp"
+#include <bitset>
+#include <cstddef>
+#include <map>
+#include <vector>
 
 namespace real {
 
@@ -12,7 +17,6 @@ RL_OBJECT(Scene, Object)
 public:
     Scene(Instance *instance);
     ~Scene();
-
 };
 
 }
