@@ -27,7 +27,7 @@ public:
 	~VulkanRenderPassGeometry();
 
 public:
-	void begin_pass() final override;
+	void begin_pass(Framebuffer *framebuffer) final override;
 	void end_pass() final override;
 	void set_variable(ShaderField field, char *data, size_t size) final override;
 	void bind_descriptors() final override;
@@ -46,9 +46,6 @@ private:
 
 	VkDescriptorSet descriptor_set;
 	VkDescriptorSetLayout descriptor_set_layout;
-
-	ResourceHandle<VulkanResourceImage> renderImage;
-	std::optional<ResourceHandle<VulkanResourceImage>> depthImage;
 
 	PushConstantBuffer push_constant_buffer;
 	DescriptorWriter writer;

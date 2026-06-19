@@ -40,7 +40,7 @@ public:
 
     virtual void start_frame() = 0;
 	virtual void resolve_frame() = 0;
-    virtual void end_frame() = 0;
+    virtual void end_frame(const ResourceImage *copy_to_screen_image=nullptr) = 0;
 
     void imgui_draw_stats();
 

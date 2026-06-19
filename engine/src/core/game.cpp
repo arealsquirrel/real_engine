@@ -3,6 +3,7 @@
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
+#include "real/graphics/framebuffer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource_database.hpp"
 #include <GLFW/glfw3.h>
@@ -20,6 +21,7 @@ Game::Game(Shared<Instance> _instance)
 	window = _instance->window; 
 	resource_database = _instance->resource_database;
 	renderer = _instance->renderer;
+    screen_framebuffer = Framebuffer::create(instance.get(), 1920 / 4, 1080 / 4, true, MultisamplingCount::Eight);
 }
 
 Game::~Game() {}

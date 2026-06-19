@@ -22,9 +22,6 @@ struct PSInput {
 struct SceneData {
     float4x4 projection;
     float4x4 view;
-    float ambient;
-    float3 light_color;
-    float3 light_position;
 };
 
 [[vk::push_constant]]

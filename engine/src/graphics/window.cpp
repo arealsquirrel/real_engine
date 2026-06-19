@@ -32,9 +32,11 @@ Window::Window(Instance *_instance, const WindowInfo &info)
         s_instance = _instance;
         s_window = this;
         glfwSetErrorCallback(real_glfw_error_callback);
+		glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_WAYLAND);
         glfwInit();
     }
 
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     window = glfwCreateWindow(info.width, info.height, info.title, NULL, NULL);
 

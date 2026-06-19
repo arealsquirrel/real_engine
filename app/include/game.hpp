@@ -2,12 +2,13 @@
 #pragma once
 
 #include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/vector_float3.hpp"
 #include "real/core/color.hpp"
 #include "real/core/game.hpp"
 #include "real/core/types.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/graphics/buffer.hpp"
+#include "real/graphics/camera.hpp"
+#include "real/graphics/framebuffer.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
@@ -27,12 +28,12 @@ private:
     RenderPassGeometry *geometry_pass;
     ResourceHandle<ResourceMesh> mesh_resource;
     ResourceHandle<ResourceImage> mesh_texture;
-    ResourceHandle<ResourceImage> render_texture;
+    // Unique<Framebuffer> framebuffer;
+    // ResourceHandle<ResourceImage> render_texture;
 
     UniformBuffer *buffer;
 
-    glm::mat4 camera_projection;
-    glm::mat4 camera_view;
+    Camera camera;
 
     glm::mat4 model;
 

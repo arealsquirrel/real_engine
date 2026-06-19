@@ -2,6 +2,7 @@
 #define REALLIB_VULKAN_UTIL_HPP
 
 #include "real/core/logging.hpp"
+#include "real/graphics/render_pass_geometry.hpp"
 #include <vulkan/vulkan_core.h>
 
 #define GLFW_INCLUDE_VULKAN
@@ -37,6 +38,18 @@ struct DeletionQueue {
 		deletors.clear();
 	}
 };
+
+static inline VkSampleCountFlagBits MSAA_to_vulkan_counts(MultisamplingCount msaa) {
+    switch (msaa) {
+		case MultisamplingCount::One: return VK_SAMPLE_COUNT_1_BIT;
+		case MultisamplingCount::Two: return VK_SAMPLE_COUNT_2_BIT;
+		case MultisamplingCount::Four: return VK_SAMPLE_COUNT_4_BIT;
+		case MultisamplingCount::Eight: return VK_SAMPLE_COUNT_8_BIT;
+		case MultisamplingCount::Sixteen: return VK_SAMPLE_COUNT_16_BIT;
+	}
+
+    return VK_SAMPLE_COUNT_1_BIT;
+}
 
 static inline VkCommandPoolCreateInfo command_pool_create_info(uint32_t queueFamilyIndex,
     VkCommandPoolCreateFlags flags /*= 0*/) {

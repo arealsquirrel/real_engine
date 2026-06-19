@@ -9,6 +9,7 @@
 #include "real/debug/cvars.hpp"
 #include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
+#include <real/graphics/framebuffer.hpp>
 
 using namespace real;
 
@@ -34,11 +35,12 @@ reload_game:
 	auto [game, dll] = Game::load_game_dll(instance);
 	game->start();
 	log_buffer->index = 0;
-	ed->editor_viewport = instance->resource_database->get_resource<ResourceImage>("_screen_color_resolve_texture");
+	ed->editor_viewport = game->screen_framebuffer->get_color_resolve_image();
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
 		instance->renderer->start_frame();
 		ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::ShowMetricsWindow();
 		game->update(0);
 		CVarSystem::get().render_imgui();
 		reason = ed->render();

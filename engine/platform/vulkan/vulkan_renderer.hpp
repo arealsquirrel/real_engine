@@ -23,7 +23,6 @@ struct FrameDataVulkan {
     VkCommandBuffer main_command_buffer;
     VkSemaphore swapchain_semaphores;
 	VkFence render_fence;
-    VkExtent2D draw_extent;
     u32 swapchain_index;
     vkutil::DeletionQueue delete_queue;
 	DescriptorAllocatorGrowable frameDescriptors;
@@ -37,7 +36,7 @@ public:
 	~VulkanRenderer();
 
 	void start_frame() final override;
-	void end_frame() final override;
+	void end_frame(const ResourceImage *copy_to_screen_image) final override;
 	void init() final override;
 	void resolve_frame() final override;
 
@@ -89,8 +88,8 @@ private:
     u32 frame_number=0;
     bool should_resize {false};
 
-	ResourceHandle<ResourceImage> renderImage;
-	ResourceHandle<ResourceImage> resolveImage;
+	// ResourceHandle<ResourceImage> renderImage;
+	// ResourceHandle<ResourceImage> resolveImage;
 };
 
 }

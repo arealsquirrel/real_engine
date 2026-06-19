@@ -68,7 +68,7 @@ void Editor::viewport() {
 	}
 
 	auto id = editor_viewport.get()->get_imgui_textureID();
-	ImGui::Image(id, drawSize, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+	ImGui::Image(id, drawSize);
 
 	ImGui::End();
 	ImGui::PopStyleVar();

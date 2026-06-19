@@ -12,6 +12,8 @@
 
 namespace real {
 
+class Framebuffer;
+
 enum class GeometryCullMode {
 	NONE,
 	FRONT,
@@ -35,17 +37,27 @@ enum class GeometryTopology {
 	Point_list
 };
 
+enum class MultisamplingCount {
+    One,
+    Two,
+    Four,
+    Eight,
+    Sixteen
+};
+
 /**
  * @brief info for the RenderPassGeometry renderpass.
  */
 struct REALLIB_EXPORT RenderPassGeometryInfo {
-	ResourceHandle<ResourceImage> renderImage;
-	std::optional<ResourceHandle<ResourceImage>> depthImage {std::nullopt};
+	// ResourceHandle<ResourceImage> renderImage;
+	// std::optional<ResourceHandle<ResourceImage>> depthImage {std::nullopt};
 
+	bool depth;
 	GeometryTopology topology;
 	GeometryPolygonMode polygon_mode;
 	GeometryFrontFace front_face;
 	GeometryCullMode cull_mode;
+	MultisamplingCount msaa;
 };
 
 /**
@@ -63,16 +75,15 @@ protected:
 public:
 	virtual ~RenderPassGeometry() = default;
 
-	virtual void begin_pass() override = 0;
-	virtual void end_pass() override = 0;
+	/**
+	 * @brief beigns a render pass the renders geometry.
+	 * 
+	 * @param framebuffer the target of this renderpass. the renderpass takes the viewport info from the framebuffer.
+	 */
+	virtual void begin_pass(Framebuffer *framebuffer) = 0;
+	virtual void end_pass() = 0;
 	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh) = 0;
 	virtual void bind_descriptors() override = 0;
-
-	void set_vieport(Vec2Int _viewport);
-	Vec2Int get_viewport() const;
-
-protected:
-	Vec2Int viewport_size;
 };
 
 }

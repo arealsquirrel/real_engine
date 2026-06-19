@@ -5,6 +5,7 @@
 #include "real/core/types.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/debug/instrumentation.hpp"
+#include <real/graphics/framebuffer.hpp>
 #include <iostream>
 #include <memory>
 
@@ -30,7 +31,7 @@ int main() {
 	while(instance->should_close() == false) {
 		instance->renderer->start_frame();
 		game->update(0);
-		instance->renderer->end_frame();
+		instance->renderer->end_frame(game->screen_framebuffer->get_color_resolve_image().get());
 	}
 	RL_INSTRUMENT_PROFILE_END;
 

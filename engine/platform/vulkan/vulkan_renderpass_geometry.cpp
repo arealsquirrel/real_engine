@@ -15,21 +15,16 @@
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_mesh.hpp"
 #include "vulkan_resource_shader.hpp"
+#include "vulkan_util.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <cstring>
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan_core.h>
+#include <real/graphics/framebuffer.hpp>
 
 namespace real {
-
-/*
-struct GPUDrawPushConstants {
-    glm::mat4 worldMatrix;
-    VkDeviceAddress vertexBuffer;
-};
-*/
 
 VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		Instance *_instance, RenderPassGeometryInfo info,
@@ -39,17 +34,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 
 	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
-	viewport_size.w = info.renderImage.get()->get_image_extent().first;
-	viewport_size.h = info.renderImage.get()->get_image_extent().second;
-	RL_LOG_TRACE("creating renderpass geometry");
-
-	renderImage = info.renderImage;
-
-	if(info.depthImage.has_value()) {
-		depthImage = std::make_optional<ResourceHandle<VulkanResourceImage>>(info.depthImage.value());
-	} else {
-		depthImage = std::nullopt;
-	}
 
 	DescriptorLayoutBuilder builder;
 	for (auto field : shaders[0].get()->get_layout().fields) {
@@ -102,7 +86,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 
 	VkPipelineRenderingCreateInfo renderInfo = { .sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO };
 	std::vector<VkFormat> colorFormats;
-	colorFormats.push_back(renderImage.get()->imageFormat);
+	colorFormats.push_back(VK_FORMAT_R16G16B16A16_SFLOAT);
 	renderInfo.colorAttachmentCount = colorFormats.size();
 	renderInfo.pColorAttachmentFormats = colorFormats.data();
     renderInfo.depthAttachmentFormat = VK_FORMAT_D32_SFLOAT;
@@ -170,7 +154,7 @@ VkPipelineDepthStencilStateCreateInfo VulkanRenderPassGeometry::create_depth(
 		RenderPassGeometryInfo info) {
 	
 	VkPipelineDepthStencilStateCreateInfo depth = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
-	if(info.depthImage.has_value()) {
+	if(info.depth) {
 		RL_LOG_TRACE("Depthing it");
 		depth.depthTestEnable = VK_TRUE;
 		depth.depthWriteEnable = VK_TRUE;
@@ -260,7 +244,7 @@ VkPipelineMultisampleStateCreateInfo VulkanRenderPassGeometry::create_multisampl
 
 	VkPipelineMultisampleStateCreateInfo multisampling = { .sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO };
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = ((VulkanResourceImage*)info.renderImage.get())->samples;
+	multisampling.rasterizationSamples = vkutil::MSAA_to_vulkan_counts(info.msaa);
     multisampling.minSampleShading = 1.0f;
     multisampling.pSampleMask = nullptr;
     multisampling.alphaToCoverageEnable = VK_FALSE;
@@ -278,16 +262,19 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
     vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }
 
-void VulkanRenderPassGeometry::begin_pass() {
+void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer) {
 	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
-	VulkanResourceImage *vimg = renderImage.get();
-	VulkanResourceImage *dimg = depthImage.value().get();
+	VulkanResourceImage *vimg = (VulkanResourceImage*)framebuffer->get_msaa_color_image().get();
+	VulkanResourceImage *dimg = (VulkanResourceImage*)framebuffer->get_depth_image().get();
 
 	VkRenderingAttachmentInfo depthAttachment = vkutil::depth_attachment_info(dimg->imageView, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
 	VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(vimg->imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
-	VkRenderingInfo renderInfo = vkutil::rendering_info(frame.draw_extent, &colorAttachment, &depthAttachment);
+	VkExtent2D draw_extent;
+	draw_extent.width = framebuffer->get_width();
+	draw_extent.height = framebuffer->get_height();
+	VkRenderingInfo renderInfo = vkutil::rendering_info(draw_extent, &colorAttachment, &depthAttachment);
 	
 	vimg->transition_image(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	dimg->transition_image(VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
@@ -299,8 +286,8 @@ void VulkanRenderPassGeometry::begin_pass() {
 	VkViewport viewport = {};
 	viewport.x = 0;
 	viewport.y = 0;
-	viewport.width = viewport_size.w;
-	viewport.height = viewport_size.h;
+	viewport.width = framebuffer->get_width();
+	viewport.height = framebuffer->get_height();
 	viewport.minDepth = 0.f;
 	viewport.maxDepth = 1.f;
 
@@ -309,8 +296,8 @@ void VulkanRenderPassGeometry::begin_pass() {
 	VkRect2D scissor = {};
 	scissor.offset.x = 0;
 	scissor.offset.y = 0;
-	scissor.extent.width = viewport_size.w;
-	scissor.extent.height = viewport_size.h;
+	scissor.extent.width = framebuffer->get_width();
+	scissor.extent.height = framebuffer->get_height();
 
 	vkCmdSetScissor(frame.main_command_buffer, 0, 1, &scissor);
 	writer.clear();

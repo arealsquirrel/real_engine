@@ -39,9 +39,6 @@
 
 namespace real {
 
-constexpr int OFFSCEEN_WIDTH = 1280;
-constexpr int OFFSCEEN_HEIGHT = 720;
-
 VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
     : Renderer(_instance, _window), EventListener(_instance, this) {}
 
@@ -59,6 +56,7 @@ void VulkanRenderer::init() {
 	create_descriptors();
 	create_imgui();
 
+	/*
 	instance->resource_database->register_resource<ResourceImage>(
 			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
 				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH, nullptr, 0, samples), "_screen_depth_texture");
@@ -70,6 +68,7 @@ void VulkanRenderer::init() {
 	resolveImage = instance->resource_database->register_resource<ResourceImage>(
 			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
 				ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR), "_screen_color_resolve_texture");
+	*/
 
 	VkSamplerCreateInfo sampl = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
 
@@ -286,7 +285,7 @@ void VulkanRenderer::create_swapchain(u32 width, u32 height) {
 
 	vkb::Swapchain vkbSwapchain = swapchainBuilder
 		.set_desired_format(VkSurfaceFormatKHR{ .format = swapchain_image_format, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR })
-		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+		.set_desired_present_mode(VK_PRESENT_MODE_MAILBOX_KHR)//VK_PRESENT_MODE_FIFO_KHR)
 		.set_desired_extent(width, height)
 		.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 		.build()
@@ -375,8 +374,8 @@ void VulkanRenderer::start_frame() {
 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
-	frame->draw_extent.width = std::min(swapchain_extent.width, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.width);
-	frame->draw_extent.height = std::min(swapchain_extent.height, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.height);
+	// frame->draw_extent.width = std::min(swapchain_extent.width, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.width);
+	// frame->draw_extent.height = std::min(swapchain_extent.height, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.height);
 
     VK_CHECK(vkWaitForFences(
         device, 1,
@@ -410,6 +409,8 @@ void VulkanRenderer::start_frame() {
     vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 	// clear the render image
+
+	/*
 	VkImageSubresourceRange range{};
 	range.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
 	range.baseMipLevel   = 0;
@@ -422,9 +423,11 @@ void VulkanRenderer::start_frame() {
 	vkCmdClearColorImage(
 			cmd, vk_render_image->image, vk_render_image->current_layout,
 			&clearColor, 1, &range);
+	*/
 }
 
 void VulkanRenderer::resolve_frame() {
+	/*
     FrameDataVulkan &frame = get_current_frame();
     VkCommandBuffer cmd = frame.main_command_buffer;
     VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
@@ -443,23 +446,27 @@ void VulkanRenderer::resolve_frame() {
 					  vk_render_image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 					  vk_resolve_image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 					  1, &resolveRegion);
+	*/
 }
 
-void VulkanRenderer::end_frame() {
+void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
     RL_INSTRUMENT_FUNCTION
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan &frame = get_current_frame();
     VkCommandBuffer cmd = frame.main_command_buffer;
 
-    VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
-    VulkanResourceImage *vk_resolve_image = (VulkanResourceImage*)resolveImage.get();
-
-	vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	
-	vkutil::copy_image_to_image(
-			get_current_frame().main_command_buffer,
-			vk_resolve_image->image, swapchain_images[get_current_frame().swapchain_index],
-			get_current_frame().draw_extent, swapchain_extent);
+	if(copy_to_screen_image != nullptr) {
+		VulkanResourceImage *vk_resolve_image = (VulkanResourceImage*)copy_to_screen_image;
+		vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		VkExtent2D draw_extent;
+		draw_extent.width = vk_resolve_image->get_image_extent().first;
+		draw_extent.height = vk_resolve_image->get_image_extent().second;
+		
+		vkutil::copy_image_to_image(
+				get_current_frame().main_command_buffer,
+				vk_resolve_image->image, swapchain_images[get_current_frame().swapchain_index],
+			draw_extent, swapchain_extent);
+	}
 
 	ImGui::Render();
 
@@ -467,7 +474,7 @@ void VulkanRenderer::end_frame() {
 
     VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame.swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkRenderingInfo renderInfo = vkutil::rendering_info(swapchain_extent, &colorAttachment, nullptr);
-	vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_GENERAL);
+	// vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_GENERAL);
 	vkCmdBeginRendering(cmd, &renderInfo);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 	vkCmdEndRendering(cmd);

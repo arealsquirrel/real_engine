@@ -12,17 +12,11 @@
 #include "real/core/object.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/graphics/buffer.hpp"
+#include "real/graphics/camera.hpp"
+#include "real/graphics/render_pass_geometry.hpp"
 #include "real/resource/resource_image.hpp"
 
 using namespace real;
-
-struct SceneData {
-	alignas(16) glm::mat4 projection;
-	alignas(16) glm::mat4 view;
-	alignas(16) float ambient;
-	alignas(16) glm::vec3 light_color;
-	alignas(16) glm::vec3 light_position;
-};
 
 extern "C" {
 	REALLIB_EXPORT
@@ -44,36 +38,30 @@ void MyGame::start() {
 	mesh_resource = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/viking_room.obj");
 	mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/viking_room.png");
 
-	render_texture = resource_database->get_resource<ResourceImage>("_screen_color_texture");
-	auto depth_texture = resource_database->get_resource<ResourceImage>("_screen_depth_texture");
-	auto resolve_texture = resource_database->get_resource<ResourceImage>("_screen_color_resolve_texture");
-
 	compute_pass = Graphics::create_render_pass_compute(
-			instance.get(), shader, {{resolve_texture, ImageFormat::RENDER_ATTACHMENT_COLOR}}).release();
-
+			instance.get(), shader, {{screen_framebuffer->get_color_resolve_image(), ImageFormat::RENDER_ATTACHMENT_COLOR}}).release();
+	
 	geometry_pass = Graphics::create_render_pass_geometry(
 			instance.get(), {
-				.renderImage = render_texture,
-				.depthImage = depth_texture,
+				.depth = true,
 				.topology = GeometryTopology::Triangle_list,
 				.polygon_mode = GeometryPolygonMode::Fill,
 				.front_face = GeometryFrontFace::CounterClockwise,
-				.cull_mode = GeometryCullMode::BACK
+				.cull_mode = GeometryCullMode::BACK,
+				.msaa = MultisamplingCount::Eight,
 			}, { flat_shader }, {}).release();
 
-	buffer = UniformBuffer::create(instance.get(), sizeof(SceneData)).release();
+	buffer = UniformBuffer::create(instance.get(), sizeof(CameraData)).release();
+	camera.translate_camera(glm::vec3(0.0f, 0.0f, -3.0f));
+	camera.viewport(1200, 800);
 }
 
 void MyGame::update(u32 delta_time) {
-	static float aspect = (float)1200 / 800;
-	camera_projection = glm::perspective(glm::radians(pov->get_value()), aspect, 0.1f, 100.0f);
-	camera_view = glm::mat4x4(1.0f);
-	camera_view = glm::translate(camera_view, glm::vec3(0.0f, 0.0f, -3.0f));
+	screen_framebuffer->bind();
+	screen_framebuffer->clear_image();
 
-	geometry_pass->begin_pass();
-	SceneData *scene_data = buffer->get_data<SceneData>();
-	scene_data->projection = camera_projection;
-	scene_data->view = camera_view;
+	geometry_pass->begin_pass(screen_framebuffer.get());
+	*(buffer->get_data<CameraData>()) = camera.get_camera_data();
 	model = glm::mat4x4(1.0f);
  	model = glm::rotate(model, glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
  	model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -84,13 +72,13 @@ void MyGame::update(u32 delta_time) {
 	geometry_pass->draw_mesh(mesh_resource);
 	geometry_pass->end_pass();
 
-	instance->renderer->resolve_frame();
-
+	screen_framebuffer->unbind();
+	
 	compute_pass->begin_pass();
 	compute_pass->set_variable("topColor", topGradientColor->get_value());
 	compute_pass->set_variable("bottomColor", bottomGradientColor->get_value());
 	compute_pass->bind_descriptors();
-	compute_pass->dispatch(std::ceil(render_texture.get()->get_image_extent().first / 16.0), std::ceil(render_texture.get()->get_image_extent().second / 16.0), 1);
+	compute_pass->dispatch(std::ceil(1200 / 16.0), std::ceil(800 / 16.0), 1);
 	compute_pass->end_pass();
 }
 

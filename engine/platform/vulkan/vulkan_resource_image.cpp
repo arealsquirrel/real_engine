@@ -24,7 +24,6 @@ VulkanResourceImage::VulkanResourceImage(
 	  samples(_samples) {
 	
 	RL_INSTRUMENT_FUNCTION
-
 	renderer = (VulkanRenderer*)(instance->renderer.get());
 
 	VkExtent3D drawImageExtent = {width, height, 1};
@@ -36,6 +35,7 @@ VulkanResourceImage::VulkanResourceImage(
 	rimg_allocinfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 	rimg_allocinfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	imageExtent = drawImageExtent;
+
 
 	// hardcoding the draw format to 32 bit float
 	switch (cformat) {
@@ -50,6 +50,7 @@ VulkanResourceImage::VulkanResourceImage(
 		}
 	
 		case (ColorFormat::RGBA_FLOAT16): {
+			RL_LOG_TRACE("Coloring it rn");
 			imageFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
 			imageUsages |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 			imageUsages |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
@@ -117,6 +118,7 @@ void VulkanResourceImage::make_image_from_data(
 			void *data, VkImageUsageFlags usage, bool mipmapped) {
 
 	RL_INSTRUMENT_FUNCTION
+	RL_LOG_TRACE("making image from data");
 
 	size_t data_size = imageExtent.depth * imageExtent.width * imageExtent.height * 4;
 	vkutil::AllocatedBuffer uploadbuffer = vkutil::create_buffer(renderer, data_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
