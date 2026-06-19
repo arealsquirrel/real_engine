@@ -15,22 +15,22 @@
 
 namespace real {
 
-Game::Game(Shared<Instance> _instance) 
+Game::Game(Shared<Instance> _instance, ArgParams params) 
 	: EventListener(_instance.get(), nullptr), instance(_instance) {
 
 	window = _instance->window; 
 	resource_database = _instance->resource_database;
 	renderer = _instance->renderer;
-    screen_framebuffer = Framebuffer::create(instance.get(), 1920 / 4, 1080 / 4, true, MultisamplingCount::Eight);
+    screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Four);
 }
 
 Game::~Game() {}
 
-std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance) {
+std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance, ArgParams params) {
     RL_INSTRUMENT_FUNCTION
 
 	DLLGameLoad load;
-	load.game_dll_handle = dlopen("./app/libapp.so", RTLD_LAZY);
+	load.game_dll_handle = dlopen(params.game_dll_path.c_str(), RTLD_LAZY);
     if (!load.game_dll_handle) {
 		RL_LOG_ERROR("Cannot open game libary {}", dlerror());
         assert(false);
@@ -52,7 +52,7 @@ std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance) {
         assert(false);
     }
 
-	return std::make_pair(load.create_game(instance), load);
+	return std::make_pair(load.create_game(instance, params), load);
 }
 
 void Game::destroy_game_dll(Game* game, DLLGameLoad load) {

@@ -32,17 +32,22 @@ set(BUILD_SHARED_LIBS OFF)
 
 file(DOWNLOAD 
      "https://raw.githubusercontent.com/KhronosGroup/SPIRV-Reflect/refs/heads/main/spirv_reflect.h"
-	 "${PROJECT_SOURCE_DIR}/engine//external/spirv_reflect.h"
+	 "${PROJECT_SOURCE_DIR}/engine/external/spirv_reflect.h"
+)
+
+file(DOWNLOAD 
+     "https://raw.githubusercontent.com/stdbug/argparse/refs/heads/master/argparse/argparse.h"
+	 "${PROJECT_SOURCE_DIR}/engine/external/argparse.h"
 )
 
 file(DOWNLOAD 
      "https://raw.githubusercontent.com/KhronosGroup/SPIRV-Reflect/refs/heads/main/spirv_reflect.c"
-     "${PROJECT_SOURCE_DIR}/engine//external/spirv_reflect.cpp"
+     "${PROJECT_SOURCE_DIR}/engine/external/spirv_reflect.cpp"
 )
 
 file(DOWNLOAD
 	"https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/refs/heads/release/tiny_obj_loader.h"
-	"${PROJECT_SOURCE_DIR}/engine//external/tiny_obj_loader.hpp"
+	"${PROJECT_SOURCE_DIR}/engine/external/tiny_obj_loader.hpp"
 )
 
 file(DOWNLOAD

@@ -13,7 +13,7 @@
 
 using namespace real;
 
-int main() {
+int main(int argc, char **argv) {
 	real::LogSink_Buffer *log_buffer;
 	Log &log = Log::get();
 	log.name = "game engine";
@@ -21,6 +21,7 @@ int main() {
 	log_buffer = new real::LogSink_Buffer();
 	log.sinks.push_back(new real::LogSink_Console());
 	log.sinks.push_back(log_buffer);
+	ArgParams params = parse_args(argc, argv);
 	Graphics::init_backend({});
 	Shared<Instance> instance = std::make_shared<Instance>();
 
@@ -32,7 +33,7 @@ int main() {
 
 reload_game:
 	reason = editor::EditorExitReason::NotExiting;
-	auto [game, dll] = Game::load_game_dll(instance);
+	auto [game, dll] = Game::load_game_dll(instance, params);
 	game->start();
 	log_buffer->index = 0;
 	ed->editor_viewport = game->screen_framebuffer->get_color_resolve_image();

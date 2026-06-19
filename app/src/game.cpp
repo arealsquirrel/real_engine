@@ -20,8 +20,8 @@ using namespace real;
 
 extern "C" {
 	REALLIB_EXPORT
-	Game *game_create(Shared<Instance> instance) {
-		return new MyGame(instance);
+	Game *game_create(Shared<Instance> instance, ArgParams params) {
+		return new MyGame(instance, params);
 	}
 
 	REALLIB_EXPORT
@@ -48,7 +48,7 @@ void MyGame::start() {
 				.polygon_mode = GeometryPolygonMode::Fill,
 				.front_face = GeometryFrontFace::CounterClockwise,
 				.cull_mode = GeometryCullMode::BACK,
-				.msaa = MultisamplingCount::Eight,
+				.msaa = screen_framebuffer->get_msaa(),
 			}, { flat_shader }, {}).release();
 
 	buffer = UniformBuffer::create(instance.get(), sizeof(CameraData)).release();

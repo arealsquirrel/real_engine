@@ -14,7 +14,7 @@ class Instance;
 class Game;
 class Framebuffer;
 
-typedef real::Game* create_real_game_f(Shared<real::Instance> instance);
+typedef real::Game* create_real_game_f(Shared<real::Instance> instance, ArgParams params);
 typedef void destroy_real_game_f(real::Game*);
 
 /**
@@ -32,7 +32,7 @@ struct DLLGameLoad {
  */
 class REALLIB_EXPORT Game : public EventListener {
 public:
-	Game(Shared<Instance> _instance);
+	Game(Shared<Instance> _instance, ArgParams params);
 	~Game();
 
 public:
@@ -56,7 +56,7 @@ public:
 	 * @param instance A created instance class handle to be given to the game
 	 * @return std::pair<Game*, DLLGameLoad> a pointer to the created game class and function pointers for creation and deletion functions for that dll
 	 */
-	static std::pair<Game*, DLLGameLoad> load_game_dll(Shared<Instance> instance);
+	static std::pair<Game*, DLLGameLoad> load_game_dll(Shared<Instance> instance, ArgParams params);
 
 	/**
 	 * @brief destroys a Game* from a dll

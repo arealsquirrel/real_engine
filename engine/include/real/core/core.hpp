@@ -1,14 +1,32 @@
 #ifndef REALLIB_CORE_HPP
 #define REALLIB_CORE_HPP
 
+#include "real/core/types.hpp"
+#include <filesystem>
 #include <functional>
 
 namespace real {
+
+#ifdef __linux__
+
+#define REALLIB_EXPORT __attribute__((visibility("default")))
+
+#else
+#error "trash"
+#endif
+
+struct REALLIB_EXPORT ArgParams {
+	u32 window_width;
+	u32 window_height;
+	std::filesystem::path game_dll_path;
+};
 
 /**
  * @brief basic sanity check for the library.
  */
 void print_version();
+
+ArgParams REALLIB_EXPORT parse_args(int argc, char **argv);
 
 class Object;
 
@@ -46,12 +64,5 @@ class PanelResourceViewer;
 #define EXPOSE_TO_EDITOR
 #endif
 
-#ifdef __linux__
-
-#define REALLIB_EXPORT __attribute__((visibility("default")))
-
-#else
-#error "trash"
-#endif
 
 #endif

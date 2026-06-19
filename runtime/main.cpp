@@ -1,4 +1,5 @@
 
+#include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
@@ -13,17 +14,19 @@
 
 using namespace real;
 
-int main() {
+int main(int argc, char **argv) {
 	Log &log = Log::get();
 	log.name = "game engine";
 	log.log_level = real::LogLevel_Trace;
 	log.sinks.push_back(new real::LogSink_Console());
+
+	ArgParams params = parse_args(argc, argv);
     
 	RL_INSTRUMENT_PROFILE_START("Startup");
 	Graphics::init_backend({});
 
 	Shared<Instance> instance = std::make_shared<Instance>();
-    auto [game, dll] = Game::load_game_dll(instance);
+    auto [game, dll] = Game::load_game_dll(instance, params);
 	game->start();
 	RL_INSTRUMENT_PROFILE_END;
 
