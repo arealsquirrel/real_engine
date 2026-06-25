@@ -1,5 +1,6 @@
 
 #include "real/core/instance.hpp"
+#include "real/core/core.hpp"
 #include "real/core/event.hpp"
 #include "real/debug/timer.hpp"
 #include "real/graphics/graphics.hpp"
@@ -11,11 +12,12 @@
 
 namespace real {
 
-Instance::Instance() {
+Instance::Instance(ArgParams _arg_params)
+	: arg_params(_arg_params) {
 	RL_INSTRUMENT_FUNCTION
 	WindowInfo info;
-	info.width = 1200;
-	info.height = 800;
+	info.width = arg_params.window_width;
+	info.height = arg_params.window_height;
 	info.title = "my engine :3";
 	event_messenger = std::make_unique<EventMessenger>();
 	window = std::move(Graphics::create_window(this, info));

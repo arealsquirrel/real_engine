@@ -474,7 +474,7 @@ void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
 
     VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame.swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkRenderingInfo renderInfo = vkutil::rendering_info(swapchain_extent, &colorAttachment, nullptr);
-	// vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_GENERAL);
+
 	vkCmdBeginRendering(cmd, &renderInfo);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 	vkCmdEndRendering(cmd);

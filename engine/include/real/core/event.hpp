@@ -2,7 +2,9 @@
 #define REALLIB_EVENT_HPP
 
 #include "real/core/core.hpp"
+#include "real/core/object.hpp"
 #include "real/core/types.hpp"
+#include "real/scene/entity.hpp"
 #include <memory>
 #include <real/core/uuid.hpp>
 #include <type_traits>
@@ -32,6 +34,28 @@ public:
 
     int width;
     int height;
+};
+
+struct REALLIB_EXPORT EventComponentAdded : public Event {
+RL_EVENT(EventComponentAdded)
+
+public:
+    EventComponentAdded(const char *_data)
+        : data(_data) {}
+        
+    ~EventComponentAdded() = default;
+
+    const char *data;
+};
+
+struct REALLIB_EXPORT EventEntityAdded : public Event {
+public:
+    EventEntityAdded(EntityHandle _entity)
+        : entity(_entity) {}
+
+    ~EventEntityAdded() = default;
+
+    EntityHandle entity;
 };
 
 class REALLIB_EXPORT EventMessenger {

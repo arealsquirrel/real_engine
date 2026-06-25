@@ -6,6 +6,12 @@
 #include "glm/trigonometric.hpp"
 #include <real/graphics/camera.hpp>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
+
 namespace real {
 
 Camera::Camera(u32 _width, u32 _height, Projection projection,
@@ -25,6 +31,9 @@ void Camera::translate_camera(glm::vec3 pos) {
 }
 
 void Camera::set_position(glm::vec3 pos) {
+    if(pos == position)
+        return;
+
     position = pos;
     update_view();
 }
@@ -35,6 +44,9 @@ void Camera::rotate_camera(glm::vec3 rot) {
 }
 
 void Camera::set_rotation(glm::vec3 rot) {
+    if(rot == rotation)
+        return;
+
     rotation = rot;
     update_view();
 }
@@ -68,10 +80,8 @@ void Camera::update_proj() {
 void Camera::update_view() {
     glm::mat4 view(1.0f);
     view = glm::translate(view, position);
-    view = glm::rotate(view, rotation.x, world_right);
-    view = glm::rotate(view, rotation.y, world_up);
-    view = glm::rotate(view, rotation.z, world_front);
-    data.view = view;
+    glm::mat4 rot = glm::toMat4(glm::quat(rotation));
+    data.view = view * rot;
 }
 
 }

@@ -38,7 +38,7 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
     VSOutput output;
     Vertex v = _vertex_buffer[vertexIndex];
 
-    output.position = output.position = mul(scene_data.projection, mul(scene_data.view, mul(model, float4(v.position, 1.0f))));
+    output.position = mul(scene_data.projection, mul(scene_data.view, mul(model, float4(v.position, 1.0f))));
     output.color = v.color.xyz;
     output.uv = float2(v.uv_x, v.uv_y);
 

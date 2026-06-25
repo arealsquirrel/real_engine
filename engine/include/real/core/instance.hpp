@@ -13,7 +13,7 @@ class Renderer;
 
 class REALLIB_EXPORT Instance {
 public:
-	Instance();
+	Instance(ArgParams _arg_params);
 	~Instance();
 
 public:
@@ -24,6 +24,7 @@ public:
 	Shared<Window> window;
     Shared<Renderer> renderer;
 	Unique<EventMessenger> event_messenger;
+	ArgParams arg_params;
 };
 
 }

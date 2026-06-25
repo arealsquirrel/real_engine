@@ -87,9 +87,6 @@ private:
     VkDescriptorPool imgui_descriptor_pool;
     u32 frame_number=0;
     bool should_resize {false};
-
-	// ResourceHandle<ResourceImage> renderImage;
-	// ResourceHandle<ResourceImage> resolveImage;
 };
 
 }

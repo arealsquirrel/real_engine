@@ -6,6 +6,7 @@
 #include "real/core/types.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/debug/instrumentation.hpp"
+#include "real/graphics/graphics_system.hpp"
 #include <real/graphics/framebuffer.hpp>
 #include <iostream>
 #include <memory>
@@ -25,9 +26,10 @@ int main(int argc, char **argv) {
 	RL_INSTRUMENT_PROFILE_START("Startup");
 	Graphics::init_backend({});
 
-	Shared<Instance> instance = std::make_shared<Instance>();
+	Shared<Instance> instance = std::make_shared<Instance>(params);
     auto [game, dll] = Game::load_game_dll(instance, params);
 	game->start();
+	game->scene->awake();
 	RL_INSTRUMENT_PROFILE_END;
 
 	RL_INSTRUMENT_PROFILE_START("Runtime");
@@ -37,9 +39,10 @@ int main(int argc, char **argv) {
 		instance->renderer->end_frame(game->screen_framebuffer->get_color_resolve_image().get());
 	}
 	RL_INSTRUMENT_PROFILE_END;
-
+ 
 	RL_INSTRUMENT_PROFILE_START("Shutdown");
 	CVarSystem::get().clear_cvars();
+	game->scene->destroy();
     Game::destroy_game_dll(game, dll);
 
 	instance.reset();

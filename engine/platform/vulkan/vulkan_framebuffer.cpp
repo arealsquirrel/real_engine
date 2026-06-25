@@ -74,9 +74,8 @@ void VulkanFramebuffer::clear_image(Color4 col) {
 	range.levelCount     = 1;
 	range.baseArrayLayer = 0;
 	range.layerCount     = 1;
-    // VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
 	msaa_color_image.get()->transition_image(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	VkClearColorValue clearColor = {{1.0f, 1.0f, 1.0f, 0.0f}}; // Black
+	VkClearColorValue clearColor = {{col.r, col.g, col.b, col.a}};
 	vkCmdClearColorImage(
 			frame.main_command_buffer, msaa_color_image.get()->image, msaa_color_image.get()->current_layout,
 			&clearColor, 1, &range);

@@ -4,10 +4,10 @@
 #include "panel_logs.hpp"
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
+#include "panel_scene_view.hpp"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/debug/cvars.hpp"
-#include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
 #include <real/graphics/framebuffer.hpp>
 
@@ -23,20 +23,21 @@ int main(int argc, char **argv) {
 	log.sinks.push_back(log_buffer);
 	ArgParams params = parse_args(argc, argv);
 	Graphics::init_backend({});
-	Shared<Instance> instance = std::make_shared<Instance>();
+	Shared<Instance> instance = std::make_shared<Instance>(params);
 
 	editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
 	editor::Editor *ed = new editor::Editor(instance);
 	ed->add_panel<editor::PanelResourceDatabase>();
 	ed->add_panel<editor::PanelLogs>(log_buffer);
 	ed->add_panel<editor::PanelResourceViewer>();
-
+	
 reload_game:
 	reason = editor::EditorExitReason::NotExiting;
 	auto [game, dll] = Game::load_game_dll(instance, params);
 	game->start();
-	log_buffer->index = 0;
+	game->scene->awake();
 	ed->editor_viewport = game->screen_framebuffer->get_color_resolve_image();
+	ed->add_panel<editor::PanelSceneView>(game->scene);
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
 		instance->renderer->start_frame();
@@ -48,12 +49,14 @@ reload_game:
 		instance->renderer->end_frame();
 	}
 
-	CVarSystem::get().clear_cvars();
+	game->scene->destroy();
 	Game::destroy_game_dll(game, dll);
 	if(reason == editor::EditorExitReason::Reload) {
+		log_buffer->index = 0;
 		goto reload_game;
 	}
 
+	CVarSystem::get().clear_cvars();
 	delete ed;
 	instance.reset();
 	Graphics::destroy_backend();

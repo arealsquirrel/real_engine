@@ -5,14 +5,12 @@ set(IMGUI_PLATFORM_BACKEND "glfw")
 
 message(STATUS "Downloading generic dependencies")
 
-# size of this one does not matter because its not shipped
 CPMAddPackage(
     NAME googletest
     GITHUB_REPOSITORY google/googletest
     GIT_TAG v1.17.0
 )
 
-# optimized and stripped size 50KiB
 set(FMT_TEST OFF CACHE BOOL "Disable fmt tests")
 set(BUILD_SHARED_LIBS ON)
 CPMAddPackage(
@@ -26,6 +24,12 @@ CPMAddPackage(
     NAME glm
     GITHUB_REPOSITORY g-truc/glm
     GIT_TAG 1.0.3  # Specify a stable version or "master"
+)
+
+CPMAddPackage(
+    NAME entt
+    GITHUB_REPOSITORY skypjack/entt
+    GIT_TAG v3.16.0  # Specify a stable version or "master"
 )
 
 set(BUILD_SHARED_LIBS OFF)

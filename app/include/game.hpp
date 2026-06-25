@@ -24,20 +24,9 @@ public:
 	void update(u32 delta_time) override;
 
 private:
-    RenderPassCompute *compute_pass;
-    RenderPassGeometry *geometry_pass;
     ResourceHandle<ResourceMesh> mesh_resource;
     ResourceHandle<ResourceImage> mesh_texture;
-    // Unique<Framebuffer> framebuffer;
-    // ResourceHandle<ResourceImage> render_texture;
-
-    UniformBuffer *buffer;
-
-    Camera camera;
-
-    glm::mat4 model;
 
     CVAR_DEF(Color4, topGradientColor, Color4(146, 236, 197));
     CVAR_DEF(Color4, bottomGradientColor, Color4(256,256,256));
-    CVAR_DEF(float, pov, 70.0f);
 };

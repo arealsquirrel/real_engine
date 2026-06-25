@@ -83,9 +83,9 @@ public:
 
 
 
-#define CVAR_DEF_SMALL_EDITPARAMS(type,NAME,init_value,edit_params) Shared<CVar<type>> NAME = ::real::CVarSystem::get().register_cvar<type>(#NAME, init_value, edit_params);
-#define CVAR_DEF_INIT_VALUE(type,NAME,init_value) Shared<CVar<type>> NAME = ::real::CVarSystem::get().register_cvar<type>(#NAME, init_value);
-#define CVAR_DEF_SMALL(type,NAME) Shared<CVar<type>> NAME = ::real::CVarSystem::get().register_cvar<type>(#NAME);
+#define CVAR_DEF_SMALL_EDITPARAMS(type,NAME,init_value,edit_params) inline static Shared<CVar<type>> NAME = ::real::CVarSystem::get().register_cvar<type>(#NAME, init_value, edit_params);
+#define CVAR_DEF_INIT_VALUE(type,NAME,init_value) inline static Shared<CVar<type>> NAME = ::real::CVarSystem::get().register_cvar<type>(#NAME, init_value);
+#define CVAR_DEF_SMALL(type,NAME) inline static Shared<CVar<type>> NAME = ::real::CVarSystem::get().register_cvar<type>(#NAME);
 #define CVAR_GET_MAKE_MACRO(_1, _2, _3, NAME, ...) NAME
 #define CVAR_DEF(type, ...) CVAR_GET_MAKE_MACRO(__VA_ARGS__, CVAR_DEF_SMALL_EDITPARAMS, CVAR_DEF_INIT_VALUE, CVAR_DEF_SMALL)(type, __VA_ARGS__)
 

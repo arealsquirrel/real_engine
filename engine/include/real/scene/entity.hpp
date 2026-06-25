@@ -1,18 +1,45 @@
 #ifndef REALLIB_ENTITY_HPP
 #define REALLIB_ENTITY_HPP
 
-#include "real/core/uuid.hpp"
+#include "entt/entity/entity.hpp"
+#include "real/scene/scene.hpp"
+#include <entt/entity/fwd.hpp>
 
 namespace real {
 
-/**
- * how do we know which entity has which components
- * storing the entities in the archetypes
- * the systems keep track of what archetypes they can iterate over
- * an abstract interface for iterating over the archetypes
+/*
+ * This struct is a wrapper that allows us to interface
+ * with the world registry and manipulate the components
  */
+struct REALLIB_EXPORT EntityHandle {
+public:
+	EntityHandle(entt::entity t_entity, Scene *t_world);
+	EntityHandle() = default;
+	~EntityHandle() = default;
 
-using Entity = UUID;
+	// ! wacky error here, but the component struct has to hold data
+	// ! or else this function will return void :3
+	template <typename C>
+	C &GetComponent() {
+		return registry->get<C>(handle);
+	}
+
+	template <class C, typename... Args>
+	C &AddComponent(Args &&...args) {
+		return registry->emplace<C>(handle, std::forward<Args>(args)...);
+	}
+
+	template <typename C>
+	bool HasComponent() {
+		return registry->any_of<C>(handle);
+	}
+
+	operator bool() { return !(handle == entt::null); }
+
+private:
+	entt::entity handle {entt::null};
+	entt::registry *registry {nullptr};
+};
 
 }
 

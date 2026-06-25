@@ -36,7 +36,7 @@ Window::Window(Instance *_instance, const WindowInfo &info)
         glfwInit();
     }
 
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	// glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     window = glfwCreateWindow(info.width, info.height, info.title, NULL, NULL);
 

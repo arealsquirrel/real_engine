@@ -154,12 +154,13 @@ void VulkanResourceImage::make_image_from_data(
 
 VulkanResourceImage::~VulkanResourceImage() {
 	RL_INSTRUMENT_FUNCTION
+	vkDeviceWaitIdle(renderer->device);
 	vkDestroyImageView(renderer->device, imageView, nullptr);
 	vmaDestroyImage(renderer->allocator, image, allocation);
 }
 
 ImTextureID VulkanResourceImage::get_imgui_textureID() {
-	// transition_image(VK_IMAGE_LAYOUT_GENERAL);
+	transition_image(VK_IMAGE_LAYOUT_GENERAL);
 	return (ImTextureID)imgui_descriptorset;
 }
 

@@ -1,9 +1,6 @@
 
-TODO list before sinking into Textures
-
 Pipelines
 	- wireframe rendering, that one vulkan thingy
-	- expose dynamic state
 
 resource refactors
 	- possibly some sort of slab allocator for resources and common objects
@@ -12,15 +9,8 @@ resource refactors
 	- make a good set of primitaves
 	- make a load directory function
 
-App and actual development environment
-	- adding command line args for configuring the project
-
 Graphics API
 	- Models
 		- model resource holds the buffer
 		- multiple models (vertex array)
 		- custom input and creation for buffers
-
-	- Make a camera abstraction that holds a framebuffer or a referance to a framebuffer
-	- make the god damn ecs
-	- make the rendering textures interchangable and whatever, so we can render the scene multiple times.

@@ -37,6 +37,7 @@ if("${REAL_RENDER_BACKEND}" STREQUAL "vulkan")
 		PUBLIC glfw
 		PUBLIC imgui_cmake_wrapper
 		PUBLIC glm::glm
+		PUBLIC EnTT::EnTT
 	)
 
 elseif("${REAL_RENDER_BACKEND}" STREQUAL "opengl")
@@ -48,5 +49,6 @@ elseif("${REAL_RENDER_BACKEND}" STREQUAL "opengl")
 		PUBLIC glfw
 		PUBLIC imgui_cmake_wrapper
 		PUBLIC glm::glm
+		PUBLIC EnTT::EnTT
 	)
 endif()

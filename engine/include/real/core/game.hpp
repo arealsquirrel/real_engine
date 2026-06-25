@@ -13,6 +13,7 @@ namespace real {
 class Instance;
 class Game;
 class Framebuffer;
+class Scene;
 
 typedef real::Game* create_real_game_f(Shared<real::Instance> instance, ArgParams params);
 typedef void destroy_real_game_f(real::Game*);
@@ -71,7 +72,8 @@ public:
 	Shared<ResourceDatabase> resource_database;
 	Shared<Window> window;
     Shared<Renderer> renderer;
-	Unique<Framebuffer> screen_framebuffer;
+	Shared<Framebuffer> screen_framebuffer;
+	Shared<Scene> scene;
 };
 
 }

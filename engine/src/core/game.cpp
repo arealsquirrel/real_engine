@@ -4,11 +4,10 @@
 #include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
 #include "real/graphics/framebuffer.hpp"
-#include "real/graphics/graphics.hpp"
-#include "real/resource/resource_database.hpp"
+#include "real/scene/scene.hpp"
 #include <GLFW/glfw3.h>
 #include <cassert>
-#include <optional>
+#include <memory>
 #include <real/core/game.hpp>
 #include <utility>
 #include <dlfcn.h>
@@ -22,6 +21,7 @@ Game::Game(Shared<Instance> _instance, ArgParams params)
 	resource_database = _instance->resource_database;
 	renderer = _instance->renderer;
     screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Four);
+    scene = std::make_shared<Scene>(instance.get());
 }
 
 Game::~Game() {}
