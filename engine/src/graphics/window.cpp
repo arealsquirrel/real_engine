@@ -5,7 +5,9 @@
 #include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include "real/debug/timer.hpp"
+#include "real/graphics/input.hpp"
 #include <GLFW/glfw3.h>
+#include <memory>
 #include <real/graphics/window.hpp>
 #include <assert.h>
 #include <utility>
@@ -23,6 +25,10 @@ static void glfw_resize_callback(GLFWwindow *window, int width, int height) {
     s_instance->event_messenger->emit_event<EventWindowResize>(s_window, width, height);
 }
 
+static void glfw_key_callback() {
+
+}
+
 Window::Window(Instance *_instance, const WindowInfo &info)
 	: Object(_instance) {
     RL_INSTRUMENT_FUNCTION
@@ -36,11 +42,12 @@ Window::Window(Instance *_instance, const WindowInfo &info)
         glfwInit();
     }
 
-	// glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     window = glfwCreateWindow(info.width, info.height, info.title, NULL, NULL);
 
     glfwSetFramebufferSizeCallback(window, glfw_resize_callback);
+
+    input = std::make_unique<Input>(instance, this);
 }
 
 Window::~Window() {
@@ -65,6 +72,17 @@ std::pair<u32, u32> Window::get_glfw_window_dimensions() {
 	int w, h;
 	glfwGetWindowSize(window, &w, &h);
 	return std::make_pair((u32)w, (u32)h);
+}
+
+std::pair<double, double> Window::get_mouse_position() {
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    return std::make_pair(xpos, ypos);
+}
+
+bool Window::key_pressed(int glfw_key) {
+    int state = glfwGetKey(window, glfw_key);
+    return (state == GLFW_PRESS);
 }
 
 }

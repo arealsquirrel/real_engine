@@ -22,8 +22,20 @@ struct StringHash {
     ~StringHash() = default;
 
     u32 hash;
+
+    operator u32() const { return hash; }
 };
 
 }
+
+namespace std {
+	template<>
+	struct hash<real::StringHash> {
+		std::size_t operator()(const real::StringHash &uuid) const {
+			return uuid.hash;
+		}
+	};
+}
+
 
 #endif

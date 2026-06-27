@@ -5,6 +5,7 @@
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/input.hpp"
 #include <utility>
 #include <real/core/core.hpp>
 
@@ -38,6 +39,12 @@ public:
 
 	/* this makes an API call so please dont call it a bunch */
 	std::pair<u32, u32> get_glfw_window_dimensions();
+
+    bool key_pressed(int glfw_key);
+    std::pair<double, double> get_mouse_position();
+
+public:
+    Unique<Input> input;
 
 private:
     GLFWwindow *window;
