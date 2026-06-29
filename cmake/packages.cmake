@@ -1,6 +1,6 @@
 
 find_package(glfw3 REQUIRED)
-find_package(slang REQUIRED)
+# find_package(slang REQUIRED)
 set(IMGUI_PLATFORM_BACKEND "glfw")
 
 message(STATUS "Downloading generic dependencies")

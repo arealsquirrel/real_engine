@@ -46,8 +46,6 @@ void MyGame::start() {
 
 void MyGame::update(u32 delta_time) {
 	auto [x, y] = window->input->poll_mouse_pos();
-	RL_LOG_INFO("mouse pos {} {}", x ,y);
-
 	scene->update(delta_time);
 }
 
