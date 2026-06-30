@@ -2,6 +2,7 @@
 #define REALLIB_SCENE_HPP
 
 #include "entt/entity/fwd.hpp"
+#include "real/core/core.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
@@ -9,7 +10,6 @@
 #include "real/scene/system.hpp"
 #include <entt/entity/registry.hpp>
 #include <memory>
-#include <set>
 #include <utility>
 #include <vector>
 
@@ -49,6 +49,7 @@ private:
     
     friend EntityHandle;
     friend System;
+	EXPOSE_TO_EDITOR;
 };
 
 }

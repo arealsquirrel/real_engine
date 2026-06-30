@@ -12,6 +12,11 @@
 #include <real/resource/resource_shader.hpp>
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_handle.hpp>
+#include <real/core/color.hpp>
+
+#include <real/debug/cvars.hpp>
+#include <real/debug/instrumentation.hpp>
+#include <real/debug/timer.hpp>
 
 #include <real/graphics/graphics.hpp>
 #include <real/graphics/renderer.hpp>
@@ -19,5 +24,14 @@
 #include <real/graphics/render_pass_compute.hpp>
 #include <real/graphics/render_pass_geometry.hpp>
 #include <real/graphics/render_pass.hpp>
+#include <real/graphics/buffer.hpp>
+#include <real/graphics/camera.hpp>
+#include <real/graphics/framebuffer.hpp>
+#include <real/graphics/graphics_system.hpp>
+
+#include <real/scene/scene.hpp>
+#include <real/scene/components.hpp>
+#include <real/scene/entity.hpp>
+#include <real/scene/system.hpp>
 
 #endif

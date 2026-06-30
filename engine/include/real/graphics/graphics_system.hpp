@@ -3,7 +3,6 @@
 
 #include "real/core/color.hpp"
 #include "real/core/core.hpp"
-#include "real/core/event.hpp"
 #include "real/core/event_listener.hpp"
 #include "real/core/object.hpp"
 #include "real/graphics/buffer.hpp"
@@ -55,6 +54,7 @@ public:
     void awake() override;
     void update(u32 delta_time) override;
     void destroy() override;
+	void draw_imgui() override;
 
     Framebuffer *get_framebuffer() { return framebuffer; };
     void set_framebuffer(Framebuffer *_framebuffer) { framebuffer = _framebuffer; }

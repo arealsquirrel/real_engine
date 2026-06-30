@@ -5,11 +5,7 @@
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
 #include "panel_scene_view.hpp"
-#include "real/core/game.hpp"
-#include "real/core/logging.hpp"
-#include "real/debug/cvars.hpp"
 #include <real/real.hpp>
-#include <real/graphics/framebuffer.hpp>
 
 using namespace real;
 
@@ -42,7 +38,6 @@ reload_game:
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {
 		instance->renderer->start_frame();
 		ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
-		ImGui::ShowMetricsWindow();
 		game->update(0);
 		CVarSystem::get().render_imgui();
 		reason = ed->render();

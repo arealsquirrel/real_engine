@@ -39,16 +39,12 @@ public:
 	virtual void init() = 0;
 
     virtual void start_frame() = 0;
-	virtual void resolve_frame() = 0;
     virtual void end_frame(const ResourceImage *copy_to_screen_image=nullptr) = 0;
 
-    void imgui_draw_stats();
+	RendererStats render_stats;
 
 protected:
     Shared<Window> window;
-
-public:
-    RendererStats stats;
 };
 
 }

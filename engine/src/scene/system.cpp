@@ -9,4 +9,8 @@ System::System(Instance *_instance, Scene *_scene)
 
 System::~System() = default;
 
+void System::draw_imgui() {
+
+}
+
 }

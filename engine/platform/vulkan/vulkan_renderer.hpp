@@ -38,7 +38,6 @@ public:
 	void start_frame() final override;
 	void end_frame(const ResourceImage *copy_to_screen_image) final override;
 	void init() final override;
-	void resolve_frame() final override;
 
     FrameDataVulkan &get_current_frame();
 

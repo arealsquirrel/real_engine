@@ -78,4 +78,16 @@ public:
 
 }
 
+#define EXPOSE_GAME_TO_REAL(GameName) \
+		extern "C" { \
+			REALLIB_EXPORT \
+			Game *game_create(Shared<Instance> instance, ArgParams params) { \
+				return new MyGame(instance, params); \
+			} \
+			REALLIB_EXPORT \
+			void game_destroy(Game *game) { \
+				delete (GameName*)game; \
+			} \
+		}
+
 #endif

@@ -5,10 +5,8 @@
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include "real/debug/cvars.hpp"
-#include "real/debug/instrumentation.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include <real/graphics/framebuffer.hpp>
-#include <iostream>
 #include <memory>
 
 #include <real/real.hpp>

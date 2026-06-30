@@ -1,16 +1,6 @@
 
 #pragma once
 
-#include "glm/ext/matrix_float4x4.hpp"
-#include "real/core/color.hpp"
-#include "real/core/game.hpp"
-#include "real/core/types.hpp"
-#include "real/debug/cvars.hpp"
-#include "real/graphics/buffer.hpp"
-#include "real/graphics/camera.hpp"
-#include "real/graphics/framebuffer.hpp"
-#include "real/resource/resource_handle.hpp"
-#include "real/resource/resource_image.hpp"
 #include <real/real.hpp>
 
 using namespace real;

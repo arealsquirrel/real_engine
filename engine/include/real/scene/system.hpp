@@ -49,6 +49,8 @@ public:
      */
     virtual void destroy() = 0;
 
+	virtual void draw_imgui();
+
 protected:
     Scene *scene;
 };

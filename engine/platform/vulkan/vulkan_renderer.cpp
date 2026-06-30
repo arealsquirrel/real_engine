@@ -56,20 +56,6 @@ void VulkanRenderer::init() {
 	create_descriptors();
 	create_imgui();
 
-	/*
-	instance->resource_database->register_resource<ResourceImage>(
-			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
-				ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH, nullptr, 0, samples), "_screen_depth_texture");
-
-	renderImage = instance->resource_database->register_resource<ResourceImage>(
-			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
-				ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR, nullptr, 0, samples), "_screen_color_texture");
-
-	resolveImage = instance->resource_database->register_resource<ResourceImage>(
-			new VulkanResourceImage(instance, OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT,
-				ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR), "_screen_color_resolve_texture");
-	*/
-
 	VkSamplerCreateInfo sampl = {.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
 
 	sampl.magFilter = VK_FILTER_NEAREST;
@@ -367,15 +353,13 @@ void VulkanRenderer::start_frame() {
     if(should_resize)
         swapchain_resize();
 
-    stats.draw_calls = 0;
-    stats.verticies = 0;
-    stats.indicies = 0;
-    stats.frame_time.restart();
+    render_stats.draw_calls = 0;
+    render_stats.verticies = 0;
+    render_stats.indicies = 0;
+    render_stats.frame_time.restart();
 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan *frame = &frame_data[frame_number % VULKAN_FRAME_OVERLAP];
-	// frame->draw_extent.width = std::min(swapchain_extent.width, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.width);
-	// frame->draw_extent.height = std::min(swapchain_extent.height, ((VulkanResourceImage*)(renderImage.get()))->imageExtent.height);
 
     VK_CHECK(vkWaitForFences(
         device, 1,
@@ -407,46 +391,6 @@ void VulkanRenderer::start_frame() {
     ImGui::NewFrame();
 
     vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-	// clear the render image
-
-	/*
-	VkImageSubresourceRange range{};
-	range.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-	range.baseMipLevel   = 0;
-	range.levelCount     = 1;
-	range.baseArrayLayer = 0;
-	range.layerCount     = 1;
-    VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
-	vk_render_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	VkClearColorValue clearColor = {{1.0f, 1.0f, 1.0f, 0.0f}}; // Black
-	vkCmdClearColorImage(
-			cmd, vk_render_image->image, vk_render_image->current_layout,
-			&clearColor, 1, &range);
-	*/
-}
-
-void VulkanRenderer::resolve_frame() {
-	/*
-    FrameDataVulkan &frame = get_current_frame();
-    VkCommandBuffer cmd = frame.main_command_buffer;
-    VulkanResourceImage *vk_render_image = (VulkanResourceImage*)renderImage.get();
-    VulkanResourceImage *vk_resolve_image = (VulkanResourceImage*)resolveImage.get();
-    vk_render_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-	VkImageResolve resolveRegion{};
-	resolveRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	resolveRegion.srcOffset = { 0, 0, 0 };
-	resolveRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-	resolveRegion.dstOffset = { 0, 0, 0 };
-	resolveRegion.extent = { OFFSCEEN_WIDTH, OFFSCEEN_HEIGHT, 1 };
-
-	vkCmdResolveImage(cmd, 
-					  vk_render_image->image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-					  vk_resolve_image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					  1, &resolveRegion);
-	*/
 }
 
 void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
@@ -514,7 +458,7 @@ void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
 
     frame.delete_queue.flush();
     frame_number++;
-    stats.frame_time.stop();
+    render_stats.frame_time.stop();
 }
 
 FrameDataVulkan &VulkanRenderer::get_current_frame() {

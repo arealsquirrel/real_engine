@@ -1,5 +1,6 @@
 
 #include "glm/ext/matrix_float4x4.hpp"
+#include "imgui.h"
 #include "real/core/color.hpp"
 #include "real/core/event.hpp"
 #include "real/core/event_listener.hpp"
@@ -77,6 +78,16 @@ void GraphicsSystem::destroy() {
     instance->resource_database->unregister_resource("flat.slang.spv");
     delete camera_uniform_buffer;
     delete diffuse_pass;
+}
+
+void GraphicsSystem::draw_imgui() {
+	u32 micro_seconds = instance->renderer->render_stats.frame_time.micro_seconds; 
+	ImGui::Text("Frametime %f ms", micro_seconds / 1000.0f);
+	ImGui::Text("FPS: %f", 1000.0f / (micro_seconds / 1000.0f));
+	ImGui::Text("Indices: %u", instance->renderer->render_stats.indicies);
+	ImGui::Text("Vertices: %u", instance->renderer->render_stats.verticies);
+	ImGui::Text("Draw framebuffer size, x: %u, y: %u", framebuffer->get_width(), framebuffer->get_height());
+	ImGui::Text("Framebuffer multisampling %u", framebuffer->get_msaa());
 }
 
 }

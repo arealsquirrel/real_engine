@@ -15,6 +15,16 @@ namespace real {
 #error "trash"
 #endif
 
+#define BIT(n) 1<<n
+#define CHECK_FLAG(x, n) ((((u32)x) & ((u32)n)) != 0)
+
+
+#define STRINGIFY(x) #x
+#define STRINGIFY_EXP(x) STRINGIFY(x)
+
+#define REAL_ENTRY extern Unique<::real::Game> game_entrypoint();
+
+
 struct REALLIB_EXPORT ArgParams {
 	u32 window_width;
 	u32 window_height;
@@ -35,14 +45,6 @@ using EventFunctionPtr = std::function<void(T &event, Object *from)>;
 
 }
 
-#define BIT(n) 1<<n
-#define CHECK_FLAG(x, n) ((((u32)x) & ((u32)n)) != 0)
-
-
-#define STRINGIFY(x) #x
-#define STRINGIFY_EXP(x) STRINGIFY(x)
-
-#define REAL_ENTRY extern Unique<::real::Game> game_entrypoint();
 
 #ifdef REALLIB_EDITOR
 
@@ -51,18 +53,19 @@ class Panel;
 class Editor;
 class PanelResourceDatabase;
 class PanelResourceViewer;
+class PanelSceneView;
 }
 
 #define EXPOSE_TO_EDITOR \
 	friend editor::Panel; \
 	friend editor::Editor; \
 	friend editor::PanelResourceDatabase; \
-	friend editor::PanelResourceViewer;
+	friend editor::PanelResourceViewer; \
+	friend editor::PanelSceneView;
 
 
 #else
 #define EXPOSE_TO_EDITOR
 #endif
-
 
 #endif

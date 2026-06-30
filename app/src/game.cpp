@@ -5,27 +5,11 @@
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include "glm/ext/vector_float3.hpp"
-#include "real/core/logging.hpp"
-#include "real/core/object.hpp"
-#include "real/graphics/graphics_system.hpp"
-#include "real/resource/resource_image.hpp"
-#include "real/scene/components.hpp"
-#include <real/scene/scene.hpp>
-#include <real/scene/entity.hpp>
+#include "real/core/game.hpp"
 
 using namespace real;
 
-extern "C" {
-	REALLIB_EXPORT
-	Game *game_create(Shared<Instance> instance, ArgParams params) {
-		return new MyGame(instance, params);
-	}
-
-	REALLIB_EXPORT
-	void game_destroy(Game *game) {
-		delete (MyGame*)game;
-	}
-}
+EXPOSE_GAME_TO_REAL(MyGame)
 
 void MyGame::start() {
 	auto graphics = scene->add_system<GraphicsSystem>(screen_framebuffer.get());
