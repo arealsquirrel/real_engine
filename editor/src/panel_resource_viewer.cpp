@@ -28,21 +28,42 @@ template<>
 void PanelResourceViewer::display(real::ResourceImage *resource) {
 	auto [width, height] = resource->get_image_extent();
 	ImVec2 room_avail = ImGui::GetContentRegionAvail();
-	float scale = std::min(room_avail.x / width, room_avail.y / height);
-	ImVec2 display_size = ImVec2(width * scale, height * scale);
-	ImGui::Image(resource->get_imgui_textureID(), display_size);
+
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	draw_list->AddCallback(ImGui::GetPlatformIO().DrawCallback_SetSamplerNearest, nullptr);
+
+	static float padding = 16.0f;
+	static float thumbnailSize = 128.0f;
+	float cellSize = thumbnailSize + padding;
+	float panelWidth = ImGui::GetContentRegionAvail().x;
+	int columnCount = (int)(panelWidth / cellSize);
+	if (columnCount < 1)
+		columnCount = 1;
+
+	ImGui::Text("Tiles");
+	ImGui::SliderFloat("Thumbnail Size", &thumbnailSize, 16, 512);
+	ImGui::SliderFloat("Padding", &padding, 0, 32);
+
+	ImGui::Columns(columnCount, 0, false);
+
+	for (auto tile : resource->tiles) {
+		ImVec2 size(tile.second.dimension.first, tile.second.dimension.second);
+		float scale = std::min(thumbnailSize / size.x, thumbnailSize / size.y);
+		ImVec2 display_size = ImVec2(size.x * scale, size.y * scale);
+
+		ImVec2 uv0((float)tile.second.position.first / width, (float)tile.second.position.second / height);
+		ImVec2 uv1(
+				(float)(tile.second.position.first + tile.second.dimension.first) / width,
+				(float)(tile.second.position.second + tile.second.dimension.second) / height);
+
+		ImGui::Image(resource->get_imgui_textureID(), display_size, uv0, uv1);
+		ImGui::TextWrapped("%s", tile.second.name.c_str());
+		ImGui::NextColumn();
+	}
 }
 
 template<>
 void PanelResourceViewer::display(real::ResourceMesh *resource) {
-	// ImGui::Text("Total vertices: %u", resource->verticie_count);
-	// ImGui::Text("Total indices: %u", resource->indices_count);
-
-	/*
-	for (auto &mesh : resource->meshes) {
-		ImGui::Text("%s: indicies: %lu", mesh.name.c_str(), mesh.count);
-	}
-	*/
 }
 
 PanelResourceViewer::PanelResourceViewer(

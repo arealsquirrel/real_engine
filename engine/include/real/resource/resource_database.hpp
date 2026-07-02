@@ -15,7 +15,6 @@
 #include <real/core/string_hash.hpp>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include <real/core/core.hpp>
 
 namespace real {
@@ -111,7 +110,7 @@ public:
 	ResourceHandle<R> load_resource_glob(Path path, std::string name="");
 
 private:
-	EXPOSE_TO_EDITOR;	
+	EXPOSE_TO_EDITOR;
 
 	std::unordered_map<UUID, ResourceHandle<Resource>> resource_map;
 	std::unordered_map<std::string, Entry> name_to_resource_UUID;

@@ -352,7 +352,7 @@ void VulkanRenderPassGeometry::set_variable(
 	case (ShaderFieldType::UNIFORM): {
 		if(field.data_type == ShaderDataType::SAMPLED_IMAGE) {
 			VkImageView view = *(VkImageView*)data;
-			writer.write_image(field.location, view, renderer->samplerLinear, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+			writer.write_image(field.location, view, renderer->samplerNearest, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
 			return;
 		} else if (field.data_type == ShaderDataType::UNIFORM_BUFFER) {
 			VulkanUniformBuffer *buffer = *(VulkanUniformBuffer**)data;

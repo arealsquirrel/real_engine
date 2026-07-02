@@ -32,6 +32,19 @@ CPMAddPackage(
     GIT_TAG v3.16.0  # Specify a stable version or "master"
 )
 
+CPMAddPackage(
+  NAME nlohmann_json
+  VERSION 3.7.3
+  # the git repo is incredibly large, so we download the archived include directory
+  URL https://github.com/nlohmann/json/releases/download/v3.7.3/include.zip
+  URL_HASH SHA256=87b5884741427220d3a33df1363ae0e8b898099fbc59f1c451113f6732891014
+)
+
+if (nlohmann_json_ADDED)
+  add_library(nlohmann_json INTERFACE IMPORTED)
+  target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR}/include)
+endif()
+
 set(BUILD_SHARED_LIBS OFF)
 
 file(DOWNLOAD 

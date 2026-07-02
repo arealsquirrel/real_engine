@@ -38,17 +38,16 @@ if("${REAL_RENDER_BACKEND}" STREQUAL "vulkan")
 		PUBLIC imgui_cmake_wrapper
 		PUBLIC glm::glm
 		PUBLIC EnTT::EnTT
+		PRIVATE nlohmann_json
 	)
 
 elseif("${REAL_RENDER_BACKEND}" STREQUAL "opengl")
 	target_link_libraries(${PROJECT_NAME}
-		PRIVATE GPUOpen::VulkanMemoryAllocator
-		PRIVATE Vulkan::Vulkan
-		PRIVATE vk-bootstrap
 		PUBLIC fmt
 		PUBLIC glfw
 		PUBLIC imgui_cmake_wrapper
 		PUBLIC glm::glm
 		PUBLIC EnTT::EnTT
+		PUBLIC nlohmann_json
 	)
 endif()

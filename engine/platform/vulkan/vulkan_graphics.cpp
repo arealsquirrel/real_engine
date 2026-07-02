@@ -68,11 +68,4 @@ Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
 	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, _resources);
 }
 
-Unique<ResourceImage> Graphics::create_resource_image(
-			Instance *instance, u32 width, u32 height,
-			ColorFormat cformat, ImageFormat iformat, void *data, int mips) {
-	
-	return std::make_unique<VulkanResourceImage>(instance, width, height, cformat, iformat, data, mips);
-}
-
 }

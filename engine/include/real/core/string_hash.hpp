@@ -14,9 +14,9 @@ struct StringHash {
 	StringHash() = default;
 
     StringHash(String str) {
-		hash = 0;
+		hash = 0xcbf29ce4;
         for (size_t c = 0; c < str.length(); c++) {
-            hash ^= (u32)c;
+            hash ^= (u32)str[c];
             hash *= REAL_FNV_PRIME;
         }
     }

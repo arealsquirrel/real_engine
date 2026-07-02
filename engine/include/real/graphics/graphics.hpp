@@ -45,9 +45,6 @@ public:
 		std::vector<RenderPassResource> _resources);
 
 
-	static Unique<ResourceImage> create_resource_image(
-			Instance *_instance, u32 width, u32 height,
-			ColorFormat cformat, ImageFormat iformat, void *data=nullptr, int mips=0);
 };
 
 }

@@ -30,7 +30,7 @@ public:
     static constexpr glm::vec3 world_front {0.0f, 1.0f, 1.0f};
 
 public:
-    Camera(u32 _width=500, u32 _height=500, Projection projection=Projection::Perspective,
+    Camera(u32 _width=960, u32 _height=540, Projection projection=Projection::Perspective,
            float _fov=70.0f, float _near=0.01f, float _far=100.0f);
 
     ~Camera();

@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include "glm/ext/vector_float3.hpp"
 #include "real/core/game.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/string_hash.hpp"
 
 using namespace real;
@@ -15,14 +16,15 @@ EXPOSE_GAME_TO_REAL(MyGame)
 void MyGame::start() {
 	auto graphics = scene->add_system<GraphicsSystem>(screen_framebuffer.get());
 
-	mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/viking_room.png");
+	resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/mk_16_16_nature_tileset_json.json");
+	auto mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/Sprite-0001.json");
 	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/primitives.obj");
 
 	auto cube = scene->create_entity("cube");
 	cube.AddComponent<ComponentMeshRenderer>(collection, mesh_texture, StringHash("Cube"));
 
 	auto cam = scene->create_entity("camera");
-	cam.AddComponent<ComponentCamera>();
+	auto camera = cam.AddComponent<ComponentCamera>();
 	auto &trans = cam.GetComponent<ComponentTransform>();
 	trans.position = glm::vec3(0.0f, 0.0f, -3.0f);
 

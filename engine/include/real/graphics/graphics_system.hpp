@@ -26,17 +26,17 @@ struct REALLIB_EXPORT ComponentMeshRenderer {
     ComponentMeshRenderer(
 			ResourceHandle<ResourceMesh> _mesh,
 			ResourceHandle<ResourceImage> _texture)
-        : mesh(_mesh), texture(_texture), sub_mesh(_mesh.get()->meshes.begin()->second) {}
+        : mesh(_mesh), texture(_texture),
+		  sub_mesh(_mesh.get()->meshes.begin()->second),
+		  tile(_texture.get()->tiles[StringHash("_full_image")]){}
 
     ComponentMeshRenderer(
 			ResourceHandle<ResourceMesh> _mesh,
-			ResourceHandle<ResourceImage> _texture, StringHash hash)
-        : mesh(_mesh), texture(_texture), sub_mesh(_mesh.get()->meshes.at(hash)) {}
-
-    ComponentMeshRenderer(
-			ResourceHandle<ResourceMesh> _mesh,
-			ResourceHandle<ResourceImage> _texture, ResourceMesh::Mesh _sub_mesh)
-        : mesh(_mesh), texture(_texture), sub_mesh(_sub_mesh) {}
+			ResourceHandle<ResourceImage> _texture, 
+			StringHash submesh_name, StringHash tile_name=StringHash("_full_image"))
+        : mesh(_mesh), texture(_texture),
+		  sub_mesh(_mesh.get()->meshes.at(submesh_name)),
+		  tile(_texture.get()->tiles.at(tile_name)) {}
 
     ComponentMeshRenderer(const ComponentMeshRenderer &) = default;
     ~ComponentMeshRenderer() = default;
@@ -44,6 +44,7 @@ struct REALLIB_EXPORT ComponentMeshRenderer {
     ResourceHandle<ResourceMesh> mesh;
     ResourceHandle<ResourceImage> texture;
 	ResourceMesh::Mesh sub_mesh;
+	ResourceImage::Tile tile;
 };
 
 struct REALLIB_EXPORT ComponentCamera {

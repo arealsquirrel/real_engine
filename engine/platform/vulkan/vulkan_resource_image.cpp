@@ -19,8 +19,8 @@ VulkanResourceImage::VulkanResourceImage(
     Instance *_instance,
     u32 width, u32 height, 
 	ColorFormat _cformat, ImageFormat _iformat,
-	void *data, int mips, VkSampleCountFlagBits _samples)
-    : ResourceImage(_instance, width, height, _cformat, _iformat, data),
+	void *data, int mips, VkSampleCountFlagBits _samples, std::map<StringHash, Tile> _tiles)
+    : ResourceImage(_instance, width, height, _cformat, _iformat, data, _tiles),
 	  samples(_samples) {
 	
 	RL_INSTRUMENT_FUNCTION
@@ -179,5 +179,14 @@ void VulkanResourceImage::transition_image(VkImageLayout to_layout) {
 ImageHandle VulkanResourceImage::get_handle() {
 	return imageView;
 }
+
+Unique<ResourceImage> ResourceImage::create(
+			Instance *instance, u32 width, u32 height,
+			ColorFormat cformat, ImageFormat iformat,
+			void *data, int mips, std::map<StringHash, Tile> tiles) {
+	
+	return std::make_unique<VulkanResourceImage>(instance, width, height, cformat, iformat, data, mips, VK_SAMPLE_COUNT_1_BIT, tiles);
+}
+
 
 }
