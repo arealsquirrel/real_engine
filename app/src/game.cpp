@@ -15,12 +15,8 @@ EXPOSE_GAME_TO_REAL(MyGame)
 void MyGame::start() {
 	auto graphics = scene->add_system<GraphicsSystem>(screen_framebuffer.get());
 
-	mesh_resource = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/viking_room.obj");
 	mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/viking_room.png");
-	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/combine_meshes.obj");
-
-	auto room = scene->create_entity("viking_room");
-	room.AddComponent<ComponentMeshRenderer>(mesh_resource, mesh_texture);
+	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/primitives.obj");
 
 	auto cube = scene->create_entity("cube");
 	cube.AddComponent<ComponentMeshRenderer>(collection, mesh_texture, StringHash("Cube"));

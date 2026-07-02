@@ -14,7 +14,6 @@ public:
 	void update(u32 delta_time) override;
 
 private:
-    ResourceHandle<ResourceMesh> mesh_resource;
     ResourceHandle<ResourceImage> mesh_texture;
 
     CVAR_DEF(Color4, topGradientColor, Color4(146, 236, 197));
