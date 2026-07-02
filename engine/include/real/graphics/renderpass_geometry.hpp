@@ -4,7 +4,7 @@
 #include <real/core/event.hpp>
 #include "real/core/object.hpp"
 #include "real/core/vec.hpp"
-#include "real/graphics/render_pass.hpp"
+#include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
@@ -49,9 +49,6 @@ enum class MultisamplingCount {
  * @brief info for the RenderPassGeometry renderpass.
  */
 struct REALLIB_EXPORT RenderPassGeometryInfo {
-	// ResourceHandle<ResourceImage> renderImage;
-	// std::optional<ResourceHandle<ResourceImage>> depthImage {std::nullopt};
-
 	bool depth;
 	GeometryTopology topology;
 	GeometryPolygonMode polygon_mode;
@@ -82,6 +79,7 @@ public:
 	 */
 	virtual void begin_pass(Framebuffer *framebuffer) = 0;
 	virtual void end_pass() = 0;
+	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh, ResourceMesh::Mesh sub_mesh) = 0;
 	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh) = 0;
 	virtual void bind_descriptors() override = 0;
 };

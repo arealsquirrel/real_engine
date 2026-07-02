@@ -13,7 +13,7 @@
 #include "real/graphics/graphics.hpp"
 #include "real/scene/components.hpp"
 #include <cstring>
-#include <real/graphics/render_pass_geometry.hpp>
+#include <real/graphics/renderpass_geometry.hpp>
 #include <real/graphics/graphics_system.hpp>
 #include <real/scene/scene.hpp>
 #include <real/core/event.hpp>
@@ -67,7 +67,7 @@ void GraphicsSystem::update(u32 delta_time) {
         diffuse_pass->set_variable("model", trans.get_transform());
         diffuse_pass->set_variable("sampler", mesh.texture.get()->get_handle());
         diffuse_pass->bind_descriptors();
-        diffuse_pass->draw_mesh(mesh.mesh);
+        diffuse_pass->draw_mesh(mesh.mesh, mesh.sub_mesh);
     }
 
     diffuse_pass->end_pass();
@@ -81,11 +81,6 @@ void GraphicsSystem::destroy() {
 }
 
 void GraphicsSystem::draw_imgui() {
-	u32 micro_seconds = instance->renderer->render_stats.frame_time.micro_seconds; 
-	ImGui::Text("Frametime %f ms", micro_seconds / 1000.0f);
-	ImGui::Text("FPS: %f", 1000.0f / (micro_seconds / 1000.0f));
-	ImGui::Text("Indices: %u", instance->renderer->render_stats.indicies);
-	ImGui::Text("Vertices: %u", instance->renderer->render_stats.verticies);
 	ImGui::Text("Draw framebuffer size, x: %u, y: %u", framebuffer->get_width(), framebuffer->get_height());
 	ImGui::Text("Framebuffer multisampling %u", framebuffer->get_msaa());
 }

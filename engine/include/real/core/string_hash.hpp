@@ -11,6 +11,8 @@ namespace real {
 constexpr uint32_t REAL_FNV_PRIME = 0x01000193;
 
 struct StringHash {
+	StringHash() = default;
+
     StringHash(String str) {
 		hash = 0;
         for (size_t c = 0; c < str.length(); c++) {

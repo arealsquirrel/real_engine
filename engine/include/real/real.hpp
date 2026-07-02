@@ -21,9 +21,9 @@
 #include <real/graphics/graphics.hpp>
 #include <real/graphics/renderer.hpp>
 #include <real/graphics/window.hpp>
-#include <real/graphics/render_pass_compute.hpp>
-#include <real/graphics/render_pass_geometry.hpp>
-#include <real/graphics/render_pass.hpp>
+#include <real/graphics/renderpass_compute.hpp>
+#include <real/graphics/renderpass_geometry.hpp>
+#include <real/graphics/renderpass.hpp>
 #include <real/graphics/buffer.hpp>
 #include <real/graphics/camera.hpp>
 #include <real/graphics/framebuffer.hpp>

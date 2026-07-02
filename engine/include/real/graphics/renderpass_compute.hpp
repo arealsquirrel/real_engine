@@ -6,7 +6,7 @@
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include "real/resource/resource_shader.hpp"
-#include <real/graphics/render_pass.hpp>
+#include <real/graphics/renderpass.hpp>
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_image.hpp>
 #include <vector>
@@ -25,6 +25,10 @@ protected:
     RenderPassCompute(
 		Instance *_instance, ShaderLayout layout, std::vector<RenderPassResource> _resources)
 		: RenderPass(_instance, layout, _resources) {};
+
+public:
+	static Unique<RenderPassCompute> create(
+		Instance *instance, ResourceHandle<ResourceShader> shader, std::vector<RenderPassResource> _resources);
 
 public:
     ~RenderPassCompute() = default;

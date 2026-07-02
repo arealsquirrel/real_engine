@@ -15,7 +15,9 @@ Scene::Scene(Instance *instance)
     registry = new entt::registry();
 }
 
-Scene::~Scene() = default;
+Scene::~Scene() {
+	delete registry;
+}
 
 EntityHandle Scene::create_entity(String name) {
     return create_entity(name, UUID());

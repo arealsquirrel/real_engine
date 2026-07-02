@@ -5,6 +5,7 @@
 #include "real/core/instance.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_image.hpp"
+#include "real/resource/resource_mesh.hpp"
 #include "real/resource/resource_shader.hpp"
 #include <algorithm>
 #include <optional>
@@ -32,13 +33,24 @@ void PanelResourceViewer::display(real::ResourceImage *resource) {
 	ImGui::Image(resource->get_imgui_textureID(), display_size);
 }
 
+template<>
+void PanelResourceViewer::display(real::ResourceMesh *resource) {
+	// ImGui::Text("Total vertices: %u", resource->verticie_count);
+	// ImGui::Text("Total indices: %u", resource->indices_count);
+
+	/*
+	for (auto &mesh : resource->meshes) {
+		ImGui::Text("%s: indicies: %lu", mesh.name.c_str(), mesh.count);
+	}
+	*/
+}
+
 PanelResourceViewer::PanelResourceViewer(
 		Shared<real::Instance> _instance, 
 		std::optional<real::ResourceHandle<real::Resource>> _current_handle)
 	: Panel(_instance), current_handle(_current_handle) {}
 
 PanelResourceViewer::~PanelResourceViewer() {
-
 }
 
 void PanelResourceViewer::draw() {
@@ -52,14 +64,9 @@ void PanelResourceViewer::draw() {
 
 	if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("REAL_RESOURCE_NAME")) {
-           	// IM_ASSERT(payload->DataSize == sizeof(std::string));
-			// std::string *p = (std::string*)payload->Data;
 			std::string cname = std::string((const char*)payload->Data);
 			current_handle = std::make_optional(instance->resource_database->get_resource<Resource>(cname));
 			name = cname;
-			// auto handle = instance->resource_database->get_resource<Resource>(name);
-
-			// RL_LOG_TRACE("drag and drop {}", name);
         }
 
     	ImGui::EndDragDropTarget();

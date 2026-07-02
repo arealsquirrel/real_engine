@@ -5,7 +5,7 @@
 #include "real/resource/resource_shader.hpp"
 
 #include <vulkan/vulkan_core.h>
-#include <real/graphics/render_pass_compute.hpp>
+#include <real/graphics/renderpass_compute.hpp>
 
 namespace real {
 
@@ -19,6 +19,7 @@ public:
         std::vector<RenderPassResource> _resources);
 
 	~VulkanRenderPassCompute();
+
 
 public:
     void begin_pass() final override;

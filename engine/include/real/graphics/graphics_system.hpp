@@ -5,6 +5,7 @@
 #include "real/core/core.hpp"
 #include "real/core/event_listener.hpp"
 #include "real/core/object.hpp"
+#include "real/core/string_hash.hpp"
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/camera.hpp"
 #include "real/graphics/framebuffer.hpp"
@@ -22,14 +23,27 @@ class Instance;
 struct REALLIB_EXPORT ComponentMeshRenderer {
     RL_COMPONENT(ComponentMeshRenderer)
 
-    ComponentMeshRenderer(ResourceHandle<ResourceMesh> _mesh, ResourceHandle<ResourceImage> _texture)
-        : mesh(_mesh), texture(_texture) {}
+    ComponentMeshRenderer(
+			ResourceHandle<ResourceMesh> _mesh,
+			ResourceHandle<ResourceImage> _texture)
+        : mesh(_mesh), texture(_texture), sub_mesh(_mesh.get()->meshes.begin()->second) {}
+
+    ComponentMeshRenderer(
+			ResourceHandle<ResourceMesh> _mesh,
+			ResourceHandle<ResourceImage> _texture, StringHash hash)
+        : mesh(_mesh), texture(_texture), sub_mesh(_mesh.get()->meshes.at(hash)) {}
+
+    ComponentMeshRenderer(
+			ResourceHandle<ResourceMesh> _mesh,
+			ResourceHandle<ResourceImage> _texture, ResourceMesh::Mesh _sub_mesh)
+        : mesh(_mesh), texture(_texture), sub_mesh(_sub_mesh) {}
 
     ComponentMeshRenderer(const ComponentMeshRenderer &) = default;
     ~ComponentMeshRenderer() = default;
 
     ResourceHandle<ResourceMesh> mesh;
     ResourceHandle<ResourceImage> texture;
+	ResourceMesh::Mesh sub_mesh;
 };
 
 struct REALLIB_EXPORT ComponentCamera {

@@ -465,4 +465,8 @@ FrameDataVulkan &VulkanRenderer::get_current_frame() {
     return frame_data[frame_number % VULKAN_FRAME_OVERLAP];
 }
 
+Unique<Renderer> Renderer::create(Instance *instance, Shared<Window> window) {
+	return std::make_unique<VulkanRenderer>(instance, window);
+}
+
 }

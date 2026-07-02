@@ -12,8 +12,9 @@ namespace real {
 VulkanResourceMesh::VulkanResourceMesh(
 		Instance *_instance,
 		std::vector<uint32_t> indices,
-		char *vertex_data, size_t size) 
-	: ResourceMesh(_instance, indices, vertex_data, size),
+		char *vertex_data, size_t size, std::map<StringHash, ResourceMesh::Mesh> meshes) 
+	: ResourceMesh(_instance, indices, vertex_data, size, meshes),
+
 	renderer((VulkanRenderer*)instance->renderer.get()) {
 
 	RL_INSTRUMENT_FUNCTION
@@ -81,6 +82,13 @@ void VulkanResourceMesh::bind() {
 }
 
 void VulkanResourceMesh::unbind() {
+}
+
+Unique<ResourceMesh> ResourceMesh::create(
+		Instance *instance, std::vector<uint32_t> indices,
+		char *data, size_t size, std::map<StringHash, ResourceMesh::Mesh> meshes) {
+
+	return std::make_unique<VulkanResourceMesh>(instance, indices, data, size, meshes);
 }
 
 }

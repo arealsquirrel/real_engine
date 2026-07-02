@@ -1,6 +1,7 @@
 
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
+#include "real/core/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/debug/timer.hpp"
@@ -48,8 +49,22 @@ namespace real {
 ResourceMesh::ResourceMesh(
 		Instance *_instance,
 		std::vector<uint32_t> indexes,
-		char *vertex_data, size_t vertex_data_size)
-	: Resource(_instance) {}
+		char *vertex_data, size_t vertex_data_size,
+		std::map<StringHash, ResourceMesh::Mesh> _meshes)
+	: Resource(_instance), meshes(_meshes) {
+
+	if(meshes.size() == 0) {
+		ResourceMesh::Mesh mesh = Mesh{
+			.name = std::to_string(get_instance_uuid()),
+			.start_index = 0,
+			.count = indexes.size(),
+		};
+
+		StringHash hash("mesh");
+
+		meshes.insert({hash, mesh});
+	}
+}
 
 ResourceMesh::~ResourceMesh() {
 
@@ -69,11 +84,15 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 	std::string err;
 	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
 
-	std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
+	std::map<StringHash, ResourceMesh::Mesh> meshes;
 	for (const auto& shape : shapes) {
+		RL_LOG_TRACE("mesh {}, found mesh {}", path.filename().c_str(), shape.name.c_str());
+		ResourceMesh::Mesh mesh {shape.name.c_str(), indices.size()};
+		u32 count = 0;
+
 		for (const auto& index : shape.mesh.indices) {
 			Vertex vertex{};
+			count++;
 
 			vertex.pos = {
 				attrib.vertices[3 * index.vertex_index + 0],
@@ -92,17 +111,15 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 			vertex.uv_x = attrib.texcoords[2 * index.texcoord_index + 0],
     		vertex.uv_y = 1.0f - attrib.texcoords[2 * index.texcoord_index + 1];
 
-			if (uniqueVertices.count(vertex) == 0) {
-            	uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-				vertices.push_back(vertex);
-			}
-
-			indices.push_back(uniqueVertices[vertex]);
-
+			vertices.push_back(vertex);
+	        indices.push_back(indices.size());
 		}
+
+		mesh.count = count;
+		meshes.insert({StringHash(shape.name.c_str()), mesh});
 	}
 
-	auto *mesh = Graphics::create_resource_mesh(instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex)).release();
+	auto *mesh = ResourceMesh::create(instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex), meshes).release();
 	mesh->verticie_count = vertices.size();
 	mesh->indices_count = indices.size();
 

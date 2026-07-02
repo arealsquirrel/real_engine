@@ -2,8 +2,8 @@
 #define REALLIB_OBJECT_HPP
 
 #include "real/core/core.hpp"
+#include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
-#include <set>
 
 namespace real {
 
@@ -28,16 +28,22 @@ public:
 	virtual const TypeInfo *object_typeinfo() const { return Object::object_parent_typeinfo_static(); }
     UUID get_instance_uuid() const { return object_id; }
 
+	static u32 get_object_count();
+
 protected:
     Instance *instance {nullptr};
     UUID object_id;
+
+private:
+	static u32 object_count;
 };
 
 #define RL_OBJECT(CLASS_NAME, CLASS_PARENT) public: \
-    static const TypeInfo *object_typeinfo_static() { static TypeInfo i{#CLASS_NAME, UUID(), CLASS_PARENT::object_parent_typeinfo_static()}; return &i; } \
+    static const TypeInfo *object_typeinfo_static() { static TypeInfo i{#CLASS_NAME, UUID(), CLASS_PARENT::object_parent_typeinfo_static() }; return &i; } \
     static const TypeInfo *object_parent_typeinfo_static() { return CLASS_NAME::object_typeinfo_static()->parent; } \
     virtual const char *object_name() const override { return CLASS_NAME::object_typeinfo()->name; }; \
 	virtual const TypeInfo *object_typeinfo() const override { return CLASS_NAME::object_typeinfo_static(); }
+
 }
 
 namespace std {

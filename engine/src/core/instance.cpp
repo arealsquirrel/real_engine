@@ -2,8 +2,8 @@
 #include "real/core/instance.hpp"
 #include "real/core/core.hpp"
 #include "real/core/event.hpp"
+#include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
-#include "real/graphics/graphics.hpp"
 #include "real/resource/resource_database.hpp"
 #include <GLFW/glfw3.h>
 #include <memory>
@@ -13,16 +13,16 @@
 namespace real {
 
 Instance::Instance(ArgParams _arg_params)
-	: arg_params(_arg_params) {
+	: arg_params(_arg_params), frame_allocator(1024) {
 	RL_INSTRUMENT_FUNCTION
 	WindowInfo info;
 	info.width = arg_params.window_width;
 	info.height = arg_params.window_height;
 	info.title = "my engine :3";
 	event_messenger = std::make_unique<EventMessenger>();
-	window = std::move(Graphics::create_window(this, info));
+	window = std::make_shared<Window>(this, info);
 	resource_database = std::make_shared<ResourceDatabase>(this);
-	renderer = std::move(Graphics::create_renderer(this, window));
+	renderer = std::move(Renderer::create(this, window));
     renderer->init();
 }
 

@@ -2,13 +2,11 @@
 #define REALLIB_VULKAN_RENDER_PASS_GEOMETRY_HPP
 
 #include "real/core/object.hpp"
-#include "real/graphics/render_pass.hpp"
-#include "real/graphics/render_pass_geometry.hpp"
-#include "real/graphics/renderer.hpp"
+#include "real/graphics/renderpass.hpp"
+#include "real/graphics/renderpass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_shader.hpp"
 #include "vulkan_descriptor_allocator.hpp"
-#include "vulkan_resource_image.hpp"
 #include <cstddef>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -31,6 +29,7 @@ public:
 	void end_pass() final override;
 	void set_variable(ShaderField field, char *data, size_t size) final override;
 	void bind_descriptors() final override;
+	void draw_mesh(ResourceHandle<ResourceMesh> mesh, ResourceMesh::Mesh submesh) final override;
 	void draw_mesh(ResourceHandle<ResourceMesh> mesh) final override;
 
 private:

@@ -43,6 +43,8 @@ public:
 
 	RendererStats render_stats;
 
+	static Unique<Renderer> create(Instance *instance, Shared<Window> window);
+
 protected:
     Shared<Window> window;
 };

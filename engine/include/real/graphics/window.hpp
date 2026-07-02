@@ -15,8 +15,6 @@
 
 namespace real {
 
-// class Instance;
-
 struct WindowInfo {
     int width, height;
     const char *title;

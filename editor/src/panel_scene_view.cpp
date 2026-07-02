@@ -2,6 +2,7 @@
 #include "panel_scene_view.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "real/core/string_hash.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/scene/components.hpp"
 #include "real/scene/entity.hpp"
@@ -108,8 +109,31 @@ void PanelSceneView::render_properties() {
     draw_component<ComponentMeshRenderer>("Mesh Renderer", handle,
     [](auto &component) {
         ImGui::SeparatorText("Mesh Resource Data");
-        ImGui::Text("indices count: %i", component.mesh.get()->indices_count);
-        ImGui::Text("vertex count: %i", component.mesh.get()->verticie_count);
+        ImGui::Text("sub mesh name: %s", component.sub_mesh.name.c_str());
+        ImGui::Text("indices count: %lu", component.sub_mesh.count);
+		if(ImGui::TreeNode("Mesh Resource Submeshes")) {
+			StringHash current_hash = StringHash(component.sub_mesh.name.c_str());
+			if(ImGui::BeginCombo("Submesh", component.sub_mesh.name.c_str())) {
+				int index = 0;
+				for (const auto& pair : component.mesh.get()->meshes) {
+					bool isSelected = (current_hash == pair.first);
+					
+					if (ImGui::Selectable(pair.second.name.c_str(), isSelected)) {
+						component.sub_mesh = pair.second;
+						// selectedKey = pair.first; 
+					}
+
+					if (isSelected) {
+						ImGui::SetItemDefaultFocus();
+					}
+					index++;
+				}
+
+				ImGui::EndCombo();
+			}
+
+			ImGui::TreePop();
+		}
     });
 
     draw_component<ComponentCamera>("Camera", handle,

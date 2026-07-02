@@ -49,8 +49,11 @@ class VulkanResourceMesh : public ResourceMesh {
 RL_OBJECT(VulkanResourceMesh, ResourceMesh)
 
 public:
-	VulkanResourceMesh(Instance *_instance,
-			std::vector<uint32_t> indices, char *data, size_t size);
+	VulkanResourceMesh(
+			Instance *_instance,
+			std::vector<uint32_t> indices,
+			char *data, size_t size, std::map<StringHash, ResourceMesh::Mesh> meshes={});
+
 	~VulkanResourceMesh();
 
 	void bind() final override;

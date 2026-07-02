@@ -7,7 +7,7 @@
 #include "real/resource/resource_image.hpp"
 #include <real/core/core.hpp>
 #include <real/core/types.hpp>
-#include <real/graphics/render_pass_geometry.hpp>
+#include <real/graphics/renderpass_geometry.hpp>
 
 namespace real {
 

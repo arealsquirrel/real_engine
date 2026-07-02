@@ -5,6 +5,7 @@
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/camera.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include <utility>
@@ -37,6 +38,7 @@ private:
 private:
 	Shared<real::Instance> instance;
 	std::vector<Shared<editor::Panel>> panels;
+	real::Camera editor_camera;
 
 public:
 	real::ResourceHandle<real::ResourceImage> editor_viewport;

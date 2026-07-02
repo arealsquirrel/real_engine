@@ -6,10 +6,6 @@
 
 namespace real {
 
-void print_version() {
-    
-}
-
 ArgParams parse_args(int argc, char **argv) {
     using namespace argparse;
     Parser parser;

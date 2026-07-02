@@ -4,9 +4,8 @@
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
-#include "real/graphics/render_pass.hpp"
-#include "real/graphics/render_pass_geometry.hpp"
-#include "real/graphics/renderer.hpp"
+#include "real/graphics/renderpass.hpp"
+#include "real/graphics/renderpass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_shader.hpp"
 #include "vulkan_buffer.hpp"
@@ -304,7 +303,9 @@ void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer) {
 	descriptor_set = renderer->get_current_frame().frameDescriptors.allocate(renderer->device, descriptor_set_layout);
 }
 
-void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
+void VulkanRenderPassGeometry::draw_mesh(
+		ResourceHandle<ResourceMesh> mesh, ResourceMesh::Mesh submesh) {
+
 	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
@@ -313,9 +314,13 @@ void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
 
 	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
 	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(frame.main_command_buffer, da_mesh->indices_count, 1, 0, 0, 0);
+	vkCmdDrawIndexed(frame.main_command_buffer, submesh.count, 1, submesh.start_index, 0, 0);
 	renderer->render_stats.indicies += da_mesh->indices_count;
 	renderer->render_stats.verticies += da_mesh->verticie_count;
+}
+
+void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
+	draw_mesh(mesh, mesh.get()->meshes.begin()->second);
 }
 
 void VulkanRenderPassGeometry::bind_descriptors() {

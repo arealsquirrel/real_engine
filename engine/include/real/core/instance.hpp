@@ -3,6 +3,7 @@
 
 #include "real/core/types.hpp"
 #include <real/core/core.hpp>
+#include <real/core/allocator.hpp>
 
 namespace real {
 
@@ -25,6 +26,10 @@ public:
     Shared<Renderer> renderer;
 	Unique<EventMessenger> event_messenger;
 	ArgParams arg_params;
+
+	// cleared every frame!
+	StackAllocator frame_allocator;
+	SystemAllocator system_allocator;
 };
 
 }

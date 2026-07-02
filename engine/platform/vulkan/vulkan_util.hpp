@@ -2,7 +2,7 @@
 #define REALLIB_VULKAN_UTIL_HPP
 
 #include "real/core/logging.hpp"
-#include "real/graphics/render_pass_geometry.hpp"
+#include "real/graphics/renderpass_geometry.hpp"
 #include <vulkan/vulkan_core.h>
 
 #define GLFW_INCLUDE_VULKAN

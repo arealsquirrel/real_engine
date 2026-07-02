@@ -4,37 +4,30 @@
 #include "real/core/types.hpp"
 #include <filesystem>
 #include <functional>
-
-namespace real {
+#include <cassert>
 
 #ifdef __linux__
-
 #define REALLIB_EXPORT __attribute__((visibility("default")))
-
 #else
 #error "trash"
 #endif
 
 #define BIT(n) 1<<n
 #define CHECK_FLAG(x, n) ((((u32)x) & ((u32)n)) != 0)
-
-
 #define STRINGIFY(x) #x
 #define STRINGIFY_EXP(x) STRINGIFY(x)
-
 #define REAL_ENTRY extern Unique<::real::Game> game_entrypoint();
+#define RL_ASSERT(cond, ...) assert(cond)
+#define RL_MEM_POINTER(var) reinterpret_cast<char*>(var)
+#define RL_CAST_MEM(var, type) reinterpret_cast<type*>(var)
 
+namespace real {
 
 struct REALLIB_EXPORT ArgParams {
 	u32 window_width;
 	u32 window_height;
 	std::filesystem::path game_dll_path;
 };
-
-/**
- * @brief basic sanity check for the library.
- */
-void print_version();
 
 ArgParams REALLIB_EXPORT parse_args(int argc, char **argv);
 

@@ -1,12 +1,10 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <real/graphics/render_pass_compute.hpp>
+#include <real/graphics/renderpass_compute.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include "real/core/game.hpp"
-#include "real/graphics/renderer.hpp"
-#include "real/graphics/window.hpp"
 #include "real/resource/resource_shader.hpp"
 #include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"

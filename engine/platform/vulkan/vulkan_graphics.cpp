@@ -7,8 +7,8 @@
 #include "real/core/types.hpp"
 #include "real/debug/instrumentation.hpp"
 #include "real/debug/timer.hpp"
-#include "real/graphics/render_pass_geometry.hpp"
-#include "real/graphics/render_pass_compute.hpp"
+#include "real/graphics/renderpass_geometry.hpp"
+#include "real/graphics/renderpass_compute.hpp"
 #include "real/graphics/window.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include "vulkan_backend.hpp"
@@ -51,20 +51,14 @@ void Graphics::destroy_backend() {
     vkDestroyInstance(backend.instance, nullptr);
 }
 
-Unique<Window> Graphics::create_window(Instance *instance, const WindowInfo &info) {
-	return std::make_unique<Window>(instance, info);
-}
-
-Unique<Renderer> Graphics::create_renderer(Instance *instance, Shared<Window> window) {
-	return std::make_unique<VulkanRenderer>(instance, window);
-}
-
-Unique<RenderPassCompute> Graphics::create_render_pass_compute(
+/*
+Unique<RenderPassCompute> Graphics::create(
 	Instance *instance, ResourceHandle<ResourceShader> shader,
 	std::vector<RenderPassResource> _resources) {
 
 	return std::make_unique<VulkanRenderPassCompute>(instance, shader, _resources);
 }
+*/
 
 Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
 		Instance *instance, RenderPassGeometryInfo info,
@@ -72,13 +66,6 @@ Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
 		std::vector<RenderPassResource> _resources) {
 	
 	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, _resources);
-}
-
-Unique<ResourceMesh> Graphics::create_resource_mesh(
-		Instance *instance, std::vector<uint32_t> indices,
-		char *data, size_t size) {
-
-	return std::make_unique<VulkanResourceMesh>(instance, indices, data, size);
 }
 
 Unique<ResourceImage> Graphics::create_resource_image(
