@@ -1,6 +1,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <real/graphics/renderpass_compute.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -135,5 +136,12 @@ void VulkanRenderPassCompute::set_variable(
 		break;
 	}
 }
+
+Unique<RenderPassCompute> RenderPassCompute::create(
+	Instance *instance, ResourceHandle<ResourceShader> shader, std::vector<RenderPassResource> _resources) {
+
+	return std::make_unique<VulkanRenderPassCompute>(instance, shader, _resources);
+}
+
 
 }

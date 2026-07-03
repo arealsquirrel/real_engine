@@ -87,8 +87,7 @@ public:
 
 	template<typename T>
 	ResourceHandle<T> get_resource(UUID id) {
-		return ResourceHandle<T>(
-				resource_map.at(id));
+		return ResourceHandle<T>(resource_map.at(id));
 	}
 
 	template<typename T>

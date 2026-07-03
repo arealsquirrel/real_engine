@@ -20,7 +20,6 @@ public:
 
 	~VulkanRenderPassCompute();
 
-
 public:
     void begin_pass() final override;
     void end_pass() final override;

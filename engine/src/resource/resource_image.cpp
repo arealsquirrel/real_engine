@@ -72,7 +72,6 @@ ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 			} else {
 				tile.name = name + std::to_string(tiles.size());
 			}
-			RL_LOG_INFO("{} {}", tile.name, StringHash(tile.name.c_str()).hash);
 			tile.position = std::make_pair(frame["x"].get<int>(), frame["y"].get<int>());
 			tile.dimension = std::make_pair(frame["w"].get<int>(), frame["h"].get<int>());
 			tiles.insert({StringHash(tile.name.c_str()), tile});

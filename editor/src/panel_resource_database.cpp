@@ -23,11 +23,6 @@ void PanelResourceDatabase::draw() {
 		ImGui::TableSetupColumn("Path", ImGuiTableColumnFlags_None);
 		ImGui::TableHeadersRow();
 
-		// Demonstrate using clipper for large vertical lists
-		
-		// ImGuiListClipper clipper;
-		// clipper.Begin(db->resource_map.size());
-		// while (clipper.Step()) {
 		for (auto &[name, id] : db->name_to_resource_UUID) {
 			auto &handle = db->resource_map[id.id];
 

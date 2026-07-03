@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
+#include "real/core/logging.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
@@ -86,7 +87,10 @@ void PanelResourceViewer::draw() {
 	if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("REAL_RESOURCE_NAME")) {
 			std::string cname = std::string((const char*)payload->Data);
+			cname.resize(payload->DataSize);
+			RL_LOG_INFO("handled {}", cname.c_str());
 			current_handle = std::make_optional(instance->resource_database->get_resource<Resource>(cname));
+			RL_LOG_INFO("handled");
 			name = cname;
         }
 
@@ -122,6 +126,8 @@ void PanelResourceViewer::draw() {
 		display<ResourceShader>((ResourceShader*)current_handle->get());
 	} else if(cn == "VulkanResourceImage") {
 		display<ResourceImage>((ResourceImage*)current_handle->get());
+	} else if(cn == "VulkanResourceMesh") {
+		display<ResourceMesh>((ResourceMesh*)current_handle->get());
 	} else {
 		ImGui::Text("unknown resource");
 	}
