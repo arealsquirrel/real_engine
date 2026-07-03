@@ -21,6 +21,10 @@ Camera::Camera(u32 _width, u32 _height, Projection projection,
 
     update_proj();
     update_view();
+
+	camera_front = world_front;
+	camera_up = world_up;
+	camera_right = world_right;
 }
 
 Camera::~Camera() = default;
@@ -28,6 +32,20 @@ Camera::~Camera() = default;
 void Camera::translate_camera(glm::vec3 pos) {
     position += pos;
     update_view();
+}
+
+void Camera::locate_translate(glm::vec3 pos) {
+	position += camera_front * pos.z;
+	position += camera_right * pos.x;
+	position += camera_up * pos.y;
+	update_view();
+}
+
+void Camera::set_camera_front(glm::vec3 front) {
+	camera_front = front;
+	camera_right = glm::normalize(glm::cross(camera_front, world_up));
+    camera_up = glm::normalize(glm::cross(camera_right, camera_front));
+	update_view();
 }
 
 void Camera::set_position(glm::vec3 pos) {
@@ -78,10 +96,14 @@ void Camera::update_proj() {
 }
 
 void Camera::update_view() {
+	/*
     glm::mat4 view(1.0f);
     view = glm::translate(view, position);
     glm::mat4 rot = glm::toMat4(glm::quat(rotation));
     data.view = view * rot;
+	*/
+
+	data.view = glm::lookAt(position, position + camera_front, camera_up);
 }
 
 }

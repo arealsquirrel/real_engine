@@ -13,13 +13,13 @@
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
-#include "real/resource/resource_shader.hpp"
 #include "real/scene/components.hpp"
 #include "real/scene/entity.hpp"
 #include "real/scene/scene.hpp"
 #include "real/scene/system.hpp"
 #include <memory>
 #include <type_traits>
+#include <variant>
 #include <vector>
 
 namespace real {
@@ -128,6 +128,7 @@ public:
     Framebuffer *get_framebuffer() { return framebuffer; };
     void set_framebuffer(Framebuffer *_framebuffer) { framebuffer = _framebuffer; }
     void set_main_camera(EntityHandle handle) { main_camera = handle; }
+    void set_main_camera(Shared<Camera> camera) { main_camera = camera; }
 	BufferHandle get_camera_uniform_buffer_handle() { return camera_uniform_buffer->get_handle(); };
 
 private:
@@ -138,7 +139,8 @@ private:
 
     Framebuffer *framebuffer;
     Unique<UniformBuffer> camera_uniform_buffer;
-    EntityHandle main_camera;
+
+	std::variant<EntityHandle, Shared<Camera>> main_camera;
 };
 
 class SubRendererDiffuse3D : public SubRenderer {

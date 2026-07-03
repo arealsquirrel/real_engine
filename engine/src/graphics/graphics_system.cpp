@@ -18,6 +18,7 @@
 #include <real/graphics/graphics_system.hpp>
 #include <real/scene/scene.hpp>
 #include <real/core/event.hpp>
+#include <variant>
 
 namespace real {
 
@@ -44,15 +45,23 @@ void GraphicsSystem::awake() {
 }
 
 void GraphicsSystem::update(u32 delta_time) {
-    if(main_camera == false)
+    if(main_camera.valueless_by_exception())
         return;
 
-    auto &trans = main_camera.GetComponent<ComponentTransform>();
-    auto &camera = main_camera.GetComponent<ComponentCamera>();
-    camera.camera.set_position(trans.position);
-    camera.camera.set_rotation(trans.rotation);
-    *(camera_uniform_buffer->get_data<CameraData>()) = camera.camera.get_camera_data();
-    framebuffer->clear_image(camera.clear_color);
+	if(std::holds_alternative<EntityHandle>(main_camera)) {
+		auto cam_comp = std::get<EntityHandle>(main_camera);
+		auto &trans = cam_comp.GetComponent<ComponentTransform>();
+		auto &camera = cam_comp.GetComponent<ComponentCamera>();
+		camera.camera.set_position(trans.position);
+		camera.camera.set_rotation(trans.rotation);
+		*(camera_uniform_buffer->get_data<CameraData>()) = camera.camera.get_camera_data();
+		framebuffer->clear_image(camera.clear_color);
+	} else {
+		auto cam = std::get<Shared<Camera>>(main_camera);
+		*(camera_uniform_buffer->get_data<CameraData>()) = cam->get_camera_data();
+		framebuffer->clear_image(Color4(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+
 	for(auto &sr : sub_renderers) {
 		sr->render(delta_time);
 	}

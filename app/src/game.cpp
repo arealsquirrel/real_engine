@@ -57,7 +57,7 @@ private:
 
 void MyGame::start() {
 	auto graphics = scene->get_system<GraphicsSystem>();
-	graphics->add_post_effect<MyPostEffect>();
+	// graphics->add_post_effect<MyPostEffect>();
 
 	auto mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/Sprite-0001.json");
 	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/primitives.obj");

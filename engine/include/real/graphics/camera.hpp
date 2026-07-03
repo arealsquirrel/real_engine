@@ -26,8 +26,8 @@ public:
     };
 
     static constexpr glm::vec3 world_right {1.0f, 0.0f, 0.0f};
-    static constexpr glm::vec3 world_up {0.0f, 1.0f, 0.0f};
-    static constexpr glm::vec3 world_front {0.0f, 1.0f, 1.0f};
+    static constexpr glm::vec3 world_up    {0.0f, 1.0f, 0.0f};
+    static constexpr glm::vec3 world_front {0.0f, 0.0f, 1.0f};
 
 public:
     Camera(u32 _width=960, u32 _height=540, Projection projection=Projection::Perspective,
@@ -42,6 +42,11 @@ public:
     void rotate_camera(glm::vec3 rot);
     void set_rotation(glm::vec3 rot);
 
+	void set_camera_front(glm::vec3 front);
+
+	// translates local to the cameras view
+	void locate_translate(glm::vec3 pos);
+
     void viewport(u32 _width, u32 _height);
     void change_projection(Projection projection);
 
@@ -54,6 +59,10 @@ private:
     Projection projection;
     glm::vec3 position {0.0f, 0.0f, 0.0f};
     glm::vec3 rotation {0.0f, 0.0f, 0.0f};
+
+	glm::vec3 camera_front;
+	glm::vec3 camera_right;
+	glm::vec3 camera_up;
 
     u32 width;
     u32 height;

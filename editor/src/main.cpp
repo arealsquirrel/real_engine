@@ -5,6 +5,7 @@
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
 #include "panel_scene_view.hpp"
+#include "real/graphics/graphics_system.hpp"
 #include <real/real.hpp>
 
 using namespace real;
@@ -32,6 +33,7 @@ reload_game:
 	auto [game, dll] = Game::load_game_dll(instance, params);
 	game->start();
 	game->scene->awake();
+	game->scene->get_system<GraphicsSystem>()->set_main_camera(ed->camera.camera);
 	ed->editor_viewport = game->screen_framebuffer->get_color_resolve_image();
 	ed->add_panel<editor::PanelSceneView>(game->scene);
 
@@ -40,7 +42,7 @@ reload_game:
 		ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 		game->update(0);
 		CVarSystem::get().render_imgui();
-		reason = ed->render();
+		reason = ed->render(0);
 		instance->renderer->end_frame();
 	}
 

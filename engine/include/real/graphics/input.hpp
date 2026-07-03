@@ -33,6 +33,8 @@ public:
     Input(Instance *instance, Window *window);
     ~Input();
 
+	void poll_events();
+
     bool poll_key(int glfw_keycode);
 
     double poll_mouse_x() const;

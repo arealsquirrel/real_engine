@@ -1,7 +1,9 @@
 
 #include "editor.hpp"
+#include "editor_camera.hpp"
 #include "imgui.h"
 #include "real/core/core.hpp"
+#include <GLFW/glfw3.h>
 #include <real/config/config.hpp>
 #include <string>
 #include "panel.hpp"
@@ -12,12 +14,15 @@
 namespace editor {
 
 Editor::Editor(Shared<real::Instance> _instance) 
-	: instance(_instance) {}
+	: instance(_instance), camera(_instance.get()) {
+
+	camera.block_input = true;
+}
 
 Editor::~Editor() {
 }
 
-EditorExitReason Editor::render() {
+EditorExitReason Editor::render(u32 delta_time) {
 	EditorExitReason r = EditorExitReason::NotExiting;
 
 	if (ImGui::BeginMainMenuBar()) {
@@ -66,12 +71,25 @@ EditorExitReason Editor::render() {
 	ImGui::Text("Mouse position: x: %f, y: %f", xpos, ypos);
 	ImGui::End(); 
 
+	camera.update(delta_time);
+
 	return r;
 }
 
 void Editor::viewport() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Viewport");
+
+	if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+		glfwSetInputMode(instance->window->glfw_window(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		camera.block_input = false;
+	}
+
+	if(instance->window->input->poll_key(GLFW_KEY_ESCAPE)) {
+		camera.block_input = true;
+		glfwSetInputMode(instance->window->glfw_window(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+
 	ImVec2 windowSize = ImGui::GetContentRegionAvail();
 	ImVec2 imageSize = ImVec2((float)1280, (float)720);
 	float imgAspect = imageSize.x / imageSize.y;
