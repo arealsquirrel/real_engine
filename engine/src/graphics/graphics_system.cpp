@@ -12,7 +12,6 @@
 #include "real/graphics/framebuffer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/scene/components.hpp"
-#include <cstring>
 #include <memory>
 #include <real/graphics/renderpass_geometry.hpp>
 #include <real/graphics/graphics_system.hpp>
@@ -59,7 +58,7 @@ void GraphicsSystem::update(u32 delta_time) {
 	} else {
 		auto cam = std::get<Shared<Camera>>(main_camera);
 		*(camera_uniform_buffer->get_data<CameraData>()) = cam->get_camera_data();
-		framebuffer->clear_image(Color4(1.0f, 1.0f, 1.0f, 1.0f));
+		framebuffer->clear_image(Color4(1.0f, 1.0f, 1.0f, 0.0f));
 	}
 
 	for(auto &sr : sub_renderers) {

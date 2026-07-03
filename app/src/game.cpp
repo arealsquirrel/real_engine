@@ -38,10 +38,12 @@ public:
 
 	void render(u32 deltatime) {
 		compute->begin_pass();
-		compute->set_variable("topColor", topGradientColor);
-		compute->set_variable("bottomColor", bottomGradientColor);
+		compute->set_variable("topColor", topGradientColor->get_value());
+		compute->set_variable("bottomColor", bottomGradientColor->get_value());
 		compute->bind_descriptors();
-		compute->dispatch(10, 10, 1);
+		compute->dispatch(
+				std::ceil(graphics_system->get_framebuffer()->get_width() / 16.0f),
+				std::ceil(graphics_system->get_framebuffer()->get_height() / 16.0f), 1);
 		compute->end_pass();
 	}
 
@@ -57,13 +59,13 @@ private:
 
 void MyGame::start() {
 	auto graphics = scene->get_system<GraphicsSystem>();
-	// graphics->add_post_effect<MyPostEffect>();
+	graphics->add_post_effect<MyPostEffect>();
 
-	auto mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/Sprite-0001.json");
-	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/primitives.obj");
+	auto mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/viking_room.png");
+	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/viking_room.obj");
 
 	auto cube = scene->create_entity("cube");
-	cube.AddComponent<ComponentMeshRenderer>(collection, mesh_texture, StringHash("Cube"));
+	cube.AddComponent<ComponentMeshRenderer>(collection, mesh_texture);
 
 	auto cam = scene->create_entity("camera");
 	auto &camera = cam.AddComponent<ComponentCamera>();
