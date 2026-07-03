@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <iostream>
 #include <memory>
 #include <real/graphics/graphics.hpp>
 #include "real/core/game.hpp"
@@ -39,6 +40,15 @@ void Graphics::init_backend(const GraphicsInfo &info) {
     backend.vkbInstance = ins;
     backend.instance = ins.instance;
     backend.debug_messenger = ins.debug_messenger;
+
+	uint32_t layerCount = 0;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    std::cout << "Available Vulkan Layers:\n";
+    for (const auto& layer : availableLayers) {
+        std::cout << "\t- " << layer.layerName << ": " << layer.description << "\n";
+    }
 }
 
 GraphicsBackend Graphics::get_backend() {

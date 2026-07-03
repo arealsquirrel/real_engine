@@ -390,7 +390,7 @@ void VulkanRenderer::start_frame() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    vkutil::transition_image(cmd, swapchain_images[frame->swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	transition_swapchain(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 }
 
 void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
@@ -414,7 +414,7 @@ void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
 
 	ImGui::Render();
 
-    vkutil::transition_image(cmd, swapchain_images[frame.swapchain_index], VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	transition_swapchain(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
     VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(swapchain_views[frame.swapchain_index], nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkRenderingInfo renderInfo = vkutil::rendering_info(swapchain_extent, &colorAttachment, nullptr);
@@ -423,7 +423,7 @@ void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
 	vkCmdEndRendering(cmd);
 
-    vkutil::transition_image(cmd, swapchain_images[frame.swapchain_index], VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+	transition_swapchain(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
     VK_CHECK(vkEndCommandBuffer(cmd));
     
     VkCommandBufferSubmitInfo cmdinfo = vkutil::command_buffer_submit_info(cmd);	
@@ -457,8 +457,24 @@ void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
     }
 
     frame.delete_queue.flush();
+	get_current_frame().current_swapchain_layout = VK_IMAGE_LAYOUT_UNDEFINED;
     frame_number++;
     render_stats.frame_time.stop();
+}
+
+void VulkanRenderer::transition_swapchain(VkImageLayout to_layout) {
+	VkImageLayout current_swapchain_layout = get_current_frame().current_swapchain_layout;
+
+	if(current_swapchain_layout == to_layout) {
+		return;
+	}
+
+	vkutil::transition_image(
+		get_current_frame().main_command_buffer,
+		swapchain_images[get_current_frame().swapchain_index],
+		current_swapchain_layout, to_layout);
+
+	get_current_frame().current_swapchain_layout = to_layout;
 }
 
 FrameDataVulkan &VulkanRenderer::get_current_frame() {

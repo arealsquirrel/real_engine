@@ -8,7 +8,6 @@
 #include "glm/ext/vector_float3.hpp"
 #include "real/core/color.hpp"
 #include "real/core/game.hpp"
-#include "real/core/logging.hpp"
 #include "real/core/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/debug/cvars.hpp"
@@ -31,6 +30,7 @@ public:
 				"../engine/resources/shaders/gradient.slang.spv");
 
 		RenderPassResource renderpass_resource;
+		renderpass_resource.format = ImageFormat::RENDER_ATTACHMENT_COLOR;
 		renderpass_resource.texture = graphics_system->get_framebuffer()->get_color_resolve_image();
 
 		compute = RenderPassCompute::create(instance, shader, {renderpass_resource});
@@ -41,7 +41,7 @@ public:
 		compute->set_variable("topColor", topGradientColor);
 		compute->set_variable("bottomColor", bottomGradientColor);
 		compute->bind_descriptors();
-		compute->dispatch(5, 5, 1);
+		compute->dispatch(10, 10, 1);
 		compute->end_pass();
 	}
 
@@ -56,10 +56,9 @@ private:
 };
 
 void MyGame::start() {
-	auto graphics = scene->add_system<GraphicsSystem>(screen_framebuffer.get());
+	auto graphics = scene->get_system<GraphicsSystem>();
 	graphics->add_post_effect<MyPostEffect>();
 
-	resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/mk_16_16_nature_tileset_json.json");
 	auto mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/Sprite-0001.json");
 	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/primitives.obj");
 
@@ -67,7 +66,8 @@ void MyGame::start() {
 	cube.AddComponent<ComponentMeshRenderer>(collection, mesh_texture, StringHash("Cube"));
 
 	auto cam = scene->create_entity("camera");
-	auto camera = cam.AddComponent<ComponentCamera>();
+	auto &camera = cam.AddComponent<ComponentCamera>();
+	camera.clear_color = Color4(1,1,1,0);
 	auto &trans = cam.GetComponent<ComponentTransform>();
 	trans.position = glm::vec3(0.0f, 0.0f, -3.0f);
 

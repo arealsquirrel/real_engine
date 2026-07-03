@@ -86,11 +86,10 @@ void PanelResourceViewer::draw() {
 
 	if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("REAL_RESOURCE_NAME")) {
-			std::string cname = std::string((const char*)payload->Data);
+			const char *data = (const char*)payload->Data;
+			std::string cname(data, payload->DataSize);
 			cname.resize(payload->DataSize);
-			RL_LOG_INFO("handled {}", cname.c_str());
 			current_handle = std::make_optional(instance->resource_database->get_resource<Resource>(cname));
-			RL_LOG_INFO("handled");
 			name = cname;
         }
 

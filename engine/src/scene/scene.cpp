@@ -2,6 +2,7 @@
 #include "entt/entity/fwd.hpp"
 #include "real/core/event.hpp"
 #include "real/core/object.hpp"
+#include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/scene/components.hpp"
 #include <real/scene/entity.hpp>
@@ -35,19 +36,19 @@ EntityHandle Scene::create_entity(String name, UUID id) {
 
 void Scene::awake() {
     for (auto s : systems) {
-        s->awake();
+		s->awake();
     }
 }
 
 void Scene::update(u32 delta_time) {
     for (auto s : systems) {
-        s->update(delta_time);
-    }
+    	s->update(delta_time);
+	}
 }
 
 void Scene::destroy() {
     for (auto s : systems) {
-        s->destroy();
+		s->destroy();
     }
 }
 

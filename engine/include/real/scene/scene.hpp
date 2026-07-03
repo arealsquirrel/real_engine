@@ -5,6 +5,7 @@
 #include "real/core/core.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
+#include "real/core/object_container.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/scene/system.hpp"
@@ -33,19 +34,21 @@ public:
 
     template<typename T, typename ...Args>
     Shared<T> add_system(Args ...args) {
-        static_assert(std::is_base_of_v<System, T>, "system type must inherit from system");
-        auto a = std::make_shared<T>(instance, this, std::forward<Args>(args)...);
-        systems.push_back(a);
-        return a;
+        auto [emp, ptr] = systems.make_emplace(instance, this, std::forward<Args>(args)...);
+        return ptr;
     }
+
+	template<typename T>
+	Shared<T> get_system() {
+		return systems.get<T>();
+	}
 
     void emit_component_added(const char *name);
 
+	UniqueObjectSet<System> systems;
+
 public:
     entt::registry *registry;
-
-private:
-    std::vector<Shared<System>> systems;
     
     friend EntityHandle;
     friend System;

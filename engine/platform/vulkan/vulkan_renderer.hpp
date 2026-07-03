@@ -26,6 +26,7 @@ struct FrameDataVulkan {
     u32 swapchain_index;
     vkutil::DeletionQueue delete_queue;
 	DescriptorAllocatorGrowable frameDescriptors;
+	VkImageLayout current_swapchain_layout {VK_IMAGE_LAYOUT_UNDEFINED};
 };
 
 class VulkanRenderer : public Renderer, EventListener {
@@ -40,6 +41,8 @@ public:
 	void init() final override;
 
     FrameDataVulkan &get_current_frame();
+
+	void transition_swapchain(VkImageLayout to);
 
 private:
 	void create_imgui();

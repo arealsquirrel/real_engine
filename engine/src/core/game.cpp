@@ -4,6 +4,7 @@
 #include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
 #include "real/graphics/framebuffer.hpp"
+#include "real/graphics/graphics_system.hpp"
 #include "real/scene/scene.hpp"
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -20,8 +21,9 @@ Game::Game(Shared<Instance> _instance, ArgParams params)
 	window = _instance->window; 
 	resource_database = _instance->resource_database;
 	renderer = _instance->renderer;
-    screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Four);
+    screen_framebuffer = Framebuffer::create(instance.get(), 960, 540, true, MultisamplingCount::Four);
     scene = std::make_shared<Scene>(instance.get());
+	scene->systems.make_emplace<GraphicsSystem>(instance.get(), scene.get(), screen_framebuffer.get());
 }
 
 Game::~Game() {}

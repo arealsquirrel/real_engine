@@ -34,6 +34,7 @@ int main(int argc, char **argv) {
 	while(instance->should_close() == false) {
 		instance->renderer->start_frame();
 		game->update(0);
+		CVarSystem::get().render_imgui();
 		instance->renderer->end_frame(game->screen_framebuffer->get_color_resolve_image().get());
 	}
 	RL_INSTRUMENT_PROFILE_END;
@@ -42,7 +43,6 @@ int main(int argc, char **argv) {
 	CVarSystem::get().clear_cvars();
 	game->scene->destroy();
     Game::destroy_game_dll(game, dll);
-
 	instance.reset();
 	Graphics::destroy_backend();
 	RL_INSTRUMENT_PROFILE_END;

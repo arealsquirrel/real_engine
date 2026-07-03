@@ -32,7 +32,7 @@ void PanelSceneView::draw() {
 
 	ImGui::SeparatorText("Systems");
 
-	for (auto &sys : scene->systems) {
+	for (auto sys : scene->systems) {
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4, 6});
 		float lineHeight = GImGui->Font->LegacySize + GImGui->Style.FramePadding.y * 2.0f;
 		const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
@@ -40,7 +40,7 @@ void PanelSceneView::draw() {
     	ImGui::PopStyleVar();
 
 		if (open) {
-			sys->draw_imgui();
+			((real::System*)sys.get())->draw_imgui();
 			ImGui::TreePop();
 		}
 	}

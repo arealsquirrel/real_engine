@@ -57,7 +57,6 @@ void GraphicsSystem::update(u32 delta_time) {
 		sr->render(delta_time);
 	}
 
-	// this just resolves the texture
     framebuffer->unbind();
 
 	for(auto &post : post_effects) {
