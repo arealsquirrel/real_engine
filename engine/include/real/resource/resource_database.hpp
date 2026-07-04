@@ -113,6 +113,8 @@ public:
 		return (has != name_to_resource_UUID.end());
 	}
 
+	void unregister_all();
+
 private:
 	EXPOSE_TO_EDITOR;
 

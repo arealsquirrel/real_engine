@@ -38,9 +38,9 @@ private:
 
 private:
 	Shared<real::Instance> instance;
-	std::vector<Shared<editor::Panel>> panels;
 
 public:
+	std::vector<Shared<editor::Panel>> panels;
 	real::ResourceHandle<real::ResourceImage> editor_viewport;
 	EditorCamera camera;
 };

@@ -32,5 +32,10 @@ void ResourceDatabase::unregister_resource(std::string name) {
 	RL_LOG_TRACE("unloaded resource {}", name.c_str());
 }
 
+void ResourceDatabase::unregister_all() {
+	resource_map.clear();
+	name_to_resource_UUID.clear();
+}
+
 }
 
