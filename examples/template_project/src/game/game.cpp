@@ -21,7 +21,9 @@ void MyGame::start() {
 				resource_database->get_resource<ResourceMesh>("viking_room.obj"), 
 				resource_database->get_resource<ResourceImage>("viking_room.png")
 		);
-		viking_room.GetComponent<ComponentTransform>().rotation = glm::vec3(1.53f, 0.0f, 0.0f);
+		auto &transform = viking_room.GetComponent<ComponentTransform>();
+		transform.rotation = glm::vec3(1.53f, 0.0f, 0.0f);
+		transform.position = glm::vec3(1.0f, 0.0f, 0.0f);
 	}
 
 	auto cam = scene->create_entity("camera");
