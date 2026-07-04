@@ -1,0 +1,7 @@
+{
+	"directories": [
+		{ "path": "textures", "type": "Image" },
+		{ "path": "shaders/bin/", "type": "Shader" },
+		{ "path": "meshes", "type": "Mesh" }
+	]
+}

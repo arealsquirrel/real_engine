@@ -3,7 +3,6 @@
 
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
-#include <optional>
 #include <real/core/types.hpp>
 
 namespace real {
@@ -17,7 +16,6 @@ RL_OBJECT(Resource, Object)
 public:
     Resource(Instance *_instance);
     virtual ~Resource();
-
 };
 
 }

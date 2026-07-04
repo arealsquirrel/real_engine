@@ -56,14 +56,16 @@ ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 	Path image_path;
 	std::map<StringHash, ResourceImage::Tile> tiles;
 
-	if(name.empty()) 
-		name = path.stem();
-
 	if(path.extension().string() == ".json") {
 		RL_LOG_TRACE("Loading image from json");
 		std::ifstream f(path);
 		nlohmann::json js = nlohmann::json::parse(f);
 		image_path = path.remove_filename().string() + js["meta"]["image"].get<std::string>();
+
+		if(name.empty() && path.extension() == ".json") {
+			name = image_path.filename();
+		}
+
 		for(auto something : js["frames"].items()) {
 			auto frame = something.value()["frame"];
 			ResourceImage::Tile tile;
@@ -79,6 +81,10 @@ ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 
 	} else {
 		image_path = path;
+	}
+
+	if(name.empty()) {
+		name = path.filename();
 	}
 
 	int x,y,n = 0;

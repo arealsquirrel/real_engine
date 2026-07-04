@@ -14,6 +14,9 @@
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderpass_compute.hpp"
+#include "real/resource/resource_image.hpp"
+#include "real/resource/resource_mesh.hpp"
+#include "real/resource/resource_pack.hpp"
 #include "real/resource/resource_shader.hpp"
 
 using namespace real;
@@ -26,8 +29,7 @@ public:
 	~MyPostEffect() = default;
 
 	void awake() {
-		auto shader = instance->resource_database->load_resource_disk<ResourceShader>(
-				"../engine/resources/shaders/gradient.slang.spv");
+		auto shader = instance->resource_database->get_resource<ResourceShader>("gradient.slang.spv");
 
 		RenderPassResource renderpass_resource;
 		renderpass_resource.format = ImageFormat::RENDER_ATTACHMENT_COLOR;
@@ -58,20 +60,28 @@ private:
 };
 
 void MyGame::start() {
+	resource_database->load_resource_disk<ResourcePack>("../engine/resources/resource_pack.json");
+
 	auto graphics = scene->get_system<GraphicsSystem>();
 	graphics->add_post_effect<MyPostEffect>();
 
-	auto mesh_texture = resource_database->load_resource_disk<ResourceImage>("../engine/resources/textures/viking_room.png");
-	auto collection = resource_database->load_resource_disk<ResourceMesh>("../engine/resources/meshes/viking_room.obj");
-
-	auto cube = scene->create_entity("cube");
-	cube.AddComponent<ComponentMeshRenderer>(collection, mesh_texture);
+	{
+		auto viking_room = scene->create_entity("viking_room");
+		viking_room.AddComponent<ComponentMeshRenderer>(
+				resource_database->get_resource<ResourceMesh>("viking_room.obj"), 
+				resource_database->get_resource<ResourceImage>("viking_room.png")
+		);
+		viking_room.GetComponent<ComponentTransform>().rotation = glm::vec3(1.53f, 0.0f, 0.0f);
+	}
 
 	auto cam = scene->create_entity("camera");
-	auto &camera = cam.AddComponent<ComponentCamera>();
-	camera.clear_color = Color4(1,1,1,0);
-	auto &trans = cam.GetComponent<ComponentTransform>();
-	trans.position = glm::vec3(0.0f, 0.0f, -3.0f);
+
+	{
+		auto &camera = cam.AddComponent<ComponentCamera>();
+		camera.clear_color = Color4(1,1,1,0);
+		auto &trans = cam.GetComponent<ComponentTransform>();
+		trans.position = glm::vec3(0.0f, 0.0f, -3.0f);
+	}
 
 	graphics->set_main_camera(cam);
 }

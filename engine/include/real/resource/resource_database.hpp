@@ -108,6 +108,11 @@ public:
 	template<class R>
 	ResourceHandle<R> load_resource_glob(Path path, std::string name="");
 
+	bool has_resource(std::string name) {
+		auto has = name_to_resource_UUID.find(name);
+		return (has != name_to_resource_UUID.end());
+	}
+
 private:
 	EXPOSE_TO_EDITOR;
 

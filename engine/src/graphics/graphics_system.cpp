@@ -89,7 +89,7 @@ PostEffect::PostEffect(Instance *_instance, GraphicsSystem *_graphics_system, Sc
 
 
 void SubRendererDiffuse3D::awake() {
-    auto flat_shader = instance->resource_database->load_resource_disk<ResourceShader>("../engine/resources/shaders/flat.slang.spv");
+    auto flat_shader = instance->resource_database->get_resource<ResourceShader>("flat.slang.spv");
 
     diffuse_pass = Graphics::create_render_pass_geometry(
         instance, {
@@ -107,11 +107,12 @@ void SubRendererDiffuse3D::awake() {
 void SubRendererDiffuse3D::render(u32 deltatime) {
     diffuse_pass->begin_pass(graphics_system->get_framebuffer());
     auto view = scene->registry->view<ComponentTransform, ComponentMeshRenderer>();
+
     for(auto [entity, trans, mesh] : view.each()) {
         diffuse_pass->set_variable("scene_data", graphics_system->get_camera_uniform_buffer_handle());
         diffuse_pass->set_variable("model", trans.get_transform());
-        diffuse_pass->set_variable("sampler", mesh.texture.get()->get_handle());
-        diffuse_pass->bind_descriptors();
+		diffuse_pass->set_variable("sampler", mesh.texture.get()->get_handle());
+		diffuse_pass->bind_descriptors();
         diffuse_pass->draw_mesh(mesh.mesh, mesh.sub_mesh);
     }
     diffuse_pass->end_pass();
