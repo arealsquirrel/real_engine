@@ -5,6 +5,7 @@
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
 #include "panel_scene_view.hpp"
+#include "real/core/logging.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include <real/real.hpp>
 
@@ -22,13 +23,13 @@ int main(int argc, char **argv) {
 	Graphics::init_backend({});
 	Shared<Instance> instance = std::make_shared<Instance>(params);
 
+reload_game:
 	editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
 	editor::Editor *ed = new editor::Editor(instance);
 	ed->add_panel<editor::PanelResourceDatabase>();
 	ed->add_panel<editor::PanelLogs>(log_buffer);
 	ed->add_panel<editor::PanelResourceViewer>();
 	
-reload_game:
 	reason = editor::EditorExitReason::NotExiting;
 	auto [game, dll] = Game::load_game_dll(instance, params);
 	game->start();
@@ -46,15 +47,19 @@ reload_game:
 		instance->renderer->end_frame();
 	}
 
+	RL_LOG_INFO("bye bye");
 	game->scene->destroy();
+	RL_LOG_INFO("bye bye");
+	CVarSystem::get().clear_cvars();
+	RL_LOG_INFO("bye bye");
+	delete ed;
 	Game::destroy_game_dll(game, dll);
 	if(reason == editor::EditorExitReason::Reload) {
 		log_buffer->index = 0;
 		goto reload_game;
 	}
 
-	CVarSystem::get().clear_cvars();
-	delete ed;
+	RL_LOG_INFO("bye bye");
 	instance.reset();
 	Graphics::destroy_backend();
 }

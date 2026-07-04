@@ -106,8 +106,8 @@ void RealImguiStyle::style_imgui() {
     style->Colors[ImGuiCol_DockingPreview] = active;
     style->Colors[ImGuiCol_DockingEmptyBg] = ImVec4(0, 0, 0, 0);
 
-    ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->AddFontFromFileTTF("../engine/resources/fonts/FiraMono-Regular.ttf", 15.0f);
+    // ImGuiIO& io = ImGui::GetIO();
+	// io.Fonts->AddFontFromFileTTF("../engine/resources/fonts/FiraMono-Regular.ttf", 15.0f);
 }
 
 }

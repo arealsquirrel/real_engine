@@ -12,6 +12,7 @@
 #include <real/resource/resource_shader.hpp>
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_handle.hpp>
+#include <real/resource/resource_pack.hpp>
 #include <real/core/color.hpp>
 
 #include <real/debug/cvars.hpp>

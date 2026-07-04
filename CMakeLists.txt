@@ -36,7 +36,6 @@ if(REAL_ADDRESS_SANITIZER)
 endif()
 
 add_subdirectory(engine)
-add_subdirectory(app)
 add_subdirectory(tests)
 add_subdirectory(runtime)
 add_subdirectory(editor)

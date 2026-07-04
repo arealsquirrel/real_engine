@@ -58,7 +58,7 @@ void GraphicsSystem::update(u32 delta_time) {
 	} else {
 		auto cam = std::get<Shared<Camera>>(main_camera);
 		*(camera_uniform_buffer->get_data<CameraData>()) = cam->get_camera_data();
-		framebuffer->clear_image(Color4(1.0f, 1.0f, 1.0f, 0.0f));
+		framebuffer->clear_image(Color4(0.7f, 0.7f, 0.7f, 0.7f));
 	}
 
 	for(auto &sr : sub_renderers) {
