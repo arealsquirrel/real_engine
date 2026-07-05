@@ -56,6 +56,8 @@ void SpriteRenderer::render(u32 deltatime) {
 	pass->bind_descriptors();
 	pass->draw(mesh.get(), 6, draw_commands.size(), 0, 0);
 	pass->end_pass();
+
+	draw_commands.clear();
 }
 
 void SpriteRenderer::destroy() {

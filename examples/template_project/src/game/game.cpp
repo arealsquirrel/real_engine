@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include "glm/ext/vector_float3.hpp"
+#include "real/core/string_hash.hpp"
 #include "real/graphics/sprite_renderer.hpp"
 
 using namespace real;

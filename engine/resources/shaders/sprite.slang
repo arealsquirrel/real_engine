@@ -62,8 +62,8 @@ VSOutput vertex_main(
 float4 fragment_main(PSInput input) : SV_Target {
 	float4 color = input.color * sampler.Sample(input.uv);
 
-	if(color.a == 0)
-		return float4(0.0f, 0.0f, 0.0f, 0.0f);
+	if(color.w < 0.1)
+		discard;
 
 	return color;
 }

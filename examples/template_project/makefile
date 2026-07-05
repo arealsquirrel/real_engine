@@ -30,8 +30,13 @@ GAME_NAME:=mygame
 
 .PHONY: all clean
 
-all: bin/$(GAME_NAME).so
-	@echo Building library for $(GAME_NAME)
+all:
+	mkdir -p logs
+	mkdir -p bin
+	mkdir -p $(OBJ_DIR)
+	make game
+
+game: bin/$(GAME_NAME).so
 
 bin/$(GAME_NAME).so: $(OBJS)
 	$(CXX) $(CXX_LIBS) -shared -o bin/$(GAME_NAME).so $(OBJS)
@@ -47,5 +52,9 @@ edit: bin/$(GAME_NAME).so
 
 clean:
 	rm bin/$(GAME_NAME).so
-	rm $(OBJS)
+	rm -r bin
+	rm -r logs
+
+renderdoc:
+	renderdoccmd capture -d . -c logs/renderdoc_capture -w $(REAL_ENGINE_BUILD_PATH)/editor/real_editor --game bin/$(GAME_NAME).so
 

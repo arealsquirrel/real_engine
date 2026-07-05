@@ -270,7 +270,7 @@ void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer, bool clear_d
 
 	VkRenderingAttachmentInfo depthAttachment = vkutil::depth_attachment_info(
 			dimg->imageView, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, 
-			(clear_depth) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE
+			(clear_depth) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD
 	);
 	VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(vimg->imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkExtent2D draw_extent;
