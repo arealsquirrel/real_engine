@@ -11,6 +11,7 @@
 #include "real/graphics/camera.hpp"
 #include "real/graphics/framebuffer.hpp"
 #include "real/graphics/graphics.hpp"
+#include "real/graphics/sprite_renderer.hpp"
 #include "real/scene/components.hpp"
 #include <memory>
 #include <real/graphics/renderpass_geometry.hpp>
@@ -27,6 +28,7 @@ GraphicsSystem::GraphicsSystem(Instance *_instance, Scene *_scene, Framebuffer *
     framebuffer(_framebuffer) {
 
 	sub_renderers.push_back(std::make_shared<SubRendererDiffuse3D>(instance, this, scene));
+	sub_renderers.push_back(std::make_shared<SpriteRenderer>(instance, this, scene));
 }
 
 GraphicsSystem::~GraphicsSystem() = default;
@@ -91,7 +93,7 @@ PostEffect::PostEffect(Instance *_instance, GraphicsSystem *_graphics_system, Sc
 void SubRendererDiffuse3D::awake() {
     auto flat_shader = instance->resource_database->get_resource<ResourceShader>("flat.slang.spv");
 
-    diffuse_pass = Graphics::create_render_pass_geometry(
+    diffuse_pass = RenderPassGeometry::create(
         instance, {
 				.depth = true,
 				.topology = GeometryTopology::Triangle_list,
@@ -113,7 +115,7 @@ void SubRendererDiffuse3D::render(u32 deltatime) {
         diffuse_pass->set_variable("model", trans.get_transform());
 		diffuse_pass->set_variable("sampler", mesh.texture.get()->get_handle());
 		diffuse_pass->bind_descriptors();
-        diffuse_pass->draw_mesh(mesh.mesh, mesh.sub_mesh);
+        diffuse_pass->draw_mesh(mesh.mesh.get(), mesh.sub_mesh);
     }
     diffuse_pass->end_pass();
 }

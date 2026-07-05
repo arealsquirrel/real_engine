@@ -5,6 +5,7 @@
 #include <imgui.h>
 #include <glm/glm.hpp>
 #include "glm/ext/vector_float3.hpp"
+#include "real/graphics/sprite_renderer.hpp"
 
 using namespace real;
 
@@ -24,6 +25,13 @@ void MyGame::start() {
 		auto &transform = viking_room.GetComponent<ComponentTransform>();
 		transform.rotation = glm::vec3(1.53f, 0.0f, 0.0f);
 		transform.position = glm::vec3(1.0f, 0.0f, 0.0f);
+	}
+
+	{
+		auto entity = scene->create_entity("square");
+		entity.AddComponent<ComponentSpriteRenderer>(
+				resource_database->get_resource<ResourceImage>("mk_16_16_nature_tileset_json-sheet.png"));
+		auto &transform = entity.GetComponent<ComponentTransform>();
 	}
 
 	auto cam = scene->create_entity("camera");

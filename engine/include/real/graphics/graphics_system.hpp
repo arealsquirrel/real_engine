@@ -120,6 +120,14 @@ public:
 		return ptr;
 	}
 
+	template<typename T, typename ...Args>
+	Shared<T> add_subrenderer(Args &&...args) {
+		static_assert(std::is_base_of_v<SubRenderer, T>, "must derive from SubRenderer");
+		auto ptr = std::make_shared<T>(instance, this, scene, std::forward<Args>(args)...);
+		sub_renderers.push_back(ptr);
+		return ptr;
+	}
+
     void awake() override;
     void update(u32 delta_time) override;
     void destroy() override;

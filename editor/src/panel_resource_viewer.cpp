@@ -53,9 +53,7 @@ void PanelResourceViewer::display(real::ResourceImage *resource) {
 		ImVec2 display_size = ImVec2(size.x * scale, size.y * scale);
 
 		ImVec2 uv0((float)tile.second.position.first / width, (float)tile.second.position.second / height);
-		ImVec2 uv1(
-				(float)(tile.second.position.first + tile.second.dimension.first) / width,
-				(float)(tile.second.position.second + tile.second.dimension.second) / height);
+		ImVec2 uv1((float)(tile.second.position.first + tile.second.dimension.first) / width, (float)(tile.second.position.second + tile.second.dimension.second) / height);
 
 		ImGui::Image(resource->get_imgui_textureID(), display_size, uv0, uv1);
 		ImGui::TextWrapped("%s", tile.second.name.c_str());

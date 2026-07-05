@@ -6,6 +6,7 @@
 #include "real/resource/resource_mesh.hpp"
 #include "vulkan_renderer.hpp"
 #include <cstdint>
+#include <optional>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
@@ -58,11 +59,13 @@ public:
 
 	void bind() final override;
 	void unbind() final override;
-	virtual MeshAddress get_address() final override { return (char*)address; }
+	MeshAddress get_address() final override { return (char*)address; }
+	void upload_vertex_data(char *vertex_data, u32 size) final override;
+	void upload_index_data(std::vector<u32> indices) final override;
 
 public:
 	vkutil::AllocatedBuffer vertexBuffer;
-	vkutil::AllocatedBuffer indexBuffer;
+	std::optional<vkutil::AllocatedBuffer> indexBuffer {std::nullopt};
 	VkDeviceAddress address;
 	VulkanRenderer *renderer;
 };

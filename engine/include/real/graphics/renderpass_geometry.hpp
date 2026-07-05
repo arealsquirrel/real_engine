@@ -77,11 +77,19 @@ public:
 	 * 
 	 * @param framebuffer the target of this renderpass. the renderpass takes the viewport info from the framebuffer.
 	 */
-	virtual void begin_pass(Framebuffer *framebuffer) = 0;
+	virtual void begin_pass(Framebuffer *framebuffer, bool clear_depth=true) = 0;
 	virtual void end_pass() = 0;
-	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh, ResourceMesh::Mesh sub_mesh) = 0;
-	virtual void draw_mesh(ResourceHandle<ResourceMesh> mesh) = 0;
+	virtual void draw_mesh(ResourceMesh *mesh, ResourceMesh::Mesh sub_mesh) = 0;
+	virtual void draw_mesh(ResourceMesh *mesh) = 0;
 	virtual void bind_descriptors() override = 0;
+	virtual void draw_indexed(ResourceMesh *mesh, u32 indices, u32 instances, u32 start_index) = 0;
+	virtual void draw(ResourceMesh *mesh, u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) = 0;
+
+
+	static Unique<RenderPassGeometry> create(
+		Instance *instance, RenderPassGeometryInfo info,
+		std::vector<ResourceHandle<ResourceShader>> shaders,
+		std::vector<RenderPassResource> _resources);
 };
 
 }

@@ -1,0 +1,67 @@
+#ifndef REALLIB_SPRITE_RENDERER_HPP
+#define REALLIB_SPRITE_RENDERER_HPP
+
+#include "real/core/color.hpp"
+#include "real/core/core.hpp"
+#include "real/core/object.hpp"
+#include "real/core/types.hpp"
+#include "real/core/uuid.hpp"
+#include "real/graphics/graphics_system.hpp"
+#include "real/graphics/renderpass_geometry.hpp"
+#include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_image.hpp"
+#include "real/resource/resource_mesh.hpp"
+#include <map>
+#include <vector>
+
+namespace real {
+
+class REALLIB_EXPORT ComponentSpriteRenderer {
+public:
+	ComponentSpriteRenderer(ResourceHandle<ResourceImage> _texture, ResourceImage::Tile _tile, Color4 _tint_color={1.0f,1.0f,1.0f,1.0f})
+		: texture(_texture), tile(_tile), tint_color(_tint_color) {}
+
+	ComponentSpriteRenderer(ResourceHandle<ResourceImage> _texture, Color4 _tint_color={1.0f, 1.0f, 1.0f, 1.0f})
+		: texture(_texture), tile(_texture.get()->tiles[StringHash("_full_image")]), tint_color(_tint_color) {}
+
+	ComponentSpriteRenderer(const ComponentSpriteRenderer &renderer) = default; 
+	~ComponentSpriteRenderer() = default;
+
+	ResourceHandle<ResourceImage> texture;
+	ResourceImage::Tile tile;
+	Color4 tint_color;
+};
+
+class REALLIB_EXPORT SpriteRenderer : public SubRenderer {
+RL_OBJECT(SpriteRenderer, SubRenderer)
+
+public:
+	struct Vertex {
+		glm::mat4 transform;
+		glm::vec2 uv0;
+		glm::vec2 uv1;
+		Color4 color;
+	};
+
+public:
+	using SubRenderer::SubRenderer;
+	~SpriteRenderer();
+
+	void awake() final override;
+	void render(u32 deltatime) final override;
+	void destroy() final override;
+
+private:
+	Unique<RenderPassGeometry> pass;
+	Unique<ResourceMesh> mesh;
+	ResourceHandle<ResourceImage> image;
+	
+	std::vector<Vertex> draw_commands;
+	
+	std::vector<ResourceImage*> queued_images;
+	std::map<UUID, u32> batched_images;
+};
+
+}
+
+#endif

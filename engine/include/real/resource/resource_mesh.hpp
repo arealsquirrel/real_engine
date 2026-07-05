@@ -10,6 +10,7 @@
 #include "real/resource/resource.hpp"
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace real {
 
@@ -38,6 +39,8 @@ public:
 	virtual void bind() = 0;
 	virtual void unbind() = 0;
 	virtual MeshAddress get_address() = 0;
+	virtual void upload_vertex_data(char *vertex_data, u32 size) = 0;
+	virtual void upload_index_data(std::vector<u32> indices) = 0;
 
 	static Unique<ResourceMesh> create(
 		Instance *instance, 

@@ -25,12 +25,16 @@ public:
 	~VulkanRenderPassGeometry();
 
 public:
-	void begin_pass(Framebuffer *framebuffer) final override;
+	void begin_pass(Framebuffer *framebuffer, bool clear_depth=true) final override;
 	void end_pass() final override;
 	void set_variable(ShaderField field, char *data, size_t size) final override;
 	void bind_descriptors() final override;
-	void draw_mesh(ResourceHandle<ResourceMesh> mesh, ResourceMesh::Mesh submesh) final override;
-	void draw_mesh(ResourceHandle<ResourceMesh> mesh) final override;
+	void draw_mesh(ResourceMesh *mesh, ResourceMesh::Mesh submesh) final override;
+	void draw_mesh(ResourceMesh *mesh) final override;
+	void draw_indexed(ResourceMesh *mesh, u32 indices, u32 instances, u32 start_index) final override;
+	void draw(ResourceMesh *mesh, 
+			u32 vertex_count, u32 instance_count,
+			u32 first_vertex, u32 first_instance) final override;
 
 private:
 	VkPipelineDepthStencilStateCreateInfo create_depth(RenderPassGeometryInfo info);

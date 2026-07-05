@@ -2,7 +2,6 @@
 #include "vulkan_resource_mesh.hpp"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
-#include "real/core/logging.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include "vulkan_resource_mesh.hpp"
 #include "vulkan_renderer.hpp"
@@ -22,49 +21,48 @@ VulkanResourceMesh::VulkanResourceMesh(
 	const size_t vertexBufferSize = size;
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
 
-	// GPUMeshBuffers newSurface;
-
-	//create vertex buffer
 	vertexBuffer = vkutil::create_buffer(renderer,
 		vertexBufferSize,
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY);
 
-	//find the adress of the vertex buffer
 	VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,.buffer = vertexBuffer.buffer };
 	address = vkGetBufferDeviceAddress(renderer->device, &deviceAdressInfo);
 
-	//create index buffer
-	indexBuffer = vkutil::create_buffer(renderer,
-		indexBufferSize,
-		VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-		VMA_MEMORY_USAGE_GPU_ONLY);
+	if(indices.empty() == false) {	
+		indexBuffer = vkutil::create_buffer(renderer,
+			indexBufferSize,
+			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VMA_MEMORY_USAGE_GPU_ONLY);
+		
+		upload_index_data(indices);
+	}
 
+	if(vertex_data != nullptr) {
+		upload_vertex_data(vertex_data, size);
+	}
+}
+
+void VulkanResourceMesh::upload_index_data(std::vector<u32> indices) {
+	u32 indexBufferSize = indices.size() * sizeof(u32);
 	vkutil::AllocatedBuffer staging = vkutil::create_buffer(
-			renderer, vertexBufferSize + indexBufferSize,
+			renderer, indexBufferSize,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
 	
 	void* data = staging.info.pMappedData;
 
-	memcpy(data, vertex_data, vertexBufferSize);
-	memcpy((char*)data + vertexBufferSize, indices.data(), indexBufferSize);
+	memcpy((char*)data, indices.data(), indexBufferSize);
 
 	vkutil::immediate_submit(
 		renderer->imm_fence, renderer->imm_command_buffer,
 		renderer->device, renderer->graphics_queue, [&](VkCommandBuffer cmd) {
-		VkBufferCopy vertexCopy{ 0 };
-		vertexCopy.dstOffset = 0;
-		vertexCopy.srcOffset = 0;
-		vertexCopy.size = vertexBufferSize;
-
-		vkCmdCopyBuffer(cmd, staging.buffer, vertexBuffer.buffer, 1, &vertexCopy);
-
+	
 		VkBufferCopy indexCopy{ 0 };
 		indexCopy.dstOffset = 0;
-		indexCopy.srcOffset = vertexBufferSize;
+		indexCopy.srcOffset = 0;
 		indexCopy.size = indexBufferSize;
 
-		vkCmdCopyBuffer(cmd, staging.buffer, indexBuffer.buffer, 1, &indexCopy);
+		vkCmdCopyBuffer(cmd, staging.buffer, indexBuffer->buffer, 1, &indexCopy);
 	});
 
 	vkutil::destroy_buffer(renderer, staging);
@@ -72,10 +70,39 @@ VulkanResourceMesh::VulkanResourceMesh(
 	indices_count = indices.size();
 }
 
+void VulkanResourceMesh::upload_vertex_data(char *vertex_data, u32 size) {
+	if(size == 0)
+		return;
+
+	vkutil::AllocatedBuffer staging = vkutil::create_buffer(
+			renderer, size,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY);
+	
+	void* data = staging.info.pMappedData;
+
+	memcpy(data, vertex_data, size);
+
+	vkutil::immediate_submit(
+		renderer->imm_fence, renderer->imm_command_buffer,
+		renderer->device, renderer->graphics_queue, [&](VkCommandBuffer cmd) {
+
+		VkBufferCopy vertexCopy{ 0 };
+		vertexCopy.dstOffset = 0;
+		vertexCopy.srcOffset = 0;
+		vertexCopy.size = size;
+
+		vkCmdCopyBuffer(cmd, staging.buffer, vertexBuffer.buffer, 1, &vertexCopy);
+	});
+
+	vkutil::destroy_buffer(renderer, staging);
+}
+
 VulkanResourceMesh::~VulkanResourceMesh() {
 	RL_INSTRUMENT_FUNCTION
 	vkutil::destroy_buffer(renderer, vertexBuffer);
-	vkutil::destroy_buffer(renderer, indexBuffer);
+
+	if(indexBuffer.has_value())
+		vkutil::destroy_buffer(renderer, indexBuffer.value());
 }
 
 void VulkanResourceMesh::bind() {

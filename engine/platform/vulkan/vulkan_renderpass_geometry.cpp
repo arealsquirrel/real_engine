@@ -261,14 +261,17 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
     vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }
 
-void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer) {
+void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer, bool clear_depth) {
 	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceImage *vimg = (VulkanResourceImage*)framebuffer->get_msaa_color_image().get();
 	VulkanResourceImage *dimg = (VulkanResourceImage*)framebuffer->get_depth_image().get();
 
-	VkRenderingAttachmentInfo depthAttachment = vkutil::depth_attachment_info(dimg->imageView, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL);
+	VkRenderingAttachmentInfo depthAttachment = vkutil::depth_attachment_info(
+			dimg->imageView, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, 
+			(clear_depth) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE
+	);
 	VkRenderingAttachmentInfo colorAttachment = vkutil::attachment_info(vimg->imageView, nullptr, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 	VkExtent2D draw_extent;
 	draw_extent.width = framebuffer->get_width();
@@ -303,24 +306,48 @@ void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer) {
 	descriptor_set = renderer->get_current_frame().frameDescriptors.allocate(renderer->device, descriptor_set_layout);
 }
 
-void VulkanRenderPassGeometry::draw_mesh(
-		ResourceHandle<ResourceMesh> mesh, ResourceMesh::Mesh submesh) {
+void VulkanRenderPassGeometry::draw_indexed(
+		ResourceMesh *mesh,
+		u32 indices, u32 instances, u32 start_index) {
 
 	RL_INSTRUMENT_FUNCTION
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
-	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh.get();
+	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh;
 	RenderPass::set_variable("_vertex_buffer", da_mesh->address);
 
 	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
-	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(frame.main_command_buffer, submesh.count, 1, submesh.start_index, 0, 0);
+	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.value().buffer, 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(frame.main_command_buffer, indices, instances, start_index, 0, 0);
 	renderer->render_stats.indicies += da_mesh->indices_count;
 	renderer->render_stats.verticies += da_mesh->verticie_count;
 }
 
-void VulkanRenderPassGeometry::draw_mesh(ResourceHandle<ResourceMesh> mesh) {
-	draw_mesh(mesh, mesh.get()->meshes.begin()->second);
+void VulkanRenderPassGeometry::draw(
+		ResourceMesh *mesh,
+		u32 vertex_count, u32 instance_count,
+		u32 first_vertex, u32 first_instance) {
+
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	FrameDataVulkan &frame = renderer->get_current_frame();
+	RenderPass::set_variable("_vertex_buffer", ((VulkanResourceMesh*)mesh)->address);
+	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
+
+	vkCmdDraw(frame.main_command_buffer, 
+			vertex_count, 
+			instance_count, 
+			first_vertex, 
+			first_instance);
+}
+
+void VulkanRenderPassGeometry::draw_mesh(
+		ResourceMesh *mesh, ResourceMesh::Mesh submesh) {
+
+	draw_indexed(mesh, submesh.count, 1, submesh.start_index);
+}
+
+void VulkanRenderPassGeometry::draw_mesh(ResourceMesh *mesh) {
+	draw_mesh(mesh, mesh->meshes.begin()->second);
 }
 
 void VulkanRenderPassGeometry::bind_descriptors() {
@@ -363,6 +390,14 @@ void VulkanRenderPassGeometry::set_variable(
 	default:
 		break;
 	}
+}
+
+Unique<RenderPassGeometry> RenderPassGeometry::create(
+		Instance *instance, RenderPassGeometryInfo info,
+		std::vector<ResourceHandle<ResourceShader>> shaders,
+		std::vector<RenderPassResource> _resources) {
+	
+	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, _resources);
 }
 
 }

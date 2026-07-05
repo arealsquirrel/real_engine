@@ -61,21 +61,4 @@ void Graphics::destroy_backend() {
     vkDestroyInstance(backend.instance, nullptr);
 }
 
-/*
-Unique<RenderPassCompute> Graphics::create(
-	Instance *instance, ResourceHandle<ResourceShader> shader,
-	std::vector<RenderPassResource> _resources) {
-
-	return std::make_unique<VulkanRenderPassCompute>(instance, shader, _resources);
-}
-*/
-
-Unique<RenderPassGeometry> Graphics::create_render_pass_geometry(
-		Instance *instance, RenderPassGeometryInfo info,
-		std::vector<ResourceHandle<ResourceShader>> shaders,
-		std::vector<RenderPassResource> _resources) {
-	
-	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, _resources);
-}
-
 }

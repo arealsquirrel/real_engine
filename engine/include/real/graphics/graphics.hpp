@@ -37,14 +37,6 @@ public:
     static GraphicsBackend get_backend();
     static void destroy_backend();
 
-public:
-
-	static Unique<RenderPassGeometry> create_render_pass_geometry(
-		Instance *instance, RenderPassGeometryInfo info,
-		std::vector<ResourceHandle<ResourceShader>> shaders,
-		std::vector<RenderPassResource> _resources);
-
-
 };
 
 }

@@ -4,6 +4,7 @@
 #include "imgui_internal.h"
 #include "real/core/string_hash.hpp"
 #include "real/graphics/graphics_system.hpp"
+#include "real/graphics/sprite_renderer.hpp"
 #include "real/scene/components.hpp"
 #include "real/scene/entity.hpp"
 
@@ -132,6 +133,44 @@ void PanelSceneView::render_properties() {
 				ImGui::EndCombo();
 			}
 
+			ImGui::TreePop();
+		}
+    });
+
+    draw_component<ComponentSpriteRenderer>("Sprite Renderer", handle,
+    [](auto &sprite) {
+        ImGui::ColorEdit4("Tint Color", &sprite.tint_color.r);
+		constexpr u32 thumbnailSize = 128;
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		draw_list->AddCallback(ImGui::GetPlatformIO().DrawCallback_SetSamplerNearest, nullptr);
+		auto tile = sprite.tile;
+		auto [width, height] = sprite.texture.get()->get_image_extent();
+		ImVec2 size(tile.dimension.first, tile.dimension.second);
+		float scale = std::min(thumbnailSize / size.x, thumbnailSize / size.y);
+		ImVec2 display_size = ImVec2(size.x * scale, size.y * scale);
+		ImVec2 uv0((float)tile.position.first / width, (float)tile.position.second / height);
+		ImVec2 uv1(
+				(float)(tile.position.first + tile.dimension.first) / width,
+				(float)(tile.position.second + tile.dimension.second) / height);
+		ImGui::Image(sprite.texture.get()->get_imgui_textureID(), display_size, uv0, uv1);
+		if(ImGui::TreeNode("Texture Resource Tiles")) {
+			StringHash current_hash = StringHash(sprite.tile.name.c_str());
+			if(ImGui::BeginCombo("Tile", sprite.tile.name.c_str())) {
+				int index = 0;
+				for (const auto& pair : sprite.texture.get()->tiles) {
+					bool isSelected = (current_hash == pair.first);
+					
+					if (ImGui::Selectable(pair.second.name.c_str(), isSelected)) {
+						sprite.tile = pair.second;
+					}
+
+					if (isSelected) {
+						ImGui::SetItemDefaultFocus();
+					}
+					index++;
+				}
+				ImGui::EndCombo();
+			}
 			ImGui::TreePop();
 		}
     });
