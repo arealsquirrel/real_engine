@@ -49,7 +49,7 @@ VSOutput vertex_main(
     Vertex v = _vertex_buffer[instance_index];
 	float2 base_coord = vertexes[vertex_index % 6];
     output.position = mul(scene_data.projection,
-				mul(scene_data.view,
+	 			mul(scene_data.view,
 				mul(v.model, float4(base_coord, 0.0f, 1.0f)))); 
 	
 	output.uv = (1.f - base_coord) * v.uv0 + base_coord * v.uv1;

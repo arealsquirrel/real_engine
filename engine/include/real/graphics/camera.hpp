@@ -1,10 +1,9 @@
 #ifndef REALLIB_CAMERA_HPP
 #define REALLIB_CAMERA_HPP
 
-#include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/vector_float3.hpp"
 #include "real/core/core.hpp"
 #include "real/core/types.hpp"
+#include <real/math/math.hpp>
 
 namespace real {
 
@@ -12,8 +11,8 @@ namespace real {
  * @brief this struct is meant to be sent to shaders to show the camera data.
  */
 struct CameraData {
-    alignas(16) glm::mat4 proj;
-    alignas(16) glm::mat4 view;
+    alignas(16) Mat4 proj;
+    alignas(16) Mat4 view;
 };
 
 class REALLIB_EXPORT Camera {
@@ -25,9 +24,9 @@ public:
         Perspective
     };
 
-    static constexpr glm::vec3 world_right {1.0f, 0.0f, 0.0f};
-    static constexpr glm::vec3 world_up    {0.0f, 1.0f, 0.0f};
-    static constexpr glm::vec3 world_front {0.0f, 0.0f, 1.0f};
+    static constexpr Vec3 world_right {1.0f, 0.0f, 0.0f};
+    static constexpr Vec3 world_up    {0.0f, 1.0f, 0.0f};
+    static constexpr Vec3 world_front {0.0f, 0.0f, 1.0f};
 
 public:
     Camera(u32 _width=960, u32 _height=540, Projection projection=Projection::Perspective,
@@ -37,15 +36,15 @@ public:
 
     CameraData get_camera_data() const { return data; };
 
-    void translate_camera(glm::vec3 pos);
-    void set_position(glm::vec3 pos);
-    void rotate_camera(glm::vec3 rot);
-    void set_rotation(glm::vec3 rot);
+    void translate_camera(Vec3 pos);
+    void set_position(Vec3 pos);
+    void rotate_camera(Vec3 rot);
+    void set_rotation(Vec3 rot);
 
-	void set_camera_front(glm::vec3 front);
+	void set_camera_front(Vec3 front);
 
 	// translates local to the cameras view
-	void locate_translate(glm::vec3 pos);
+	void locate_translate(Vec3 pos);
 
     void viewport(u32 _width, u32 _height);
     void change_projection(Projection projection);
@@ -57,12 +56,12 @@ private:
 private:
     CameraData data;
     Projection projection;
-    glm::vec3 position {0.0f, 0.0f, 0.0f};
-    glm::vec3 rotation {0.0f, 0.0f, 0.0f};
+    Vec3 position {0.0f, 0.0f, 0.0f};
+    Vec3 rotation {0.0f, 0.0f, 0.0f};
 
-	glm::vec3 camera_front;
-	glm::vec3 camera_right;
-	glm::vec3 camera_up;
+	Vec3 camera_front;
+	Vec3 camera_right;
+	Vec3 camera_up;
 
     u32 width;
     u32 height;

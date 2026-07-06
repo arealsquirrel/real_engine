@@ -21,12 +21,6 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-    NAME glm
-    GITHUB_REPOSITORY g-truc/glm
-    GIT_TAG 1.0.3  # Specify a stable version or "master"
-)
-
-CPMAddPackage(
     NAME entt
     GITHUB_REPOSITORY skypjack/entt
     GIT_TAG v3.16.0  # Specify a stable version or "master"

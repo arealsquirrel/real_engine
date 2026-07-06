@@ -1,7 +1,4 @@
 
-#include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/vector_float3.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/math/mat4.hpp"
@@ -42,7 +39,7 @@ void SpriteRenderer::render(u32 deltatime) {
 		Vec2 uv1(
 				(float)(tile.position.first+tile.dimension.first) / width, 
 				(float)(tile.position.second+tile.dimension.second) / height);
-		draw_commands.push_back({Mat4(1.0f), uv0, uv1, sprite.tint_color});
+		draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color});
 		batched_images.emplace(sprite.texture.get_uuid(), queued_images.size());
 		queued_images.push_back(sprite.texture.get());
 	}

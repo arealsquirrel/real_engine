@@ -1,6 +1,7 @@
 #ifndef REALLIB_MAT4_HPP
 #define REALLIB_MAT4_HPP
 
+// #include "real/math/math.hpp"
 #include <cmath>
 #include <cstddef>
 #include <real/math/math_fwd.hpp>
@@ -66,19 +67,6 @@ public:
 		return *this;
 	}
 
-	constexpr inline Mat4 &operator *=(const Mat4 b) {
-		Mat4 a = *this;
-		for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 4; ++j) {
-				array[i*4+j] = 0;
-                for (int k = 0; k < 4; ++k) {
-					array[i*4+j] += a.array[i*4+k]*b.array[k*4+j];
-                }
-            }
-        }
-		return *this;
-	}
-
 	constexpr inline Mat4 &operator /=(real_t s) {
 		for(size_t i = 0; i < 16; i++)
 			array[i] /= s;
@@ -93,10 +81,11 @@ public:
 
 	union {
 		struct {
-			real_t e11=0, e12=0, e13=0, e14=0,
-				   e21=0, e22=0, e23=0, e24=0,
-				   e31=0, e32=0, e33=0, e34=0,
-				   e41=0, e42=0, e43=0, e44=0;
+			// col, row
+			real_t e11=0, e21=0, e31=0, e41=0,
+				   e12=0, e22=0, e32=0, e42=0,
+				   e13=0, e23=0, e33=0, e43=0,
+				   e14=0, e24=0, e34=0, e44=0;
 		};
 	
 		real_t array[16];
@@ -104,8 +93,15 @@ public:
 };
 
 constexpr inline Mat4 operator *(const Mat4 a, const Mat4 b) {
-	Mat4 result = a;
-	result *= b;
+	Mat4 result = Mat4(0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0);
+	for (size_t col = 0; col < 4; ++col) {
+        for (size_t inner = 0; inner < 4; ++inner) {
+            real_t b_val = b.array[col * 4 + inner];
+            for (int row = 0; row < 4; ++row) {
+                result.array[col * 4 + row] += a.array[inner * 4 + row] * b_val;
+            }
+        }
+    }
 	return result;
 }
 
@@ -175,12 +171,12 @@ constexpr inline Mat4 scale(Vec3 vec) {
 }
 
 constexpr inline Mat4 perspective(float aspect, float fov_radians, float near, float far) {
-	float range = near-far;
-	float htan = std::tan(fov_radians/2);
-	return Mat4(1.0f / (htan * aspect), 0, 0, 0,
-				0, 1.0f/htan, 0, 0,
-				0, 0, (-near - far) / range, 2.0f*far*near / range,
-				0, 0, 1, 0);
+	real_t tanHalfFOV = std::tan(fov_radians / 2.0f);
+
+	return Mat4(1.0f/(aspect*tanHalfFOV), 0.0f, 0.0f, 0.0f,
+				0.0f, 1.0f/tanHalfFOV, 0.0f, 0.0f,
+				0.0f, 0.0f, far / (near-far), -(far*near)/(far-near),
+				0.0f, 0.0f, -1.0f, 0.0f);
 }
 
 }

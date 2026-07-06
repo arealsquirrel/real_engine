@@ -21,15 +21,6 @@ inline constexpr real_t radians_to_degrees(real_t rad) {
 	return rad*180.0f / pi;
 }
 
-template<typename Vec>
-static real_t magnatude(const Vec vec);
-
-template<typename Vec>
-static real_t dot(const Vec a, const Vec b);
-
-template<typename Vec>
-static Vec normalize(const Vec a);
-
 }
 
 }

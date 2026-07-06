@@ -6,6 +6,8 @@
 #include "real/core/uuid.hpp"
 #include "real/debug/timer.hpp"
 #include "real/graphics/graphics.hpp"
+#include "real/math/vec3.hpp"
+#include "real/math/vec4.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
 #include <unordered_map>
@@ -14,34 +16,21 @@
 #include <tiny_obj_loader.hpp>
 
 #include <real/resource/resource_mesh.hpp>
-#include <glm/glm.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
 
 namespace real {
 
 struct Vertex {
-	glm::vec3 pos;
+	Vec3 pos;
 	float uv_x;
-	glm::vec3 normal;
+	Vec3 normal;
 	float uv_y;
-	glm::vec4 color;
+	Vec4 color;
 
 	bool operator==(const Vertex& other) const {
     	return pos == other.pos && color == other.color && uv_x == other.uv_x && uv_y == other.uv_y && other.normal == normal;
 	}
 };
 
-}
-
-namespace std {
-    template<> struct hash<real::Vertex> {
-        size_t operator()(real::Vertex const& vertex) const {
-            return ((hash<glm::vec3>()(vertex.pos) ^
-                   (hash<glm::vec3>()(vertex.color) << 1)) >> 1);
-        }
-    };
 }
 
 namespace real {

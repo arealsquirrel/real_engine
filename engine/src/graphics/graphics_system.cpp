@@ -1,11 +1,8 @@
 
-#include "glm/ext/matrix_float4x4.hpp"
 #include "imgui.h"
 #include "real/core/color.hpp"
-#include "real/core/event.hpp"
 #include "real/core/event_listener.hpp"
 #include "real/core/instance.hpp"
-#include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/camera.hpp"
@@ -53,8 +50,8 @@ void GraphicsSystem::update(u32 delta_time) {
 		auto cam_comp = std::get<EntityHandle>(main_camera);
 		auto &trans = cam_comp.GetComponent<ComponentTransform>();
 		auto &camera = cam_comp.GetComponent<ComponentCamera>();
-		camera.camera.set_position(glm::vec3(trans.position.x, trans.position.y, trans.position.z));
-		camera.camera.set_rotation(glm::vec3(trans.rotation.x, trans.rotation.y, trans.rotation.z));
+		camera.camera.set_position(trans.position);
+		camera.camera.set_rotation(trans.rotation);
 		*(camera_uniform_buffer->get_data<CameraData>()) = camera.camera.get_camera_data();
 		framebuffer->clear_image(camera.clear_color);
 	} else {

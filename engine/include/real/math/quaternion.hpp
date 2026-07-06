@@ -1,6 +1,8 @@
 #ifndef REALLIB_QUATERNION_HPP
 #define REALLIB_QUATERNION_HPP
 
+#include "real/math/mat4.hpp"
+#include "real/math/math.hpp"
 #include <cmath>
 #include <real/math/vec3.hpp>
 #include <real/math/math_fwd.hpp>
@@ -96,6 +98,10 @@ inline constexpr Quaternion operator *(Vec3 v, Quaternion q) {
 
 namespace math {
 
+inline constexpr real_t magnatude_quat(const Quaternion quat) {
+	return magnatude_vec4(Vec4(quat.n, quat.v.x, quat.v.y, quat.v.z));
+}
+
 /* outputs radians */
 inline constexpr float qget_angle(Quaternion q) {
 	return (float)(2*std::acos(q.n));
@@ -186,6 +192,18 @@ inline constexpr Vec3 make_euler_angles_from_q(Quaternion q) {
 	u.y = radians_to_degrees(std::asin(-r31));
 	u.z = radians_to_degrees(std::atan2(r21, r11));
 	return u;
+}
+
+inline constexpr Mat4 make_mat4_from_q(Quaternion q) {
+	real_t nn = q.n*q.n;
+    real_t xx = q.v.x * q.v.x;
+    real_t yy = q.v.y * q.v.y;
+    real_t zz = q.v.z * q.v.z;
+
+	return Mat4(1.0f - 2.0f*(yy+zz), 2.0f*(q.v.x*q.v.y - q.n*q.v.z), 2.0f*(q.v.x*q.v.z+q.n*q.v.y), 0.0f,
+				2.0f*(q.v.x*q.v.y+q.n*q.v.z), 1.0f - 2.0f*(xx+zz), 2.0f*(q.v.y*q.v.z - q.n*q.v.x), 0.0f,
+				2.0f*(q.v.x*q.v.z - q.n*q.v.y), 2.0f*(q.v.y*q.v.z + q.n*q.v.x), 1.0f-2.0f*(xx+yy), 0.0f,
+				0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 }

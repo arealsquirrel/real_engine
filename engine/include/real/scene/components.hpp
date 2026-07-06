@@ -1,20 +1,12 @@
 #ifndef REALLIB_COMPONENT_HPP
 #define REALLIB_COMPONENT_HPP
 
-#include "glm/ext/matrix_float4x4.hpp"
 #include "real/core/core.hpp"
 #include "real/core/types.hpp"
 #include "real/math/mat4.hpp"
+#include "real/math/quaternion.hpp"
 #include "real/math/vec3.hpp"
 #include <real/scene/entity.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/quaternion.hpp>
 
 namespace real {
 
@@ -45,14 +37,9 @@ struct REALLIB_EXPORT ComponentTransform {
     ComponentTransform(const ComponentTransform &) = default;
 
     Mat4 get_transform() const {
-        // glm::mat4 rot = glm::toMat4(glm::quat(rotation));
-
-        // return 
-			// glm::translate(glm::mat4(1.0f), position)
-            // * rot
-        	//glm::scale(glm::mat4(1.0f), scale);
-
-		return Mat4(1.0f) * math::translate(position);
+		// I actualy cant believe this shit works
+		// that is awful
+		return math::translate(position) * math::make_mat4_from_q(math::make_q_from_euler_angles(rotation.x, rotation.y, rotation.z)) * math::scale(scale);
     }
 
     Vec3 position{0.0, 0.0, 0.0};

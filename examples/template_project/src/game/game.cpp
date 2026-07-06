@@ -22,7 +22,7 @@ void MyGame::start() {
 		);
 		auto &transform = viking_room.GetComponent<ComponentTransform>();
 		transform.rotation = Vec3(1.53f, 0.0f, 0.0f);
-		transform.position = Vec3(1.0f, 0.0f, 0.0f);
+		transform.position = Vec3(1.0f, 1.0f, 0.0f);
 	}
 
 	{

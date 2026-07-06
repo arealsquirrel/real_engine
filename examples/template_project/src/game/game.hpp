@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <real/real.hpp>
+#include <real/core/game.hpp>
 
 using namespace real;
 

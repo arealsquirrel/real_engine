@@ -1,6 +1,6 @@
 
-#include "glm/trigonometric.hpp"
 #include "real/graphics/camera.hpp"
+#include "real/math/math_fwd.hpp"
 #include <GLFW/glfw3.h>
 #include <editor_camera.hpp>
 #include <memory>
@@ -45,13 +45,13 @@ void EditorCamera::update(u32 delta_time) {
 	if (pitch < -89.0f)
 		pitch = -89.0f;
 
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction = glm::normalize(direction);
+	real::Vec3 direction;
+	direction.x = cos(real::math::degrees_to_radians(yaw)) * cos(real::math::degrees_to_radians(pitch));
+	direction.y = sin(real::math::degrees_to_radians(pitch));
+	direction.z = sin(real::math::degrees_to_radians(yaw)) * cos(real::math::degrees_to_radians(pitch));
+	direction = real::math::normalize_vec3(direction);
 	camera->set_camera_front(direction);
-	camera->locate_translate(glm::vec3{right, 0.0, forward});
+	camera->locate_translate(real::Vec3{right, 0.0, forward});
 }
 
 }
