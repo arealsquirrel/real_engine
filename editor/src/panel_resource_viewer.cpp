@@ -68,7 +68,10 @@ void PanelResourceViewer::display(real::ResourceMesh *resource) {
 PanelResourceViewer::PanelResourceViewer(
 		Shared<real::Instance> _instance, 
 		std::optional<real::ResourceHandle<real::Resource>> _current_handle)
-	: Panel(_instance), current_handle(_current_handle) {}
+	: Panel(_instance), current_handle(_current_handle) {
+
+	editor_icons = instance->resource_database->get_resource<real::ResourceImage>("editor_icons.png");
+}
 
 PanelResourceViewer::~PanelResourceViewer() {
 }

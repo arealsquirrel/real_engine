@@ -25,9 +25,6 @@ int main(int argc, char **argv) {
 
 	editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
 	editor::Editor *ed = new editor::Editor(instance);
-	ed->add_panel<editor::PanelResourceDatabase>();
-	ed->add_panel<editor::PanelLogs>(log_buffer);
-	ed->add_panel<editor::PanelResourceViewer>();
 	
 reload_game:
 	reason = editor::EditorExitReason::NotExiting;
@@ -35,7 +32,12 @@ reload_game:
 	game->start();
 	game->scene->awake();
 	game->scene->get_system<GraphicsSystem>()->set_main_camera(ed->camera.camera);
+
+	ed->add_panel<editor::PanelResourceDatabase>();
+	ed->add_panel<editor::PanelLogs>(log_buffer);
+	ed->add_panel<editor::PanelResourceViewer>();
 	ed->add_panel<editor::PanelSceneView>(game->scene);
+	
 	ed->editor_viewport = game->screen_framebuffer->get_color_resolve_image();
 
 	while(instance->should_close() == false && reason == editor::EditorExitReason::NotExiting) {

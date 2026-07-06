@@ -16,10 +16,7 @@ enum class ResourceState {
 
 	// it his been removed from memory but the entry is still in the table
 	Unloaded,
-
-	// this resource does not delete when the referance count goes to zero
-	NeverDelete,
-
+	
 	// the handle does not exist.
 	DoesNotExist,
 

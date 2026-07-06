@@ -68,7 +68,7 @@ public:
 			}
 		}
 
-		if (name_to_resource_UUID.find(name) != name_to_resource_UUID.end()) {
+		if (name_to_resource_UUID.find(StringHash(name)) != name_to_resource_UUID.end()) {
 			RL_LOG_WARN("name collision, renaming resource {}", name);
 			name.append("_");
 		}
@@ -80,7 +80,7 @@ public:
 
 		ResourceHandle<T> handle(this, resource, ResourceState::Loaded, id);
 		resource_map.emplace(id, handle);
-		name_to_resource_UUID.emplace(name, Entry{id, name, load_path, load_fn});
+		name_to_resource_UUID.emplace(StringHash(name), Entry{id, name, load_path, load_fn});
 		RL_LOG_TRACE("registered resource {}", name.c_str());
 		return handle;
 	}
@@ -92,6 +92,11 @@ public:
 
 	template<typename T>
 	ResourceHandle<T> get_resource(std::string name) {
+		return get_resource<T>(StringHash(name));
+	}
+
+	template<typename T>
+	inline ResourceHandle<T> get_resource(StringHash name) {
 		return get_resource<T>(name_to_resource_UUID.find(name)->second.id);
 	}
 
@@ -105,12 +110,13 @@ public:
 	template<class R>
 	ResourceHandle<R> load_resource_disk(Path path, std::string name="");
 
-	template<class R>
-	ResourceHandle<R> load_resource_glob(Path path, std::string name="");
-
-	bool has_resource(std::string name) {
+	bool has_resource(StringHash name) {
 		auto has = name_to_resource_UUID.find(name);
 		return (has != name_to_resource_UUID.end());
+	}
+
+	inline bool has_resource(std::string name) {
+		return has_resource(StringHash(name));
 	}
 
 	void unregister_all();
@@ -119,7 +125,7 @@ private:
 	EXPOSE_TO_EDITOR;
 
 	std::unordered_map<UUID, ResourceHandle<Resource>> resource_map;
-	std::unordered_map<std::string, Entry> name_to_resource_UUID;
+	std::unordered_map<StringHash, Entry> name_to_resource_UUID;
 };
 
 }

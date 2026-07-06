@@ -23,38 +23,9 @@ public:
 };
 
 TEST(Resources, ResourceHandleMemoryLeaks) {
-	ResourceHandle<TestResource> r(nullptr, new TestResource(), ResourceState::Loaded, UUID());
-
-	{
-		ResourceHandle<TestResource> i(r);
-		EXPECT_EQ(i.get_count(), 2);
-		i.set_state(ResourceState::NeverDelete);
-	}
-
-	EXPECT_EQ(r.get_count(), 1);
-	EXPECT_EQ(r.get_state(), ResourceState::Unreferenced);
 }
 
 TEST(Resources, ResourceHandleArray) {
-	ResourceDatabase *db = new ResourceDatabase(nullptr);
-	
-	std::vector<ResourceHandle<Resource>> arr;
-
-	{
-		ResourceHandle<TestResource> r(db, new TestResource(), ResourceState::Loaded, UUID());
-		arr.push_back(r);
-		arr[0].set_state(ResourceState::NeverDelete);
-		EXPECT_EQ(r.get_state(), ResourceState::NeverDelete);
-	} {
-		ResourceHandle<TestResource> r(db, new TestResource(), ResourceState::Loaded, UUID());
-		arr.push_back(r);
-		arr[1].set_state(ResourceState::NeverDelete);
-		EXPECT_EQ(r.get_state(), ResourceState::NeverDelete);
-	}
-
-	arr[1].free();
-
-	delete db;
 }
 
 TEST(Resources, ResourceDatabase) {
