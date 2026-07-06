@@ -60,8 +60,21 @@ constexpr inline Vec3 operator/(const Vec3 a, float s) {
 
 namespace math {
 
-Vec3 cross(const Vec3 a, const Vec3 b) {
+/**
+ * returns a vector purpendicular to the vectors a and b
+ */
+constexpr inline Vec3 cross(const Vec3 a, const Vec3 b) {
 	return Vec3(a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x);
+}
+
+/**
+ * returns the area of the parrellelagram bounded in 3d space by 
+ * these 3 vectors
+ */
+constexpr inline real_t triple_scalar_product(Vec3 u, Vec3 v, Vec3 w) {
+	return (u.x * (v.y*w.z - v.z*w.y)) +
+		   (u.y * (-v.x*w.z + v.z*w.x)) +
+		   (u.z * (v.x*w.y - v.y*w.x));
 }
 
 }

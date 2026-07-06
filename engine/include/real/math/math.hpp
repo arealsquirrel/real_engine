@@ -2,9 +2,11 @@
 #define REALLIB_MATH_HPP
 
 #include <real/math/math_fwd.hpp>
+#include "real/math/quaternion.hpp"
 #include "real/math/vec2.hpp"
 #include "real/math/vec3.hpp"
 #include <real/math/vec4.hpp>
+#include <real/math/mat4.hpp>
 #include <cmath>
 
 namespace real {
@@ -24,6 +26,12 @@ real_t magnatude(const Vec3 vec) {
 template<>
 real_t magnatude(const Vec4 vec) {
 	return std::sqrt(vec.x*vec.x + vec.y*vec.y + vec.z*vec.z + vec.w*vec.w);
+}
+
+// I really hope this inlines
+template<>
+real_t magnatude(const Quaternion quat) {
+	return magnatude(Vec4(quat.n, quat.v.x, quat.v.y, quat.v.z));
 }
 
 template<>
@@ -57,6 +65,21 @@ Vec4 normalize(const Vec4 a) {
 	if(std::fabs(u.z) < real_tol) u.z = 0.0f;
 	if(std::fabs(u.w) < real_tol) u.w = 0.0f;
 	return u;
+}
+
+template<>
+real_t dot(const Vec2 a, const Vec2 b) {
+	return a.x*b.x + a.y*b.y;
+}
+
+template<>
+real_t dot(const Vec3 a, const Vec3 b) {
+	return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+template<>
+real_t dot(const Vec4 a, const Vec4 b) {
+	return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
 }
 
 }
