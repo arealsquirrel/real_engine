@@ -26,21 +26,19 @@ void MyGame::start() {
 	}
 
 	{
-		auto entity = scene->create_entity("square");
+		auto entity = scene->create_entity("tile1");
 		entity.AddComponent<ComponentSpriteRenderer>(
 				resource_database->get_resource<ResourceImage>("mk_16_16_nature_tileset_json-sheet.png"));
 		auto &transform = entity.GetComponent<ComponentTransform>();
 	}
 
-	/*
 	{
-		auto entity = scene->create_entity("anotha one");
+		auto entity = scene->create_entity("tile2");
 		entity.AddComponent<ComponentSpriteRenderer>(
 				resource_database->get_resource<ResourceImage>("mk_16_16_nature_tileset_json-sheet.png"));
 		auto &transform = entity.GetComponent<ComponentTransform>();
 		transform.position.x = 1;
 	}
-	*/
 
 	{
 		auto entity = scene->create_entity("anotha one again");

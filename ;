@@ -1,4 +1,5 @@
 
+#include "real/core/logging.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/resource/resource_mesh.hpp"
@@ -13,8 +14,6 @@ void SpriteRenderer::awake() {
 	mesh = ResourceMesh::create(instance, {}, nullptr, sizeof(Vertex)*1000);
     auto sprite_shader = instance->resource_database->get_resource<ResourceShader>("sprite.slang.spv");
 	image = instance->resource_database->get_resource<ResourceImage>("prototype_512x512_green1.png");
-
-	queued_images.fill(image.get());
 
 	pass = RenderPassGeometry::create(instance,
 			{
@@ -46,9 +45,10 @@ void SpriteRenderer::render(u32 deltatime) {
 			queued_images[image_count] = (sprite.texture.get());
 			draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color, image_count, 0});
 			image_count++;
+		// RL_LOG_INFO("image");
 		} else {
-			draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color, img_itr->second, 0});
-		}
+			//draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color, img_itr->second, 0});
+		// }
 	}
 
 	if(draw_commands.size() == 0)
@@ -57,7 +57,7 @@ void SpriteRenderer::render(u32 deltatime) {
 	pass->begin_pass(graphics_system->get_framebuffer(), false);
 	mesh->upload_vertex_data((char*)draw_commands.data(), sizeof(Vertex)*draw_commands.size());
 
-	pass->set_variable_array_image("sampler", queued_images.data(), MAX_BATCH_SPRITE_COUNT);
+	pass->set_variable_array_image("sampler", queued_images.data(), image_count);
 
 	pass->set_variable("scene_data", graphics_system->get_camera_uniform_buffer_handle());
 	pass->bind_descriptors();
