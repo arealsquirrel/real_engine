@@ -8,6 +8,8 @@
 #include "real/core/uuid.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
+#include "real/math/mat4.hpp"
+#include "real/math/vec2.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
@@ -37,9 +39,9 @@ RL_OBJECT(SpriteRenderer, SubRenderer)
 
 public:
 	struct Vertex {
-		glm::mat4 transform;
-		glm::vec2 uv0;
-		glm::vec2 uv1;
+		Mat4 transform;
+		Vec2 uv0;
+		Vec2 uv1;
 		Color4 color;
 	};
 

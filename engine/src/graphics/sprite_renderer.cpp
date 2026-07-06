@@ -4,6 +4,7 @@
 #include "glm/ext/vector_float3.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
+#include "real/math/mat4.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include "real/scene/components.hpp"
 #include "real/scene/entity.hpp"
@@ -37,11 +38,11 @@ void SpriteRenderer::render(u32 deltatime) {
 	for(auto [ent, trans, sprite] : view.each()) {
 		auto tile = sprite.tile;
 		auto [width, height] = sprite.texture.get()->get_image_extent();
-		glm::vec2 uv0((float)tile.position.first / width, (float)tile.position.second / height);
-		glm::vec2 uv1(
+		Vec2 uv0((float)tile.position.first / width, (float)tile.position.second / height);
+		Vec2 uv1(
 				(float)(tile.position.first+tile.dimension.first) / width, 
 				(float)(tile.position.second+tile.dimension.second) / height);
-		draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color});
+		draw_commands.push_back({Mat4(1.0f), uv0, uv1, sprite.tint_color});
 		batched_images.emplace(sprite.texture.get_uuid(), queued_images.size());
 		queued_images.push_back(sprite.texture.get());
 	}

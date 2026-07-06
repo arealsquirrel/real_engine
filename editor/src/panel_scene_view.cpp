@@ -103,9 +103,9 @@ void PanelSceneView::render_properties() {
 
     ImGui::SeparatorText("Transform");
 
-    ImGui::InputFloat3("Position", &transform.position[0]);
-    ImGui::InputFloat3("Rotation", &transform.rotation[0]);
-    ImGui::InputFloat3("Scale", &transform.scale[0]);
+    ImGui::InputFloat3("Position", &transform.position.x);
+    ImGui::InputFloat3("Rotation", &transform.rotation.x);
+    ImGui::InputFloat3("Scale", &transform.scale.x);
 
     draw_component<ComponentMeshRenderer>("Mesh Renderer", handle,
     [](auto &component) {

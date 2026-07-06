@@ -53,8 +53,8 @@ void GraphicsSystem::update(u32 delta_time) {
 		auto cam_comp = std::get<EntityHandle>(main_camera);
 		auto &trans = cam_comp.GetComponent<ComponentTransform>();
 		auto &camera = cam_comp.GetComponent<ComponentCamera>();
-		camera.camera.set_position(trans.position);
-		camera.camera.set_rotation(trans.rotation);
+		camera.camera.set_position(glm::vec3(trans.position.x, trans.position.y, trans.position.z));
+		camera.camera.set_rotation(glm::vec3(trans.rotation.x, trans.rotation.y, trans.rotation.z));
 		*(camera_uniform_buffer->get_data<CameraData>()) = camera.camera.get_camera_data();
 		framebuffer->clear_image(camera.clear_color);
 	} else {

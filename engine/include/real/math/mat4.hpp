@@ -8,17 +8,23 @@
 
 namespace real {
 
+/**
+ * ts is stored column major because of glm
+ */
 struct Mat4 {
 public:
+	/**
+	 * it looks just how you would expect <3, but stored column major
+	 */
 	constexpr Mat4(
 		real_t _e11, real_t _e12, real_t _e13, real_t _e14,
 		real_t _e21, real_t _e22, real_t _e23, real_t _e24,
 		real_t _e31, real_t _e32, real_t _e33, real_t _e34,
 		real_t _e41, real_t _e42, real_t _e43, real_t _e44)
 		: e11(_e11), e12(_e12), e13(_e13), e14(_e14),
-		e21(_e21), e22(_e22), e23(_e23), e24(_e24),
-		e31(_e31), e32(_e32), e33(_e33), e34(_e34),
-		e41(_e41), e42(_e42), e43(_e43), e44(_e44) {}
+		  e21(_e21), e22(_e22), e23(_e23), e24(_e24),
+		  e31(_e31), e32(_e32), e33(_e33), e34(_e34),
+		  e41(_e41), e42(_e42), e43(_e43), e44(_e44) {}
 
 	/**
 	 * down the diagnal so basicly identity*scalar
@@ -87,10 +93,13 @@ public:
 
 	union {
 		struct {
-			real_t e11=0, e12=0, e13=0, e14=0, e21=0, e22=0, e23=0, e24=0, e31=0, e32=0, e33=0, e34=0, e41=0, e42=0, e43=0, e44=0;
+			real_t e11=0, e12=0, e13=0, e14=0,
+				   e21=0, e22=0, e23=0, e24=0,
+				   e31=0, e32=0, e33=0, e34=0,
+				   e41=0, e42=0, e43=0, e44=0;
 		};
 	
-		real_t array[9];
+		real_t array[16];
 	};
 };
 
@@ -149,6 +158,8 @@ constexpr inline bool operator==(const Mat4 &a, const Mat4 &b) {
 	return true;
 }
 
+namespace math {
+
 constexpr inline Mat4 translate(Vec3 vec) {
 	return Mat4(1, 0, 0, vec.x,
 				0, 1, 0, vec.y,
@@ -170,6 +181,8 @@ constexpr inline Mat4 perspective(float aspect, float fov_radians, float near, f
 				0, 1.0f/htan, 0, 0,
 				0, 0, (-near - far) / range, 2.0f*far*near / range,
 				0, 0, 1, 0);
+}
+
 }
 
 }

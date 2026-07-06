@@ -4,6 +4,8 @@
 #include "glm/ext/matrix_float4x4.hpp"
 #include "real/core/core.hpp"
 #include "real/core/types.hpp"
+#include "real/math/mat4.hpp"
+#include "real/math/vec3.hpp"
 #include <real/scene/entity.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -34,25 +36,28 @@ struct REALLIB_EXPORT ComponentTransform {
     RL_COMPONENT(ComponentTransform)
 
     ComponentTransform() = default;
-    ComponentTransform(glm::vec3 _position,
-                        glm::vec3 _rotation,
-                        glm::vec3 _scale)
+    ComponentTransform(Vec3 _position,
+                    	Vec3 _rotation,
+                        Vec3 _scale)
         : position(_position),
             rotation(_rotation),
             scale(_scale) {}
     ComponentTransform(const ComponentTransform &) = default;
 
-    glm::mat4 get_transform() const {
-        glm::mat4 rot = glm::toMat4(glm::quat(rotation));
+    Mat4 get_transform() const {
+        // glm::mat4 rot = glm::toMat4(glm::quat(rotation));
 
-        return glm::translate(glm::mat4(1.0f), position)
-            * rot
-            * glm::scale(glm::mat4(1.0f), scale);
+        // return 
+			// glm::translate(glm::mat4(1.0f), position)
+            // * rot
+        	//glm::scale(glm::mat4(1.0f), scale);
+
+		return Mat4(1.0f) * math::translate(position);
     }
 
-    glm::vec3 position{0.0, 0.0, 0.0};
-    glm::vec3 rotation{0.0, 0.0, 0.0};
-    glm::vec3 scale{1.0, 1.0, 1.0};
+    Vec3 position{0.0, 0.0, 0.0};
+    Vec3 rotation{0.0, 0.0, 0.0};
+    Vec3 scale{1.0, 1.0, 1.0};
 };
 
 template <typename... Component>

@@ -3,9 +3,6 @@
 
 #include <real/real.hpp>
 #include <imgui.h>
-#include <glm/glm.hpp>
-#include "glm/ext/vector_float3.hpp"
-#include "real/core/string_hash.hpp"
 #include "real/graphics/sprite_renderer.hpp"
 
 using namespace real;
@@ -24,8 +21,8 @@ void MyGame::start() {
 				resource_database->get_resource<ResourceImage>("viking_room.png")
 		);
 		auto &transform = viking_room.GetComponent<ComponentTransform>();
-		transform.rotation = glm::vec3(1.53f, 0.0f, 0.0f);
-		transform.position = glm::vec3(1.0f, 0.0f, 0.0f);
+		transform.rotation = Vec3(1.53f, 0.0f, 0.0f);
+		transform.position = Vec3(1.0f, 0.0f, 0.0f);
 	}
 
 	{
@@ -41,7 +38,7 @@ void MyGame::start() {
 		auto &camera = cam.AddComponent<ComponentCamera>();
 		camera.clear_color = Color4(1,0,0,1);
 		auto &trans = cam.GetComponent<ComponentTransform>();
-		trans.position = glm::vec3(0.0f, 0.0f, -3.0f);
+		trans.position = Vec3(0.0f, 0.0f, -3.0f);
 	}
 
 	graphics->set_main_camera(cam);
