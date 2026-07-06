@@ -171,12 +171,11 @@ constexpr inline Mat4 scale(Vec3 vec) {
 }
 
 constexpr inline Mat4 perspective(float aspect, float fov_radians, float near, float far) {
-	real_t tanHalfFOV = std::tan(fov_radians / 2.0f);
-
-	return Mat4(1.0f/(aspect*tanHalfFOV), 0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f/tanHalfFOV, 0.0f, 0.0f,
-				0.0f, 0.0f, far / (near-far), -(far*near)/(far-near),
-				0.0f, 0.0f, -1.0f, 0.0f);
+	float hw = std::tan(fov_radians/2.0f)*near;
+	return Mat4(near/hw, 0, 0, 0,
+				0, near/(hw/aspect), 0, 0,
+				0, 0, far/(near-far), far*near/(near-far),
+				0, 0, -1, 0);
 }
 
 }

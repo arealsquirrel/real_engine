@@ -39,7 +39,9 @@ struct REALLIB_EXPORT ComponentTransform {
     Mat4 get_transform() const {
 		// I actualy cant believe this shit works
 		// that is awful
-		return math::translate(position) * math::make_mat4_from_q(math::make_q_from_euler_angles(rotation.x, rotation.y, rotation.z)) * math::scale(scale);
+		return math::translate(position)
+			* math::make_mat4_from_q(math::make_q_from_euler_angles(rotation.x, rotation.y, rotation.z))
+			* math::scale(scale);
     }
 
     Vec3 position{0.0, 0.0, 0.0};

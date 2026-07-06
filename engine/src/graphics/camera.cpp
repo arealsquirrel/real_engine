@@ -76,10 +76,10 @@ void Camera::change_projection(Projection _projection) {
 }
 
 void Camera::update_proj() {
-    float aspect = ((float)width) / height;
+    float aspect = (960)/(540.0f);// ((float)width) / height;
 
     if(projection == Projection::Perspective) {
-        data.proj = math::perspective(math::degrees_to_radians(fov), aspect, 0.01f, 100.0f);
+        data.proj = math::perspective(math::degrees_to_radians(70.0f), aspect, 0.01f, 100.0f);
     } else {
 		RL_ASSERT(false, "BON VOYAGE BOI, WHAT GOES UP MUST COME DOWN");
     }

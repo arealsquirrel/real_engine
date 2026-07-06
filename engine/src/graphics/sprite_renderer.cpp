@@ -1,10 +1,8 @@
 
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
-#include "real/math/mat4.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include "real/scene/components.hpp"
-#include "real/scene/entity.hpp"
 #include <real/graphics/sprite_renderer.hpp>
 
 namespace real {
