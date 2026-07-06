@@ -4,6 +4,8 @@ struct Vertex {
 	float2 uv0;
 	float2 uv1;
 	float4 color;
+	uint texture_id;
+	uint shader_id;
 }
 
 struct VSOutput {
@@ -11,11 +13,15 @@ struct VSOutput {
 
     float4 color;
     float2 uv;
+	uint texture_id;
+	uint shader_id;
 };
 
 struct PSInput {
     float4 color;
     float2 uv;
+	uint texture_id;
+	uint shader_id;
 };
 
 struct SceneData {
@@ -28,7 +34,7 @@ cbuffer PushConstants {
 	Vertex *_vertex_buffer; // SET INTERNALY BY THE ENGINE
 };
 
-Sampler2D sampler;
+Sampler2D sampler[8];
 ConstantBuffer<SceneData> scene_data;
 
 static const float2 vertexes[6] = {
@@ -54,13 +60,18 @@ VSOutput vertex_main(
 	
 	output.uv = (1.f - base_coord) * v.uv0 + base_coord * v.uv1;
 	output.color = v.color;
+	output.texture_id = v.texture_id;
+	output.shader_id = v.shader_id;
 
 	return output;
 }
 
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
-	float4 color = input.color * sampler.Sample(input.uv);
+	float4 color = input.color;
+	
+	if(input.shader_id == 0)
+		color *= sampler[input.texture_id].Sample(input.uv);
 
 	if(color.w < 0.1)
 		discard;

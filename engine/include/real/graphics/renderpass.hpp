@@ -55,6 +55,17 @@ public:
 
 	virtual void set_variable(ShaderField field, char *data, size_t size) = 0;
 
+	virtual void set_variable_array_image(std::string name, ResourceImage **value, size_t count) {
+		set_variable_array(shader_layout.get_field(name), (char*)value, count);
+	}
+
+	/**
+	 * pass in the .data of a vector containing the data for whatever type you are 
+	 * arraying.
+	 * IE : an image will take in an array of ResourceImage*
+	 */
+	virtual void set_variable_array(ShaderField field, char *data, size_t size) = 0;
+
 public:
 	const std::vector<RenderPassResource> resources;
 

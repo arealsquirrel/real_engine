@@ -174,7 +174,7 @@ void VulkanResourceShader::serialize_shader(std::vector<char> data) {
 			field.array_size = var->array.dims[0];
 		} else {
 			field.is_array = false;
-			field.array_size = 0;
+			field.array_size = 1;
 		}
 
 		if(t == SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE) {

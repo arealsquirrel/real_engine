@@ -37,9 +37,15 @@ void SpriteRenderer::render(u32 deltatime) {
 		Vec2 uv1(
 				(float)(tile.position.first+tile.dimension.first) / width, 
 				(float)(tile.position.second+tile.dimension.second) / height);
-		draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color});
-		batched_images.emplace(sprite.texture.get_uuid(), queued_images.size());
-		queued_images.push_back(sprite.texture.get());
+		auto img_itr = batched_images.find(sprite.texture.get_uuid());
+		if(img_itr == batched_images.end()) {
+			batched_images.emplace(sprite.texture.get_uuid(), image_count);
+			queued_images[image_count] = (sprite.texture.get());
+			draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color, image_count, 0});
+			image_count++;
+		} else {
+			//draw_commands.push_back({trans.get_transform(), uv0, uv1, sprite.tint_color, img_itr->second, 0});
+		}
 	}
 
 	if(draw_commands.size() == 0)
@@ -47,13 +53,17 @@ void SpriteRenderer::render(u32 deltatime) {
 		
 	pass->begin_pass(graphics_system->get_framebuffer(), false);
 	mesh->upload_vertex_data((char*)draw_commands.data(), sizeof(Vertex)*draw_commands.size());
-	pass->set_variable("sampler", queued_images[0]->get_handle());
-    pass->set_variable("scene_data", graphics_system->get_camera_uniform_buffer_handle());
+
+	pass->set_variable_array_image("sampler", queued_images.data(), image_count);
+
+	pass->set_variable("scene_data", graphics_system->get_camera_uniform_buffer_handle());
 	pass->bind_descriptors();
 	pass->draw(mesh.get(), 6, draw_commands.size(), 0, 0);
 	pass->end_pass();
 
 	draw_commands.clear();
+	batched_images.clear();
+	image_count = 0;
 }
 
 void SpriteRenderer::destroy() {

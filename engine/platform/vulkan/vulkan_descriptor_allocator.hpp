@@ -3,7 +3,9 @@
 
 #include <deque>
 #include <initializer_list>
+#include <tuple>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -51,12 +53,16 @@ private:
 };
 
 struct DescriptorWriter {
+	using ImageArray = std::vector<std::tuple<VkImageView, VkSampler, VkImageLayout>>;
+
+	std::deque<std::vector<VkDescriptorImageInfo>> image_arrays;
     std::deque<VkDescriptorImageInfo> imageInfos;
     std::deque<VkDescriptorBufferInfo> bufferInfos;
     std::vector<VkWriteDescriptorSet> writes;
 
-    void write_image(int binding,VkImageView image,VkSampler sampler , VkImageLayout layout, VkDescriptorType type);
-    void write_buffer(int binding,VkBuffer buffer,size_t size, size_t offset,VkDescriptorType type); 
+    void write_image(int binding, VkImageView image, VkSampler sampler, VkImageLayout layout, VkDescriptorType type);
+	void write_image_array(int binding, ImageArray array, VkDescriptorType type);
+    void write_buffer(int binding, VkBuffer buffer,size_t size, size_t offset,VkDescriptorType type); 
 
     void clear();
     void update_set(VkDevice device, VkDescriptorSet set);

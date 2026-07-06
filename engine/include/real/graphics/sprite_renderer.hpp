@@ -13,6 +13,7 @@
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
+#include <array>
 #include <map>
 #include <vector>
 
@@ -38,11 +39,16 @@ class REALLIB_EXPORT SpriteRenderer : public SubRenderer {
 RL_OBJECT(SpriteRenderer, SubRenderer)
 
 public:
+	static constexpr u32 MAX_BATCH_SPRITE_COUNT = 8;
+
+public:
 	struct Vertex {
 		Mat4 transform;
 		Vec2 uv0;
 		Vec2 uv1;
 		Color4 color;
+		uint texture_id;
+		uint shader_id;
 	};
 
 public:
@@ -60,7 +66,8 @@ private:
 	
 	std::vector<Vertex> draw_commands;
 	
-	std::vector<ResourceImage*> queued_images;
+	u32 image_count;
+	std::array<ResourceImage*, MAX_BATCH_SPRITE_COUNT> queued_images;
 	std::map<UUID, u32> batched_images;
 };
 

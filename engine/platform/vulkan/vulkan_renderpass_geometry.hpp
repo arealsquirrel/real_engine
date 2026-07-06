@@ -27,7 +27,10 @@ public:
 public:
 	void begin_pass(Framebuffer *framebuffer, bool clear_depth=true) final override;
 	void end_pass() final override;
+
 	void set_variable(ShaderField field, char *data, size_t size) final override;
+	void set_variable_array(ShaderField field, char *data, size_t size) final override;
+	
 	void bind_descriptors() final override;
 	void draw_mesh(ResourceMesh *mesh, ResourceMesh::Mesh submesh) final override;
 	void draw_mesh(ResourceMesh *mesh) final override;

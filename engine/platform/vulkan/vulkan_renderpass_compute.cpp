@@ -6,6 +6,7 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include "real/core/game.hpp"
+#include "real/core/logging.hpp"
 #include "real/resource/resource_shader.hpp"
 #include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
@@ -135,6 +136,12 @@ void VulkanRenderPassCompute::set_variable(
 	default:
 		break;
 	}
+}
+
+void VulkanRenderPassCompute::set_variable_array(
+		ShaderField field, char *data, size_t size) {
+
+	RL_LOG_WARN("fuck you");
 }
 
 Unique<RenderPassCompute> RenderPassCompute::create(

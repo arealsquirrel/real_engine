@@ -7,6 +7,7 @@
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_image.hpp"
 #include "real/resource/resource_shader.hpp"
 #include "vulkan_buffer.hpp"
 #include "vulkan_descriptor_builder.hpp"
@@ -39,7 +40,7 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		if(field.type == ShaderFieldType::UNIFORM) {
 			switch (field.data_type) {
 			case ShaderDataType::SAMPLED_IMAGE:
-				builder.add_binding(field.location, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+				builder.add_binding(field.location, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, field.array_size);
 				break;
 			case ShaderDataType::UNIFORM_BUFFER:
 				builder.add_binding(field.location, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
@@ -379,7 +380,9 @@ void VulkanRenderPassGeometry::set_variable(
 	case (ShaderFieldType::UNIFORM): {
 		if(field.data_type == ShaderDataType::SAMPLED_IMAGE) {
 			VkImageView view = *(VkImageView*)data;
+
 			writer.write_image(field.location, view, renderer->samplerNearest, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+	
 			return;
 		} else if (field.data_type == ShaderDataType::UNIFORM_BUFFER) {
 			VulkanUniformBuffer *buffer = *(VulkanUniformBuffer**)data;
@@ -389,6 +392,38 @@ void VulkanRenderPassGeometry::set_variable(
 
 	default:
 		break;
+	}
+}
+
+void VulkanRenderPassGeometry::set_variable_array(
+		ShaderField field, char *data, size_t size) {
+
+	RL_INSTRUMENT_FUNCTION
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+
+	switch (field.type) {
+	case (ShaderFieldType::UNIFORM): {
+		if(field.data_type == ShaderDataType::SAMPLED_IMAGE) {
+			VkImageView view = *(VkImageView*)data;
+
+			std::vector<std::tuple<VkImageView, VkSampler, VkImageLayout>> arr;
+			for (size_t i = 0; i < (size); i++) {
+				VulkanResourceImage *image = ((VulkanResourceImage**)data)[i];
+				arr.push_back({
+						image->imageView,
+						renderer->samplerNearest,
+						VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+				});
+			}
+
+			writer.write_image_array(field.location, arr, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+	
+			return;
+		}
+	}
+	
+	default:
+		RL_LOG_WARN("I hate you");
 	}
 }
 

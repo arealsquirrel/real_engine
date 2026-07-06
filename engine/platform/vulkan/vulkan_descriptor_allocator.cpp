@@ -187,7 +187,34 @@ void DescriptorWriter::write_image(int binding,VkImageView image, VkSampler samp
 	writes.push_back(write);
 }
 
+void DescriptorWriter::write_image_array(
+		int binding, ImageArray array, VkDescriptorType type) {
+
+	std::vector<VkDescriptorImageInfo> infos;
+	for (auto [view,sampler,layout] : array) {
+
+		infos.push_back(VkDescriptorImageInfo{
+			.sampler = sampler,
+			.imageView = view,
+			.imageLayout = layout
+		});
+	}
+
+	auto &arr = image_arrays.emplace_back(infos);
+
+	VkWriteDescriptorSet write = { .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+
+	write.dstBinding = binding;
+	write.dstSet = VK_NULL_HANDLE; //left empty for now until we need to write it
+	write.descriptorCount = arr.size();
+	write.descriptorType = type;
+	write.pImageInfo = arr.data();
+
+	writes.push_back(write);
+}
+
 void DescriptorWriter::clear() {
+	image_arrays.clear();
     imageInfos.clear();
     writes.clear();
     bufferInfos.clear();
