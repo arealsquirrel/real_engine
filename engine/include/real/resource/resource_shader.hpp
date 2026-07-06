@@ -118,6 +118,8 @@ public:
 	ShaderTypeFlags get_type() const { return type; }
 	InternalData get_internal_data() const { return internal; }
 
+	std::vector<char*> to_glob() override;
+
 protected:
 	ShaderLayout layout;
 	ShaderTypeFlags type;

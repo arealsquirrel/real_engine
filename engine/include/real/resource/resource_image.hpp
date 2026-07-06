@@ -80,6 +80,8 @@ public:
 	ImageFormat get_image_format();
 	ColorFormat get_color_format();
 
+	std::vector<char*> to_glob() override;
+
 	static Unique<ResourceImage> create(
 			Instance *_instance, u32 width, u32 height,
 			ColorFormat cformat, ImageFormat iformat, 

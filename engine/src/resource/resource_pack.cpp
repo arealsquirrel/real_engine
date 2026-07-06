@@ -57,6 +57,10 @@ ResourcePack::ResourcePack(Instance *_instance, std::set<std::pair<Path, UUID>> 
 	}
 }
 
+std::vector<char*> ResourcePack::to_glob() {
+
+}
+
 ResourcePack::~ResourcePack() = default;
 
 template<>

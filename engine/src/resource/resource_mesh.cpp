@@ -59,6 +59,10 @@ ResourceMesh::~ResourceMesh() {
 
 }
 
+std::vector<char*> ResourceMesh::to_glob() {
+
+}
+
 template<>
 ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, std::string name) {
 	RL_INSTRUMENT_FUNCTION

@@ -42,6 +42,8 @@ public:
 	virtual void upload_vertex_data(char *vertex_data, u32 size) = 0;
 	virtual void upload_index_data(std::vector<u32> indices) = 0;
 
+	std::vector<char*> to_glob() override;
+
 	static Unique<ResourceMesh> create(
 		Instance *instance, 
 		std::vector<uint32_t> indices,

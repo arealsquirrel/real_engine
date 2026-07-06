@@ -17,6 +17,8 @@ public:
 	ResourcePack(Instance *_instance, std::set<std::pair<Path, UUID>> resources);
 	~ResourcePack();
 
+	std::vector<char*> to_glob() override;
+
 	std::set<std::pair<Path, UUID>> resources;
 };
 

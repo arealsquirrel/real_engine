@@ -4,6 +4,7 @@
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
 #include <real/core/types.hpp>
+#include <vector>
 
 namespace real {
 	
@@ -16,6 +17,8 @@ RL_OBJECT(Resource, Object)
 public:
     Resource(Instance *_instance);
     virtual ~Resource();
+
+    virtual std::vector<char*> to_glob() = 0;
 };
 
 }

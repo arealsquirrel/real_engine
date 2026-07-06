@@ -56,5 +56,9 @@ void ShaderLayout::add_field_entry(ShaderField field) {
 	fields.push_back(field);
 }
 
+std::vector<char*> ResourceShader::to_glob() {
+
+}
+
 }
 

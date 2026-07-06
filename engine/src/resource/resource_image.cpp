@@ -47,6 +47,11 @@ ColorFormat ResourceImage::get_color_format() {
 	return cformat;
 }
 
+std::vector<char*> ResourceImage::to_glob() {
+	
+}
+
+
 template<>
 ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 	Path path, std::string name) {
