@@ -28,9 +28,10 @@ struct SceneData {
 cbuffer PushConstants {
     float4x4 model;
 	Vertex *_vertex_buffer; // SET INTERNALY BY THE ENGINE
+	uint texture_index;
 };
 
-Sampler2D sampler;
+Sampler2D sampler[32];
 ConstantBuffer<SceneData> scene_data;
 
 [shader("vertex")]
@@ -47,6 +48,6 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
 
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
-	return float4(input.color, 1.0f) * sampler.Sample(input.uv);
+	return float4(input.color, 1.0f) * sampler[texture_index].Sample(input.uv);
 }
 

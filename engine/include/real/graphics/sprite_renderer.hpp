@@ -4,12 +4,14 @@
 #include "real/core/color.hpp"
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
+#include "real/core/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/math/mat4.hpp"
 #include "real/math/vec2.hpp"
+#include "real/math/vec3.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
@@ -39,7 +41,7 @@ class REALLIB_EXPORT SpriteRenderer : public SubRenderer {
 RL_OBJECT(SpriteRenderer, SubRenderer)
 
 public:
-	static constexpr u32 MAX_BATCH_SPRITE_COUNT = 8;
+	static constexpr u32 MAX_BATCH_SPRITE_COUNT = 32;
 
 public:
 	struct Vertex {
@@ -59,13 +61,17 @@ public:
 	void render(u32 deltatime) final override;
 	void destroy() final override;
 
+	void draw_sprite(Mat4 model, ResourceImage *image, Vec2 uv0={0.0f, 0.0f}, Vec2 uv1={1.0f, 1.0f}, Color4 tint_color={1,1,1,1});
+	void draw_sprite(Mat4 model, ResourceImage *image, ResourceImage::Tile tile, Color4 tint_color);
+	void draw_sprite(ResourceImage *image, Color4 tint_color={1,1,1,1}, Vec3 position={0,0,0}, Vec3 rotation={0,0,0}, Vec3 scale={1,1,1});
+	void draw_sprite(ResourceImage *image, ResourceImage::Tile tile, Color4 tint_color={1,1,1,1}, Vec3 position={0,0,0}, Vec3 rotation={0,0,0}, Vec3 scale={1,1,1});
+
 private:
 	Unique<RenderPassGeometry> pass;
 	Unique<ResourceMesh> mesh;
 	ResourceHandle<ResourceImage> image;
 	
 	std::vector<Vertex> draw_commands;
-	
 	u32 image_count;
 	std::array<ResourceImage*, MAX_BATCH_SPRITE_COUNT> queued_images;
 	std::map<UUID, u32> batched_images;

@@ -1,5 +1,6 @@
 
-SLANGC:=/home/sophie/Downloads/slang/bin/slangc
+SLANGC:=slangc
+#/home/sophie/Downloads/slang/bin/slangc
 
 SLANG_SOURCE := $(wildcard shaders/*.slang)
 SLANG_BIN := $(addsuffix .spv, $(SLANG_SOURCE))

@@ -34,7 +34,7 @@ cbuffer PushConstants {
 	Vertex *_vertex_buffer; // SET INTERNALY BY THE ENGINE
 };
 
-Sampler2D sampler[8];
+Sampler2D sampler[32];
 ConstantBuffer<SceneData> scene_data;
 
 static const float2 vertexes[6] = {

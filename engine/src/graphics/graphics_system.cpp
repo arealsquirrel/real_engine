@@ -7,7 +7,6 @@
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/camera.hpp"
 #include "real/graphics/framebuffer.hpp"
-#include "real/graphics/graphics.hpp"
 #include "real/graphics/sprite_renderer.hpp"
 #include "real/scene/components.hpp"
 #include <memory>
@@ -16,6 +15,7 @@
 #include <real/scene/scene.hpp>
 #include <real/core/event.hpp>
 #include <variant>
+#include "real/graphics/mesh_renderer.hpp"
 
 namespace real {
 
@@ -24,8 +24,8 @@ GraphicsSystem::GraphicsSystem(Instance *_instance, Scene *_scene, Framebuffer *
     EventListener(_instance, this),
     framebuffer(_framebuffer) {
 
-	sub_renderers.push_back(std::make_shared<SubRendererDiffuse3D>(instance, this, scene));
-	sub_renderers.push_back(std::make_shared<SpriteRenderer>(instance, this, scene));
+	sub_renderers.make_emplace<MeshRenderer>(instance, this, scene);
+	sub_renderers.make_emplace<SpriteRenderer>(instance, this, scene);
 }
 
 GraphicsSystem::~GraphicsSystem() = default;
@@ -86,7 +86,7 @@ PostEffect::PostEffect(Instance *_instance, GraphicsSystem *_graphics_system, Sc
 	: Object(_instance), graphics_system(_graphics_system), scene(_scene) {}
 
 
-
+/*
 void SubRendererDiffuse3D::awake() {
     auto flat_shader = instance->resource_database->get_resource<ResourceShader>("flat.slang.spv");
 
@@ -120,5 +120,6 @@ void SubRendererDiffuse3D::render(u32 deltatime) {
 void SubRendererDiffuse3D::destroy() {
 	delete diffuse_pass.release();
 }
+*/
 
 }

@@ -5,6 +5,7 @@
 #include "real/core/core.hpp"
 #include "real/core/event_listener.hpp"
 #include "real/core/object.hpp"
+#include "real/core/object_container.hpp"
 #include "real/core/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/buffer.hpp"
@@ -124,7 +125,7 @@ public:
 	Shared<T> add_subrenderer(Args &&...args) {
 		static_assert(std::is_base_of_v<SubRenderer, T>, "must derive from SubRenderer");
 		auto ptr = std::make_shared<T>(instance, this, scene, std::forward<Args>(args)...);
-		sub_renderers.push_back(ptr);
+		sub_renderers.emplace(ptr);
 		return ptr;
 	}
 
@@ -139,11 +140,13 @@ public:
     void set_main_camera(Shared<Camera> camera) { main_camera = camera; }
 	BufferHandle get_camera_uniform_buffer_handle() { return camera_uniform_buffer->get_handle(); };
 
+public:
+	UniqueObjectSet<SubRenderer> sub_renderers;
+
 private:
 	EXPOSE_TO_EDITOR
 
 	std::vector<Shared<PostEffect>> post_effects;
-	std::vector<Shared<SubRenderer>> sub_renderers;
 
     Framebuffer *framebuffer;
     Unique<UniformBuffer> camera_uniform_buffer;
@@ -151,6 +154,7 @@ private:
 	std::variant<EntityHandle, Shared<Camera>> main_camera;
 };
 
+/*
 class SubRendererDiffuse3D : public SubRenderer {
 RL_OBJECT(SubRendererDiffuse3D, SubRenderer)
 
@@ -165,6 +169,7 @@ public:
 private:
 	Unique<RenderPassGeometry> diffuse_pass;
 };
+*/
 
 }
 
