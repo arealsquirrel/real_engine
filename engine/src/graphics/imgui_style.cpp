@@ -32,6 +32,7 @@ void RealImguiStyle::style_imgui() {
 	style->FramePadding = ImVec2{10.0f, 4.0f};
 	style->ItemInnerSpacing = ImVec2{6.0f, 4.0f};
 	style->ItemSpacing = ImVec2{6.0f, 6.0f};
+	style->IndentSpacing = 30;
     // style->DockingSeparatorSize = 6.0f;
 
     ImVec4 darkWindowBackground = ImGuiIntRGBToFloatRGB(29, 32, 33);

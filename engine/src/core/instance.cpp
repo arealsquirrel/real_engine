@@ -5,6 +5,7 @@
 #include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
 #include "real/resource/resource_database.hpp"
+#include "real/resource/resource_pack.hpp"
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <real/core/game.hpp>
@@ -24,6 +25,7 @@ Instance::Instance(ArgParams _arg_params)
 	resource_database = std::make_shared<ResourceDatabase>(this);
 	renderer = std::move(Renderer::create(this, window));
     renderer->init();
+	resource_database->load_resource_disk<ResourcePack>("../../engine/resources/resource_pack.json");
 }
 
 Instance::~Instance() {

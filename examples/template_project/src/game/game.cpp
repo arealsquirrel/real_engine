@@ -10,8 +10,6 @@ using namespace real;
 EXPOSE_GAME_TO_REAL(MyGame)
 
 void MyGame::start() {
-	resource_database->load_resource_disk<ResourcePack>("../../engine/resources/resource_pack.json");
-
 	auto graphics = scene->get_system<GraphicsSystem>();
 
 	{

@@ -5,6 +5,7 @@
 #include "real/debug/timer.hpp"
 #include "real/graphics/framebuffer.hpp"
 #include "real/graphics/graphics_system.hpp"
+#include "real/resource/resource_pack.hpp"
 #include "real/scene/scene.hpp"
 #include <GLFW/glfw3.h>
 #include <cassert>
