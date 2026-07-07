@@ -34,7 +34,7 @@ struct DLLGameLoad {
 class REALLIB_EXPORT Game : public EventListener {
 public:
 	Game(Shared<Instance> _instance, ArgParams params);
-	~Game();
+	virtual ~Game();
 
 public:
 	/**

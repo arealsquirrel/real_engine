@@ -16,7 +16,7 @@
 
 namespace real {
 
-class EntityHandle;
+struct EntityHandle;
 
 class REALLIB_EXPORT Scene : public Object {
 RL_OBJECT(Scene, Object)

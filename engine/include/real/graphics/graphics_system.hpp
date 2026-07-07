@@ -1,6 +1,7 @@
 #ifndef REALLIB_GRAPHICS_SYSTEM
 #define REALLIB_GRAPHICS_SYSTEM
 
+#include "entt/entity/fwd.hpp"
 #include "real/core/color.hpp"
 #include "real/core/core.hpp"
 #include "real/core/event_listener.hpp"
@@ -27,33 +28,6 @@ namespace real {
 
 class Instance;
 class GraphicsSystem;
-
-struct REALLIB_EXPORT ComponentMeshRenderer {
-    RL_COMPONENT(ComponentMeshRenderer)
-
-    ComponentMeshRenderer(
-			ResourceHandle<ResourceMesh> _mesh,
-			ResourceHandle<ResourceImage> _texture)
-        : mesh(_mesh), texture(_texture),
-		  sub_mesh(_mesh.get()->meshes.begin()->second),
-		  tile(_texture.get()->tiles[StringHash("_full_image")]){}
-
-    ComponentMeshRenderer(
-			ResourceHandle<ResourceMesh> _mesh,
-			ResourceHandle<ResourceImage> _texture, 
-			StringHash submesh_name, StringHash tile_name=StringHash("_full_image"))
-        : mesh(_mesh), texture(_texture),
-		  sub_mesh(_mesh.get()->meshes.at(submesh_name)),
-		  tile(_texture.get()->tiles.at(tile_name)) {}
-
-    ComponentMeshRenderer(const ComponentMeshRenderer &) = default;
-    ~ComponentMeshRenderer() = default;
-
-    ResourceHandle<ResourceMesh> mesh;
-    ResourceHandle<ResourceImage> texture;
-	ResourceMesh::Mesh sub_mesh;
-	ResourceImage::Tile tile;
-};
 
 struct REALLIB_EXPORT ComponentCamera {
     RL_COMPONENT(ComponentCamera)
@@ -136,7 +110,7 @@ public:
 
     Framebuffer *get_framebuffer() { return framebuffer; };
     void set_framebuffer(Framebuffer *_framebuffer) { framebuffer = _framebuffer; }
-    void set_main_camera(EntityHandle handle) { main_camera = handle; }
+    void set_main_camera(entt::entity handle) { main_camera = handle; }
     void set_main_camera(Shared<Camera> camera) { main_camera = camera; }
 	BufferHandle get_camera_uniform_buffer_handle() { return camera_uniform_buffer->get_handle(); };
 
@@ -151,7 +125,7 @@ private:
     Framebuffer *framebuffer;
     Unique<UniformBuffer> camera_uniform_buffer;
 
-	std::variant<EntityHandle, Shared<Camera>> main_camera;
+	std::variant<entt::entity, Shared<Camera>> main_camera;
 };
 
 /*

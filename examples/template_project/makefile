@@ -44,7 +44,10 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXX_FLAGS) -fPIC $(CXX_INCLUDE) -c $< -o $@
 
 run: bin/$(GAME_NAME).so
-	$(REAL_ENGINE_BUILD_PATH)/runtime/real_runtime --game bin/$(GAME_NAME).so
+	# so we pass the -w and -h commands because when we play the game we want it to look nicer
+	# but in the editor, we downscale the texture in imgui so we dont care that much about resolution
+	# if you do care, you can add those flags onto the editor rule righ below this one
+	$(REAL_ENGINE_BUILD_PATH)/runtime/real_runtime --game bin/$(GAME_NAME).so -w 1920 -h 1080
 
 edit: bin/$(GAME_NAME).so
 	$(REAL_ENGINE_BUILD_PATH)/editor/real_editor --game bin/$(GAME_NAME).so

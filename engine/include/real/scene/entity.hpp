@@ -36,7 +36,7 @@ public:
 
 	operator bool() { return !(handle == entt::null); }
 
-private:
+public:
 	entt::entity handle {entt::null};
 	entt::registry *registry {nullptr};
 };

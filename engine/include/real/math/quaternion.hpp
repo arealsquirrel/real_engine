@@ -195,7 +195,6 @@ inline constexpr Vec3 make_euler_angles_from_q(Quaternion q) {
 }
 
 inline constexpr Mat4 make_mat4_from_q(Quaternion q) {
-	real_t nn = q.n*q.n;
     real_t xx = q.v.x * q.v.x;
     real_t yy = q.v.y * q.v.y;
     real_t zz = q.v.z * q.v.z;

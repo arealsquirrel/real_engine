@@ -16,10 +16,10 @@ typedef void* GraphicsBackend;
 
 class RenderPassCompute;
 class RenderPassGeometry;
-class RenderPassGeometryInfo;
+struct RenderPassGeometryInfo;
 class ResourceShader;
 class ResourceImage;
-class RenderPassResource;
+struct RenderPassResource;
 
 struct REALLIB_EXPORT GraphicsInfo {
 	bool debug;

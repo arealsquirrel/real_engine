@@ -4,6 +4,7 @@
 #include <real/real.hpp>
 #include <imgui.h>
 #include "real/graphics/sprite_renderer.hpp"
+#include <real/graphics/mesh_renderer.hpp>
 
 using namespace real;
 
@@ -17,35 +18,12 @@ void MyGame::start() {
 	{
 		auto viking_room = scene->create_entity("viking_room");
 		viking_room.AddComponent<ComponentMeshRenderer>(
-				resource_database->get_resource<ResourceMesh>("primitives.obj"), 
+				resource_database->get_resource<ResourceMesh>("viking_room.obj"), 
 				resource_database->get_resource<ResourceImage>("viking_room.png")
 		);
 		auto &transform = viking_room.GetComponent<ComponentTransform>();
-		transform.rotation = Vec3(1.53f, 0.0f, 0.0f);
-		transform.position = Vec3(0.0f, 0.0f, 3.0f);
-	}
-
-	{
-		auto entity = scene->create_entity("tile1");
-		entity.AddComponent<ComponentSpriteRenderer>(
-				resource_database->get_resource<ResourceImage>("mk_16_16_nature_tileset_json-sheet.png"));
-		auto &transform = entity.GetComponent<ComponentTransform>();
-	}
-
-	{
-		auto entity = scene->create_entity("tile2");
-		entity.AddComponent<ComponentSpriteRenderer>(
-				resource_database->get_resource<ResourceImage>("mk_16_16_nature_tileset_json-sheet.png"));
-		auto &transform = entity.GetComponent<ComponentTransform>();
-		transform.position.x = 1;
-	}
-
-	{
-		auto entity = scene->create_entity("anotha one again");
-		entity.AddComponent<ComponentSpriteRenderer>(
-				resource_database->get_resource<ResourceImage>("viking_room.png"));
-		auto &transform = entity.GetComponent<ComponentTransform>();
-		transform.position.x = 2;
+		transform.rotation = Vec3(90.0f, 0.0f, 0.0f);
+		transform.position = Vec3(-1.0f, 0.0f, -1.0f);
 	}
 
 	auto cam = scene->create_entity("camera");
@@ -57,7 +35,7 @@ void MyGame::start() {
 		trans.position = Vec3(0.0f, 0.0f, -3.0f);
 	}
 
-	graphics->set_main_camera(cam);
+	graphics->set_main_camera(cam.handle);
 }
 
 void MyGame::update(u32 delta_time) {

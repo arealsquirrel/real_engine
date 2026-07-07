@@ -8,7 +8,7 @@
 
 namespace real {
 
-class Timer;
+struct Timer;
 
 class REALLIB_EXPORT Instrumentation {
 private:

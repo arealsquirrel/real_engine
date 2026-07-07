@@ -3,6 +3,7 @@
 #include "real/core/color.hpp"
 #include "real/core/event_listener.hpp"
 #include "real/core/instance.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/camera.hpp"
@@ -16,6 +17,7 @@
 #include <real/core/event.hpp>
 #include <variant>
 #include "real/graphics/mesh_renderer.hpp"
+#include "real/scene/entity.hpp"
 
 namespace real {
 
@@ -46,8 +48,8 @@ void GraphicsSystem::update(u32 delta_time) {
     if(main_camera.valueless_by_exception())
         return;
 
-	if(std::holds_alternative<EntityHandle>(main_camera)) {
-		auto cam_comp = std::get<EntityHandle>(main_camera);
+	if(std::holds_alternative<entt::entity>(main_camera)) {
+		auto cam_comp = EntityHandle(std::get<entt::entity>(main_camera), scene);
 		auto &trans = cam_comp.GetComponent<ComponentTransform>();
 		auto &camera = cam_comp.GetComponent<ComponentCamera>();
 		camera.camera.set_position(trans.position);

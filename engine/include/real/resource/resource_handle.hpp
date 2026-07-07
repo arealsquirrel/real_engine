@@ -61,7 +61,7 @@ public:
 	}
 
 	ResourceHandle(const ResourceHandle<T> &rh)
-	 	: db(rh.db), block(rh.block), resource(rh.resource) {
+	 	: resource(rh.resource), db(rh.db), block(rh.block) {
 		
 		block->count += 1;
 	}

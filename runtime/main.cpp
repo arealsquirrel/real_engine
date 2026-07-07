@@ -23,7 +23,6 @@ int main(int argc, char **argv) {
     
 	RL_INSTRUMENT_PROFILE_START("Startup");
 	Graphics::init_backend({});
-
 	Shared<Instance> instance = std::make_shared<Instance>(params);
     auto [game, dll] = Game::load_game_dll(instance, params);
 	game->start();

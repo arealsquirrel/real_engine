@@ -7,6 +7,7 @@
 #include "real/graphics/sprite_renderer.hpp"
 #include "real/scene/components.hpp"
 #include "real/scene/entity.hpp"
+#include <real/graphics/mesh_renderer.hpp>
 
 namespace editor {
 
@@ -112,6 +113,21 @@ void PanelSceneView::render_properties() {
         ImGui::SeparatorText("Mesh Resource Data");
         ImGui::Text("sub mesh name: %s", component.sub_mesh.name.c_str());
         ImGui::Text("indices count: %lu", component.sub_mesh.count);
+		
+		if (ImGui::BeginCombo("Render Mode", "no")) {
+			for (int i = 0; i < 4; i++) {
+				const bool is_selected = (component.shader_mode == i);
+				if (ImGui::Selectable(MeshRenderer::shader_mode_tostr[i], is_selected)) {
+					component.shader_mode = (MeshRenderer::ShaderMode)i;
+				}
+				if (is_selected) {
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			
+			ImGui::EndCombo();
+		}
+
 		if(ImGui::TreeNode("Mesh Resource Submeshes")) {
 			StringHash current_hash = StringHash(component.sub_mesh.name.c_str());
 			if(ImGui::BeginCombo("Submesh", component.sub_mesh.name.c_str())) {
@@ -121,7 +137,6 @@ void PanelSceneView::render_properties() {
 					
 					if (ImGui::Selectable(pair.second.name.c_str(), isSelected)) {
 						component.sub_mesh = pair.second;
-						// selectedKey = pair.first; 
 					}
 
 					if (isSelected) {

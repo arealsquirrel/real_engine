@@ -7,9 +7,9 @@ using real_t = float;
 constexpr real_t real_tol = 0.00001f;
 constexpr real_t pi = 3.14159265;
 
-class Vec2;
-class Vec3;
-class Vec4;
+struct Vec2;
+struct Vec3;
+struct Vec4;
 
 namespace math {
 
