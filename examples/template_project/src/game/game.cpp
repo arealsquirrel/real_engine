@@ -40,6 +40,7 @@ void MyGame::start() {
 		viking_room.AddComponent<RotateObjectComponent>(1.0f);
 	}
 
+	/*
 	{
 		auto viking_room = scene->create_entity("viking room");
 		viking_room.AddComponent<ComponentMeshRenderer>(
@@ -51,13 +52,14 @@ void MyGame::start() {
 		transform.rotation = Vec3(0.0f, 0.0f, 0.0f);
 		transform.position = Vec3(0.0f, 0.0f, -1.0f);
 	}
+	*/
 
 	camera.translate_camera(Vec3(0,0,-3));
 }
 
 void MyGame::update(u32 delta_time) {
 	renderer->attach_camera(camera);
-	screen_framebuffer->clear_image(Color4(1.0f, 0.0f, 0.0f, 1.0f));
+	screen_framebuffer->clear_image(Color4(0.0f, 0.0f, 0.0f, 1.0f));
 	scene->update(delta_time);
 
 	auto view = scene->registry->view<RotateObjectComponent, ComponentTransform>();

@@ -1,7 +1,16 @@
 
-Overall
-	- make a layers system for the graphics subrenderers
-	- the renderer should hold all the graphis shit
-	- make a combined graphics system
+- Road to release IG
+	- getting a full development cycle steps
+		- reflection to json
+		- asset packing into globs
+		- I mean thats really all thats missing from being able to "ship" games with this engine
 
-
+	- other things that a sane person would want in their engine in order of needed
+		- stopping, starting, playing, and pausing the game in editor
+		- dynamic resource reloading, so like when its updated on disk
+		- loading resources in on worker threads
+		- editor gizmos
+		- physics
+		- audio
+		- multi threading the graphics :3
+		- better lighting :3
