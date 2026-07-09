@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 	Graphics::init_backend({});
 	Shared<Instance> instance = std::make_shared<Instance>(params);
     auto [game, dll] = Game::load_game_dll(instance, params);
+	game->scene = std::make_shared<Scene>(instance.get());
 	game->start();
 	game->scene->awake();
 	RL_INSTRUMENT_PROFILE_END;
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
 	CVarSystem::get().clear_cvars();
 	game->scene->destroy();
     Game::destroy_game_dll(game, dll);
+
 	instance.reset();
 	Graphics::destroy_backend();
 	RL_INSTRUMENT_PROFILE_END;

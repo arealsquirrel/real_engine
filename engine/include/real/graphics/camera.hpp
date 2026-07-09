@@ -1,6 +1,7 @@
 #ifndef REALLIB_CAMERA_HPP
 #define REALLIB_CAMERA_HPP
 
+#include "real/core/color.hpp"
 #include "real/core/core.hpp"
 #include "real/core/types.hpp"
 #include <real/math/math.hpp>
@@ -10,10 +11,6 @@ namespace real {
 /**
  * @brief this struct is meant to be sent to shaders to show the camera data.
  */
-struct CameraData {
-    alignas(16) Mat4 proj;
-    alignas(16) Mat4 view;
-};
 
 class REALLIB_EXPORT Camera {
     EXPOSE_TO_EDITOR
@@ -34,7 +31,7 @@ public:
 
     ~Camera();
 
-    CameraData get_camera_data() const { return data; };
+    // CameraData get_camera_data() const { return data; };
 
     void translate_camera(Vec3 pos);
     void set_position(Vec3 pos);
@@ -53,8 +50,13 @@ private:
     void update_proj();
     void update_view();
 
+public:
+	Color4 clear_color;
+	Mat4 view;
+	Mat4 proj;
+
 private:
-    CameraData data;
+    // CameraData data;
     Projection projection;
     Vec3 position {0.0f, 0.0f, 0.0f};
     Vec3 rotation {0.0f, 0.0f, 0.0f};

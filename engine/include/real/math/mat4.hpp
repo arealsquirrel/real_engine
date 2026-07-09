@@ -179,6 +179,15 @@ constexpr inline Mat4 perspective(float aspect, float fov_radians, float near, f
 				0, 0, -1, 0);
 }
 
+constexpr inline Mat4 ortho(
+		real_t bottom, real_t top, real_t left, real_t right, real_t near, real_t far) {
+
+	return Mat4(2.0f/(right-1),0,0,0,
+				0,2.0f/(top-bottom),0,0,
+				0,0,-2.0f/(far-near),0,
+				-(right+1)/(right-1),-(top+bottom)/(top-bottom),-(far+near)/(far-near), 1);
+}
+
 /**
  * gracefully stolen from stack overflow
  * https://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix

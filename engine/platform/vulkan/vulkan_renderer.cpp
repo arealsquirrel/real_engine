@@ -70,6 +70,8 @@ void VulkanRenderer::init() {
 		[&](EventWindowResize &resize, Object *object){
 		should_resize = true;
 	});
+
+	scene_data = UniformBuffer::create(instance, sizeof(SceneData));
 }
 
 VulkanRenderer::~VulkanRenderer() {
@@ -79,13 +81,16 @@ VulkanRenderer::~VulkanRenderer() {
 	RL_LOG_TRACE("destroying vulkan renderer");
     vkDeviceWaitIdle(device);
 
+	delete scene_data.release();
+
+	RL_LOG_INFO("rawr");
+
     ImGui_ImplVulkan_Shutdown();
 	vkDestroyDescriptorPool(device, imgui_descriptor_pool, nullptr);
 	vkDestroySampler(device, samplerLinear, nullptr);
 	vkDestroySampler(device, samplerNearest, nullptr);
 
     delete_queue.flush();
-
 
 	for (int i = 0; i < swapchain_views.size(); i++) {
 		vkDestroySemaphore(device, render_semaphore[i], nullptr);

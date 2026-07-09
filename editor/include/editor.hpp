@@ -9,6 +9,7 @@
 #include "real/graphics/camera.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
+#include "real/scene/scene.hpp"
 #include <utility>
 #include <vector>
 
@@ -22,6 +23,13 @@ enum class EditorExitReason {
 
 class Editor {
 public:
+	enum class EditorState {
+		Editing,
+		Running,
+		Paused
+	};
+
+public:
 	Editor(Shared<real::Instance> _instance);
 	~Editor();
 
@@ -33,11 +41,15 @@ public:
 		panels.push_back(std::make_shared<T>(instance, std::forward<Args>(args)...));
 	}
 
+	// Shared<real::Scene> scene;
+
 private:
 	void viewport();
 
 private:
 	Shared<real::Instance> instance;
+
+	EditorState editor_state;
 
 public:
 	std::vector<Shared<editor::Panel>> panels;

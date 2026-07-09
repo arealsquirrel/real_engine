@@ -2,6 +2,7 @@
 #include "editor.hpp"
 #include "editor_camera.hpp"
 #include "imgui.h"
+#include "real/core/color.hpp"
 #include "real/core/core.hpp"
 #include <GLFW/glfw3.h>
 #include <real/config/config.hpp>
@@ -17,6 +18,8 @@ Editor::Editor(Shared<real::Instance> _instance)
 	: instance(_instance), camera(_instance.get()) {
 
 	camera.block_input = true;
+	editor_state = EditorState::Editing;
+	camera.camera->clear_color = real::Color4(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 Editor::~Editor() {
@@ -24,6 +27,8 @@ Editor::~Editor() {
 
 EditorExitReason Editor::render(u32 delta_time) {
 	EditorExitReason r = EditorExitReason::NotExiting;
+
+	// scene->update(0);
 
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("Project")) {

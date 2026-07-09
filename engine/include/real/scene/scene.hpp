@@ -4,15 +4,14 @@
 #include "entt/entity/fwd.hpp"
 #include "real/core/core.hpp"
 #include "real/core/instance.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include "real/core/object_container.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/scene/system.hpp"
 #include <entt/entity/registry.hpp>
-#include <memory>
 #include <utility>
-#include <vector>
 
 namespace real {
 
@@ -34,7 +33,8 @@ public:
 
     template<typename T, typename ...Args>
     Shared<T> add_system(Args ...args) {
-        auto [emp, ptr] = systems.make_emplace(instance, this, std::forward<Args>(args)...);
+		RL_LOG_TRACE("adding system");
+        auto [emp, ptr] = systems.make_emplace<T>(instance, this, std::forward<Args>(args)...);
         return ptr;
     }
 

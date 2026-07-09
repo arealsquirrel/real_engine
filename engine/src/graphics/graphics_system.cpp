@@ -1,127 +1,67 @@
 
-#include "imgui.h"
-#include "real/core/color.hpp"
 #include "real/core/event_listener.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/object.hpp"
-#include "real/graphics/buffer.hpp"
-#include "real/graphics/camera.hpp"
 #include "real/graphics/framebuffer.hpp"
-#include "real/graphics/sprite_renderer.hpp"
-#include "real/scene/components.hpp"
-#include <memory>
 #include <real/graphics/renderpass_geometry.hpp>
 #include <real/graphics/graphics_system.hpp>
 #include <real/scene/scene.hpp>
 #include <real/core/event.hpp>
-#include <variant>
 #include "real/graphics/mesh_renderer.hpp"
+#include "real/graphics/sprite_renderer.hpp"
+#include "real/scene/components.hpp"
 #include "real/scene/entity.hpp"
 
 namespace real {
 
 GraphicsSystem::GraphicsSystem(Instance *_instance, Scene *_scene, Framebuffer *_framebuffer) 
-    : System(_instance, _scene), 
-    EventListener(_instance, this),
-    framebuffer(_framebuffer) {
-
-	sub_renderers.make_emplace<MeshRenderer>(instance, this, scene);
-	sub_renderers.make_emplace<SpriteRenderer>(instance, this, scene);
-}
+    : System(_instance, _scene), framebuffer(_framebuffer), 
+    EventListener(_instance, this) {}
 
 GraphicsSystem::~GraphicsSystem() = default;
 
+void GraphicsSystem::set_main_camera(EntityHandle entity) {
+	auto &cam_comp = entity.GetComponent<ComponentCamera>();
+	// main_camera = cam_comp.camera;
+}
+
 void GraphicsSystem::awake() {
-    camera_uniform_buffer = UniformBuffer::create(instance, sizeof(CameraData));
-
-	for(auto &sr : sub_renderers) {
-		sr->awake();
-	}
-
-	for(auto &post : post_effects) {
-		post->awake();
-	}
+	mesh_renderer = instance->renderer->subrenderers.get<MeshRenderer>();
+	sprite_renderer = instance->renderer->subrenderers.get<SpriteRenderer>();
 }
 
 void GraphicsSystem::update(u32 delta_time) {
-    if(main_camera.valueless_by_exception())
-        return;
 
-	if(std::holds_alternative<entt::entity>(main_camera)) {
-		auto cam_comp = EntityHandle(std::get<entt::entity>(main_camera), scene);
-		auto &trans = cam_comp.GetComponent<ComponentTransform>();
-		auto &camera = cam_comp.GetComponent<ComponentCamera>();
-		camera.camera.set_position(trans.position);
-		camera.camera.set_rotation(trans.rotation);
-		*(camera_uniform_buffer->get_data<CameraData>()) = camera.camera.get_camera_data();
-		framebuffer->clear_image(camera.clear_color);
-	} else {
-		auto cam = std::get<Shared<Camera>>(main_camera);
-		*(camera_uniform_buffer->get_data<CameraData>()) = cam->get_camera_data();
-		framebuffer->clear_image(Color4(0.7f, 0.7f, 0.7f, 0.7f));
+	// instance->renderer->attach_camera(main_camera);
+	// framebuffer->clear_image(main_camera->clear_color);
+
+	{
+	auto view = scene->registry->view<ComponentMeshRenderer, ComponentTransform>();
+	for (auto [ent, mesh_comp, trans] : view.each()) {
+		mesh_renderer->draw_mesh(trans.get_transform(), mesh_comp.mesh.get(), mesh_comp.sub_mesh, mesh_comp.texture.get());
+	}
 	}
 
-	for(auto &sr : sub_renderers) {
-		sr->render(delta_time);
+	{
+	auto view = scene->registry->view<ComponentSpriteRenderer, ComponentTransform>();
+	for (auto [ent, sprite, trans] : view.each()) {
+		sprite_renderer->draw_sprite(trans.get_transform(), sprite.texture.get(), sprite.tile, sprite.tint_color);
+	}
 	}
 
-    framebuffer->unbind();
+	framebuffer->bind();
+	mesh_renderer->draw_commands(framebuffer);
+	mesh_renderer->flush_commands();
 
-	for(auto &post : post_effects) {
-		post->render(delta_time);
-	}
+	sprite_renderer->draw_commands(framebuffer);
+	sprite_renderer->flush_commands();
+	framebuffer->unbind();
 }
 
 void GraphicsSystem::destroy() {}
 
 void GraphicsSystem::draw_imgui() {
-	ImGui::Text("Draw framebuffer size, x: %u, y: %u", framebuffer->get_width(), framebuffer->get_height());
-	ImGui::Text("Framebuffer multisampling %u", framebuffer->get_msaa());
 }
-
-SubRenderer::SubRenderer(Instance *_instance, GraphicsSystem *_graphics_system, Scene *_scene) 
-	: Object(_instance), graphics_system(_graphics_system), scene(_scene) {}
-
-
-PostEffect::PostEffect(Instance *_instance, GraphicsSystem *_graphics_system, Scene *_scene)
-	: Object(_instance), graphics_system(_graphics_system), scene(_scene) {}
-
-
-/*
-void SubRendererDiffuse3D::awake() {
-    auto flat_shader = instance->resource_database->get_resource<ResourceShader>("flat.slang.spv");
-
-    diffuse_pass = RenderPassGeometry::create(
-        instance, {
-				.depth = true,
-				.topology = GeometryTopology::Triangle_list,
-				.polygon_mode = GeometryPolygonMode::Fill,
-				.front_face = GeometryFrontFace::CounterClockwise,
-				.cull_mode = GeometryCullMode::BACK,
-				.msaa = graphics_system->get_framebuffer()->get_msaa(),
-			}, {flat_shader}, {});
-
-	instance->resource_database->unregister_resource("flat.slang.spv");
-}
-
-void SubRendererDiffuse3D::render(u32 deltatime) {
-    diffuse_pass->begin_pass(graphics_system->get_framebuffer());
-    auto view = scene->registry->view<ComponentTransform, ComponentMeshRenderer>();
-
-    for(auto [entity, trans, mesh] : view.each()) {
-        diffuse_pass->set_variable("scene_data", graphics_system->get_camera_uniform_buffer_handle());
-        diffuse_pass->set_variable("model", trans.get_transform());
-		diffuse_pass->set_variable("sampler", mesh.texture.get()->get_handle());
-		diffuse_pass->bind_descriptors();
-        diffuse_pass->draw_mesh(mesh.mesh.get(), mesh.sub_mesh);
-    }
-    diffuse_pass->end_pass();
-}
-
-void SubRendererDiffuse3D::destroy() {
-	delete diffuse_pass.release();
-}
-*/
 
 }

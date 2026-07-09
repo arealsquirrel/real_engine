@@ -1,5 +1,6 @@
 
 #include "real/core/core.hpp"
+#include "real/math/mat4.hpp"
 #include "real/math/math_fwd.hpp"
 #include <real/graphics/camera.hpp>
 
@@ -8,7 +9,7 @@ namespace real {
 Camera::Camera(u32 _width, u32 _height, Projection projection,
                 float _fov, float _near, float _far) 
     : width(_width), height(_height), projection(projection), 
-        fov(_fov), near(_near), far(_far) {
+        fov(_fov), near(_near), far(_far), clear_color(1.0f, 1.0f, 1.0f, 1.0f) {
 
     update_proj();
     update_view();
@@ -79,14 +80,14 @@ void Camera::update_proj() {
     float aspect = (960)/(540.0f);// ((float)width) / height;
 
     if(projection == Projection::Perspective) {
-        data.proj = math::perspective(math::degrees_to_radians(70.0f), aspect, 0.01f, 100.0f);
+        proj = math::perspective(math::degrees_to_radians(70.0f), aspect, 0.01f, 100.0f);
     } else {
-		RL_ASSERT(false, "BON VOYAGE BOI, WHAT GOES UP MUST COME DOWN");
+		proj = math::ortho(aspect*5.0f, aspect*5.0f, aspect*5.0f, aspect*5.0f, near, far);
     }
 }
 
 void Camera::update_view() {
-	data.view = math::look_at(position, position + camera_front, camera_up);
+	view = math::look_at(position, position + camera_front, camera_up);
 }
 
 }

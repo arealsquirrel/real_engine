@@ -1,6 +1,7 @@
 
 #include "entt/entity/fwd.hpp"
 #include "real/core/event.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
@@ -13,10 +14,12 @@ namespace real {
 Scene::Scene(Instance *instance)
     : Object(instance) {
 
+	RL_LOG_INFO("Scene Made");
     registry = new entt::registry();
 }
 
 Scene::~Scene() {
+	RL_LOG_INFO("Scene destroyed");
 	delete registry;
 }
 
@@ -35,7 +38,9 @@ EntityHandle Scene::create_entity(String name, UUID id) {
 }
 
 void Scene::awake() {
+	RL_LOG_INFO("awaking");
     for (auto s : systems) {
+		RL_LOG_INFO("awaking");
 		s->awake();
     }
 }

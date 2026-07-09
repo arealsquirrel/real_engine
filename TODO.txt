@@ -1,16 +1,7 @@
 
-Pipelines
-	- wireframe rendering, that one vulkan thingy
+Overall
+	- make a layers system for the graphics subrenderers
+	- the renderer should hold all the graphis shit
+	- make a combined graphics system
 
-resource refactors
-	- possibly some sort of slab allocator for resources and common objects
-	- resource reloading function
-	- make a create function from Graphics class and then the load functions out of the platform dependednt area
-	- make a good set of primitaves
-	- make a load directory function
 
-Graphics API
-	- Models
-		- model resource holds the buffer
-		- multiple models (vertex array)
-		- custom input and creation for buffers

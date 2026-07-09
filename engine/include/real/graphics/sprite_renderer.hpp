@@ -7,6 +7,7 @@
 #include "real/core/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
+#include "real/graphics/camera.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/math/mat4.hpp"
@@ -54,11 +55,12 @@ public:
 	};
 
 public:
-	using SubRenderer::SubRenderer;
+	// using SubRenderer::SubRenderer;
+	SpriteRenderer(Instance *_instance, Renderer *_renderer);
 	~SpriteRenderer();
 
-	void awake() final override;
-	void render(u32 deltatime) final override;
+	void draw_commands(Framebuffer *framebuffer) final override;
+	void flush_commands() final override;
 	void destroy() final override;
 
 	void draw_sprite(Mat4 model, ResourceImage *image, Vec2 uv0={0.0f, 0.0f}, Vec2 uv1={1.0f, 1.0f}, Color4 tint_color={1,1,1,1});
@@ -71,7 +73,7 @@ private:
 	Unique<ResourceMesh> mesh;
 	ResourceHandle<ResourceImage> image;
 	
-	std::vector<Vertex> draw_commands;
+	std::vector<Vertex> draw_commands_vec;
 	u32 image_count;
 	std::array<ResourceImage*, MAX_BATCH_SPRITE_COUNT> queued_images;
 	std::map<UUID, u32> batched_images;

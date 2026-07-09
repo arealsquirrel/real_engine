@@ -4,6 +4,8 @@
 #include "real/core/event.hpp"
 #include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
+#include "real/graphics/mesh_renderer.hpp"
+#include "real/graphics/sprite_renderer.hpp"
 #include "real/resource/resource_database.hpp"
 #include "real/resource/resource_pack.hpp"
 #include <GLFW/glfw3.h>
@@ -26,11 +28,16 @@ Instance::Instance(ArgParams _arg_params)
 	renderer = std::move(Renderer::create(this, window));
     renderer->init();
 	resource_database->load_resource_disk<ResourcePack>("../../engine/resources/resource_pack.json");
+
+	renderer->subrenderers.make_emplace<MeshRenderer>(this, renderer.get());
+	renderer->subrenderers.make_emplace<SpriteRenderer>(this, renderer.get());
 }
 
 Instance::~Instance() {
 	RL_INSTRUMENT_FUNCTION
 	resource_database.reset();
+	renderer->destroy_renderers();
+	// resource_database->unregister_all();
     renderer.reset();
     window.reset();
 	auto *p = event_messenger.release();

@@ -3,7 +3,9 @@
 
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
+#include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
+#include "real/scene/scene.hpp"
 
 namespace editor {
 
@@ -16,11 +18,14 @@ public:
 
 	virtual void draw() = 0;
 
+	void set_scene(Shared<real::Scene> _scene) { scene = _scene; }
+
 public:
 	const real::UUID panelID;
 
 protected:
 	Shared<real::Instance> instance;
+	Shared<real::Scene> scene;
 
 	friend Editor;
 };

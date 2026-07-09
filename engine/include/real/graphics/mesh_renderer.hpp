@@ -2,7 +2,9 @@
 #define REALLIB_MESH_RENDERER_HPP
 
 #include "real/core/color.hpp"
+#include "real/core/instance.hpp"
 #include "real/core/object.hpp"
+#include "real/core/types.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/math/mat4.hpp"
 #include "real/resource/resource_handle.hpp"
@@ -39,21 +41,21 @@ public:
 	};
 
 public:
-	using SubRenderer::SubRenderer;
+	MeshRenderer(Instance *_instance, Renderer *_renderer);
 	~MeshRenderer();
 
 	void draw_mesh(Mat4 model,
 			ResourceMesh *mesh, ResourceMesh::Mesh submesh, ResourceImage *texture,
 			ShaderMode mode=ShaderMode_Flat);
 
-	void awake() final override;
-	void render(u32 deltatime) final override;
+	void draw_commands(Framebuffer *framebuffer) final override;
+	void flush_commands() final override;
 	void destroy() final override;
 
 private:
 	Unique<RenderPassGeometry> diffuse_pass;
 	ResourceHandle<ResourceImage> image;
-	std::vector<DrawCommand> draw_commands;
+	std::vector<DrawCommand> draw_commands_cmd;
 	u32 image_count;
 	std::array<ResourceImage*, MAX_BATCH_SPRITE_COUNT> queued_images;
 	std::map<UUID, u32> batched_images;

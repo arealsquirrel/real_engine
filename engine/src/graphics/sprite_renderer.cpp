@@ -1,18 +1,18 @@
 
+#include "real/core/logging.hpp"
 #include "real/core/string_hash.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/math/mat4.hpp"
 #include "real/math/quaternion.hpp"
 #include "real/resource/resource_mesh.hpp"
-#include "real/scene/components.hpp"
 #include <real/graphics/sprite_renderer.hpp>
 
 namespace real {
 
-SpriteRenderer::~SpriteRenderer() = default;
+SpriteRenderer::SpriteRenderer(Instance *_instance, Renderer *_renderer)
+	: SubRenderer(_instance, _renderer) {
 
-void SpriteRenderer::awake() {
 	mesh = ResourceMesh::create(instance, {}, nullptr, sizeof(Vertex)*1000);
     auto sprite_shader = instance->resource_database->get_resource<ResourceShader>("sprite.slang.spv");
 	image = instance->resource_database->get_resource<ResourceImage>("prototype_512x512_green1.png");
@@ -26,11 +26,17 @@ void SpriteRenderer::awake() {
 				.polygon_mode = GeometryPolygonMode::Fill,
 				.front_face = GeometryFrontFace::CounterClockwise,
 				.cull_mode = GeometryCullMode::BACK,
-				.msaa = graphics_system->get_framebuffer()->get_msaa()
+				.msaa = MultisamplingCount::Eight
 			}, {sprite_shader}, {});
 
 	instance->resource_database->unregister_resource("sprite.slang.spv");
 	image_count = 0;
+}
+
+SpriteRenderer::~SpriteRenderer() = default;
+
+void SpriteRenderer::destroy() {
+	delete pass.release();
 }
 
 void SpriteRenderer::draw_sprite(
@@ -41,10 +47,10 @@ void SpriteRenderer::draw_sprite(
 	if(img_itr == batched_images.end()) {
 		batched_images.emplace(texture->get_instance_uuid(), image_count);
 		queued_images[image_count] = texture;
-		draw_commands.push_back({model, uv0, uv1, tint_color, image_count, 0});
+		draw_commands_vec.push_back({model, uv0, uv1, tint_color, image_count, 0});
 		image_count++;
 	} else {
-		draw_commands.push_back({model, uv0, uv1, tint_color, img_itr->second, 0});
+		draw_commands_vec.push_back({model, uv0, uv1, tint_color, img_itr->second, 0});
 	}
 }
 
@@ -71,30 +77,23 @@ void SpriteRenderer::draw_sprite(ResourceImage *image, ResourceImage::Tile tile,
 			image, tile, tint_color);
 }
 
-void SpriteRenderer::render(u32 deltatime) {
-	auto view = scene->registry->view<ComponentTransform, ComponentSpriteRenderer>();
-
-	for(auto [ent, trans, sprite] : view.each()) {
-		draw_sprite(trans.get_transform(), sprite.texture.get(), sprite.tile, sprite.tint_color);
-	}
-
-	if(draw_commands.size() == 0)
+void SpriteRenderer::draw_commands(Framebuffer *framebuffer) {
+	if(draw_commands_vec.size() == 0)
 		return;
 		
-	pass->begin_pass(graphics_system->get_framebuffer(), false);
-	mesh->upload_vertex_data((char*)draw_commands.data(), sizeof(Vertex)*draw_commands.size());
+	pass->begin_pass(framebuffer, false);
+	mesh->upload_vertex_data((char*)draw_commands_vec.data(), sizeof(Vertex)*draw_commands_vec.size());
 	pass->set_variable_array_image("sampler", queued_images.data(), MAX_BATCH_SPRITE_COUNT);
-	pass->set_variable("scene_data", graphics_system->get_camera_uniform_buffer_handle());
+	pass->set_variable("scene_data", renderer->scene_data->get_handle());
 	pass->bind_descriptors();
-	pass->draw(mesh.get(), 6, draw_commands.size(), 0, 0);
+	pass->draw(mesh.get(), 6, draw_commands_vec.size(), 0, 0);
 	pass->end_pass();
-	draw_commands.clear();
-	batched_images.clear();
-	image_count = 0;
 }
 
-void SpriteRenderer::destroy() {
-	delete pass.release();
+void SpriteRenderer::flush_commands() {
+	draw_commands_vec.clear();
+	batched_images.clear();
+	image_count = 0;
 }
 
 }
