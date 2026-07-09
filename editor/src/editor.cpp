@@ -2,63 +2,86 @@
 #include "editor.hpp"
 #include "editor_camera.hpp"
 #include "imgui.h"
+#include "panel_resource_database.hpp"
+#include "panel_resource_viewer.hpp"
+#include "panel_scene_view.hpp"
 #include "real/core/color.hpp"
 #include "real/core/core.hpp"
 #include <GLFW/glfw3.h>
+#include <memory>
 #include <real/config/config.hpp>
 #include <string>
 #include "panel.hpp"
 #include <fmt/format.h>
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
+#include "real/graphics/framebuffer.hpp"
+#include "real/graphics/graphics_system.hpp"
+#include "real/graphics/renderpass_geometry.hpp"
 
 namespace editor {
 
-Editor::Editor(Shared<real::Instance> _instance) 
-	: instance(_instance), camera(_instance.get()) {
+using namespace real;
+
+Editor::Editor(Shared<real::Instance> _instance, real::ArgParams _params) 
+	: instance(_instance), camera(_instance.get()), params(_params) {
 
 	camera.block_input = true;
 	editor_state = EditorState::Editing;
 	camera.camera->clear_color = real::Color4(1.0f, 1.0f, 1.0f, 1.0f);
+	active_scene = std::make_shared<Scene>(instance.get());
+	viewport_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight);
 }
 
 Editor::~Editor() {
+
 }
 
-EditorExitReason Editor::render(u32 delta_time) {
-	EditorExitReason r = EditorExitReason::NotExiting;
+void Editor::load_game(Path path) {
+	auto [loaded_game, dll] = Game::load_game_dll(instance, params);
+	game = loaded_game;
+	game_loader = dll;
+	game->scene = active_scene;
+	game->screen_framebuffer = viewport_framebuffer;
+	game->start();
+	game->scene->awake();
+	graphics_system = active_scene->get_system<GraphicsSystem>();
 
-	// scene->update(0);
+	add_panel<editor::PanelResourceDatabase>();
+	add_panel<editor::PanelResourceViewer>();
+	add_panel<editor::PanelSceneView>(active_scene);
+}
 
-	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("Project")) {
-			if (ImGui::MenuItem("Exit")) { 
-				r = EditorExitReason::Exit;
-			}
+void Editor::destroy_game() {
+	graphics_system.reset();
+	panels.clear();
+	active_scene->destroy();
+	active_scene.reset();
+	Game::destroy_game_dll(game, game_loader);
+}
 
-			if (ImGui::MenuItem("Reload")) { 
-				r = EditorExitReason::Reload;
-			}
+bool Editor::render(u32 delta_time) {
+	ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
+	exiting = instance->should_close();
 
-			ImGui::EndMenu();
-		}
+	instance->renderer->attach_camera(*camera.camera.get());
+	viewport_framebuffer->clear_image(Color4(1,1,1,1));
+	graphics_system->update(0);
 
-		std::string version_string = fmt::format(
-				"real engine, version {}.{}.{}, {}",
-				RL_VERSION_MAJOR, RL_VERSION_MINOR, RL_VERSION_PATCH,
-				STRINGIFY_EXP(RL_BUILD_TYPE));
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(version_string.c_str()).x);
-		ImGui::Text("%s", version_string.c_str());
-
-	  	ImGui::EndMainMenuBar();
-	}
-
-	viewport();
+	render_toolbar();
+	render_viewport();
+	render_engine_panel();
 
 	for(auto p : panels) {
 		p->draw();
 	}
 
+	camera.update(delta_time);
+
+	return exiting;
+}
+
+void Editor::render_engine_panel() {
 	ImGui::Begin("Engine Panel");
 	ImGui::Text("Object Count: %u", real::Object::get_object_count());
 	ImGui::Text("Stack Allocator mem: %u/%u", instance->frame_allocator.allocated_mem, instance->frame_allocator.alloc_size);
@@ -74,14 +97,41 @@ EditorExitReason Editor::render(u32 delta_time) {
 	ImGui::Text("Window size, x: %u, y: %u", width, height);
 	auto [xpos, ypos] = instance->window->get_mouse_position();
 	ImGui::Text("Mouse position: x: %f, y: %f", xpos, ypos);
+
+	ImGui::SeparatorText("Current Game");
+
+	for (auto &sys : active_scene->systems) {
+		sys->draw_imgui();
+	}
+
 	ImGui::End(); 
-
-	camera.update(delta_time);
-
-	return r;
 }
 
-void Editor::viewport() {
+void Editor::render_toolbar() {
+	if (ImGui::BeginMainMenuBar()) {
+		if (ImGui::BeginMenu("Project")) {
+			if (ImGui::MenuItem("Exit")) {
+				exiting = true;
+			}
+
+			if (ImGui::MenuItem("Reload")) { 
+			}
+
+			ImGui::EndMenu();
+		}
+
+		std::string version_string = fmt::format(
+				"real engine, version {}.{}.{}, {}",
+				RL_VERSION_MAJOR, RL_VERSION_MINOR, RL_VERSION_PATCH,
+				STRINGIFY_EXP(RL_BUILD_TYPE));
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(version_string.c_str()).x);
+		ImGui::Text("%s", version_string.c_str());
+
+	  	ImGui::EndMainMenuBar();
+	}
+}
+
+void Editor::render_viewport() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 	ImGui::Begin("Viewport");
 
@@ -106,7 +156,7 @@ void Editor::viewport() {
 		drawSize = ImVec2(windowSize.x, windowSize.x / imgAspect);
 	}
 
-	auto id = editor_viewport.get()->get_imgui_textureID();
+	auto id = viewport_framebuffer->get_color_resolve_image().get()->get_imgui_textureID();
 	ImGui::Image(id, drawSize);
 
 	ImGui::End();

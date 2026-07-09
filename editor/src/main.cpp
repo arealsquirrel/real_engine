@@ -9,6 +9,7 @@
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/graphics/graphics_system.hpp"
+#include <cassert>
 #include <real/real.hpp>
 
 using namespace real;
@@ -17,11 +18,13 @@ editor::EditorExitReason reason = editor::EditorExitReason::NotExiting;
 
 void run_game(Shared<Instance> instance, editor::Editor *ed, real::ArgParams params) {
 	reason = editor::EditorExitReason::NotExiting;
-	auto [game, dll] = Game::load_game_dll(instance, params);
+	/*
 	game->scene = std::make_shared<Scene>(instance.get());
 	game->start();
 	game->scene->awake();
+	*/
 	
+	/*
 	auto graphics_system = game->scene->get_system<GraphicsSystem>();
 	instance->renderer->attach_camera(*ed->camera.camera.get());
 	ed->add_panel<editor::PanelSceneView>(game->scene);
@@ -56,6 +59,7 @@ void run_game(Shared<Instance> instance, editor::Editor *ed, real::ArgParams par
 		instance->resource_database->unregister_all();
 		run_game(instance, ed, params);
 	}
+	*/
 }
 
 Shared<Instance> instance;
@@ -63,17 +67,16 @@ ArgParams params;
 
 void init_engine() {
 	Graphics::init_backend({});
-	instance = std::make_shared<Instance>(params);
-	// real::LogSink_Buffer *log_buffer;
 	Log &log = Log::get();
 	log.name = "game engine";
 	log.log_level = real::LogLevel_Trace;
-	// log_buffer = new real::LogSink_Buffer();
 	log.sinks.push_back(new real::LogSink_Console());
-	// log.sinks.push_back(log_buffer);
+
+	instance = std::make_shared<Instance>(params);
 }
 
 void destroy_engine() {
+	assert(instance.use_count() == 1);
 	instance.reset();
 	Graphics::destroy_backend();
 }
@@ -82,16 +85,20 @@ int main(int argc, char **argv) {
 	params = parse_args(argc, argv);
 	init_engine();
 
-	editor::Editor *ed = new editor::Editor(instance);
-	ed->add_panel<editor::PanelResourceDatabase>();
-	ed->add_panel<editor::PanelResourceViewer>();
+	editor::Editor *ed = new editor::Editor(instance, params);
 
-	// ed->add_panel<editor::PanelLogs>(log_buffer);
-	// run_game(instance, ed, params);
-
-	destroy_engine();
-
+	ed->load_game(params.game_dll_path);
+	
+	bool should_exit = false;
+	while(should_exit == false) {
+		instance->renderer->start_frame();
+		should_exit = ed->render(0);
+		instance->renderer->end_frame();
+	}
+	
+	ed->destroy_game();
+	
 	delete ed;
-
+	destroy_engine();
 }
 

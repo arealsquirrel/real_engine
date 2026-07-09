@@ -83,8 +83,6 @@ VulkanRenderer::~VulkanRenderer() {
 
 	delete scene_data.release();
 
-	RL_LOG_INFO("rawr");
-
     ImGui_ImplVulkan_Shutdown();
 	vkDestroyDescriptorPool(device, imgui_descriptor_pool, nullptr);
 	vkDestroySampler(device, samplerLinear, nullptr);

@@ -6,6 +6,7 @@
 #include "real/core/types.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/graphics/graphics_system.hpp"
+#include "real/graphics/renderpass_geometry.hpp"
 #include <real/graphics/framebuffer.hpp>
 #include <memory>
 
@@ -25,7 +26,9 @@ int main(int argc, char **argv) {
 	Graphics::init_backend({});
 	Shared<Instance> instance = std::make_shared<Instance>(params);
     auto [game, dll] = Game::load_game_dll(instance, params);
+	Shared<Framebuffer> screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight);
 	game->scene = std::make_shared<Scene>(instance.get());
+	game->screen_framebuffer = screen_framebuffer;
 	game->start();
 	game->scene->awake();
 	RL_INSTRUMENT_PROFILE_END;
@@ -34,7 +37,7 @@ int main(int argc, char **argv) {
 	while(instance->should_close() == false) {
 		instance->renderer->start_frame();
 		game->update(0);
-		instance->renderer->end_frame(game->screen_framebuffer->get_color_resolve_image().get());
+		instance->renderer->end_frame(screen_framebuffer->get_color_resolve_image().get());
 	}
 	RL_INSTRUMENT_PROFILE_END;
  
@@ -43,6 +46,7 @@ int main(int argc, char **argv) {
 	game->scene->destroy();
     Game::destroy_game_dll(game, dll);
 
+	screen_framebuffer.reset();
 	instance.reset();
 	Graphics::destroy_backend();
 	RL_INSTRUMENT_PROFILE_END;
