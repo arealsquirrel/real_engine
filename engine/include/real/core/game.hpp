@@ -49,6 +49,8 @@ public:
 	 */
 	virtual void update(u32 delta_time) = 0;
 
+	virtual void shutdown() = 0;
+
 public:
 
 	/**

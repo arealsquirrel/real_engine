@@ -27,6 +27,11 @@ public:
     EntityHandle create_entity(String name);
     EntityHandle create_entity(String name, UUID id);
 
+	/*
+	 * clones entities, but does not clone systems
+	 */
+	Shared<Scene> clone();
+
     void awake();
     void update(u32 delta_time);
     void destroy();

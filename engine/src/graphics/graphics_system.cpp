@@ -48,7 +48,7 @@ void GraphicsSystem::update(u32 delta_time) {
 	for (auto [ent, sprite, trans] : view.each()) {
 		sprite_renderer->draw_sprite(trans.get_transform(), sprite.texture.get(), sprite.tile, sprite.tint_color);
 	}
-	}
+	}	
 
 	framebuffer->bind();
 	mesh_renderer->draw_commands(framebuffer);

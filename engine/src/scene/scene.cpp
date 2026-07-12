@@ -38,9 +38,7 @@ EntityHandle Scene::create_entity(String name, UUID id) {
 }
 
 void Scene::awake() {
-	RL_LOG_INFO("awaking");
     for (auto s : systems) {
-		RL_LOG_INFO("awaking");
 		s->awake();
     }
 }

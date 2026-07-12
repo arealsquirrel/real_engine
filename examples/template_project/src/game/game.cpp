@@ -40,6 +40,34 @@ void MyGame::start() {
 		viking_room.AddComponent<RotateObjectComponent>(1.0f);
 	}
 
+	{
+		auto image = resource_database->get_resource<ResourceImage>("viking_room.png");
+		auto viking_room = scene->create_entity("square1");
+		viking_room.AddComponent<ComponentSpriteRenderer>(
+			image
+		);
+
+		auto &transform = viking_room.GetComponent<ComponentTransform>();
+		transform.rotation = Vec3(0.0f, 0.0f, 0.0f);
+		transform.position = Vec3(0.0f, 1.0f, -1.0f);
+
+		viking_room.AddComponent<RotateObjectComponent>(1.0f);
+	}
+
+	{
+		auto image = resource_database->get_resource<ResourceImage>("mk_16_16_nature_tileset_json-sheet.png");
+		auto viking_room = scene->create_entity("square2");
+		viking_room.AddComponent<ComponentSpriteRenderer>(
+			image, image.get()->tiles[StringHash("5")]
+		);
+
+		auto &transform = viking_room.GetComponent<ComponentTransform>();
+		transform.rotation = Vec3(0.0f, 0.0f, 0.0f);
+		transform.position = Vec3(0.0f, 2.0f, -1.0f);
+
+		viking_room.AddComponent<RotateObjectComponent>(1.0f);
+	}
+
 	/*
 	{
 		auto viking_room = scene->create_entity("viking room");
@@ -54,6 +82,11 @@ void MyGame::start() {
 	}
 	*/
 
+	{
+		auto entity = scene->create_entity("camera");
+		entity.AddComponent<ComponentCamera>();
+	}
+
 	camera.translate_camera(Vec3(0,0,-3));
 }
 
@@ -66,6 +99,10 @@ void MyGame::update(u32 delta_time) {
 	for(auto [ent, rotate, transform] : view.each()) {
 		transform.rotation.z += rotate.rpt;
 	}
+}
+
+void MyGame::shutdown() {
+
 }
 
 MyGame::~MyGame() = default;

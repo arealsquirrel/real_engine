@@ -1,6 +1,5 @@
-
-#ifndef SC_UUID_HPP
-#define SC_UUID_HPP
+#ifndef RL_UUID_HPP
+#define RL_UUID_HPP
 
 #include <functional>
 #include <real/core/core.hpp>

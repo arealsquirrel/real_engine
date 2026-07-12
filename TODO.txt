@@ -1,7 +1,7 @@
 
 - Road to release IG
 	- getting a full development cycle steps
-		- reflection to json
+		- reflection to json is first
 		- asset packing into globs
 		- I mean thats really all thats missing from being able to "ship" games with this engine
 

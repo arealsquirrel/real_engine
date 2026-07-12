@@ -56,7 +56,7 @@ VSOutput vertex_main(
 	float2 base_coord = vertexes[vertex_index % 6];
     output.position = mul(scene_data.projection,
 	 			mul(scene_data.view,
-				mul(v.model, float4(base_coord.x-0.5f, base_coord.y-0.5f, 0.0f, 1.0f)))); 
+				mul(v.model, float4(base_coord.x, base_coord.y, 0.0f, 1.0f)))); 
 	
 	output.uv = (1.f - base_coord) * v.uv0 + base_coord * v.uv1;
 	output.color = v.color;
@@ -69,11 +69,12 @@ VSOutput vertex_main(
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
 	float4 color = input.color;
+	// color = sampler[input.texture_id].Sample(input.uv);
 	
 	if(input.shader_id == 0)
 		color *= sampler[input.texture_id].Sample(input.uv);
 
-	if(color.w < 0.1)
+	if(color.w == 0)
 		discard;
 
 	return color;

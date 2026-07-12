@@ -1,6 +1,7 @@
 
 #include "editor.hpp"
 #include "editor_camera.hpp"
+#include "editor_gizmos.hpp"
 #include "imgui.h"
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
@@ -15,6 +16,7 @@
 #include <fmt/format.h>
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
+#include "real/core/logging.hpp"
 #include "real/graphics/framebuffer.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
@@ -24,7 +26,7 @@ namespace editor {
 using namespace real;
 
 Editor::Editor(Shared<real::Instance> _instance, real::ArgParams _params) 
-	: instance(_instance), camera(_instance.get()), params(_params) {
+	: instance(_instance), camera(_instance.get()), params(_params), gizmos(instance) {
 
 	camera.block_input = true;
 	editor_state = EditorState::Editing;
@@ -34,6 +36,14 @@ Editor::Editor(Shared<real::Instance> _instance, real::ArgParams _params)
 }
 
 Editor::~Editor() {
+
+}
+
+void Editor::step_game() {
+
+}
+
+void Editor::step_editor() {
 
 }
 
@@ -57,6 +67,7 @@ void Editor::destroy_game() {
 	panels.clear();
 	active_scene->destroy();
 	active_scene.reset();
+	// edited_scene.reset();
 	Game::destroy_game_dll(game, game_loader);
 }
 
@@ -64,9 +75,14 @@ bool Editor::render(u32 delta_time) {
 	ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 	exiting = instance->should_close();
 
-	instance->renderer->attach_camera(*camera.camera.get());
-	viewport_framebuffer->clear_image(Color4(1,1,1,1));
-	graphics_system->update(0);
+	if(editor_state == EditorState::Editing) {
+		instance->renderer->attach_camera(*camera.camera.get());
+		viewport_framebuffer->clear_image(Color4(1,0,0,1));
+		gizmos.draw_gizmos(active_scene);
+		graphics_system->update(0);
+	} else {
+		game->update(0);
+	}
 
 	render_toolbar();
 	render_viewport();
@@ -83,6 +99,15 @@ bool Editor::render(u32 delta_time) {
 
 void Editor::render_engine_panel() {
 	ImGui::Begin("Engine Panel");
+	
+	switch (editor_state) {
+		case EditorState::Editing: 
+			if(ImGui::Button("run")) set_running(); break;
+		case EditorState::Paused: break;
+		case EditorState::Running: 
+			if(ImGui::Button("edit")) set_editing(); break;
+	}
+
 	ImGui::Text("Object Count: %u", real::Object::get_object_count());
 	ImGui::Text("Stack Allocator mem: %u/%u", instance->frame_allocator.allocated_mem, instance->frame_allocator.alloc_size);
 	ImGui::Text("System Allocator mem: %u/%u", instance->system_allocator.allocated_mem, instance->system_allocator.alloc_size);
@@ -161,6 +186,54 @@ void Editor::render_viewport() {
 
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void Editor::set_editing() {
+	/*
+	switch (editor_state) {
+		case EditorState::Editing: break;
+		case EditorState::Paused: break;
+		case EditorState::Running:
+			game->shutdown();
+			active_scene.reset();
+			active_scene = std::make_shared<Scene>(instance.get());
+			game->scene = active_scene;
+			game->start();
+			game->scene->awake();
+			editor_state = EditorState::Editing;
+			RL_LOG_INFO("began editing game");
+			return;
+	}
+	*/
+}
+
+void Editor::set_running() {
+	/*
+	switch (editor_state) {
+		case EditorState::Editing: 
+			game->shutdown();
+			active_scene.reset();
+			active_scene = std::make_shared<Scene>(instance.get());
+			game->scene = active_scene;
+			game->start();
+			game->scene->awake();
+			editor_state = EditorState::Running;
+			RL_LOG_INFO("began running game");
+			return;
+
+		case EditorState::Paused: break;
+		case EditorState::Running: break;
+	}
+	*/
+}
+
+void Editor::set_paused() {
+	switch (editor_state) {
+		case EditorState::Editing: break;
+		case EditorState::Paused: break;
+		case EditorState::Running: break;
+
+	}
 }
 
 }
