@@ -7,7 +7,7 @@
 
 namespace real {
 
-// std::map<StringHash, Reflection::Type> Reflection::reflected_types = {};
+std::map<size_t, const reflect::Type*> Reflection::type_map;
 
 }
 
