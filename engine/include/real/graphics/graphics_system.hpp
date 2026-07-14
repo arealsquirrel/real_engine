@@ -43,12 +43,13 @@ public:
 	void draw_imgui() override;
 
 	void set_main_camera(EntityHandle entity);
+	void bind_main_camera();
 
 private:
 	EXPOSE_TO_EDITOR
-	Shared<Camera> main_camera;
 	Shared<MeshRenderer> mesh_renderer;
 	Shared<SpriteRenderer> sprite_renderer;
+	EntityHandle camera_entity;
 
 	// TODO : better :/
 	Framebuffer *framebuffer;

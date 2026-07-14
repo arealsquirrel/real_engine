@@ -71,7 +71,7 @@ private:
 	EditorGizmos gizmos;
 
 	Shared<real::Scene> active_scene;
-	// Shared<real::Scene> edited_scene;
+	Shared<real::Scene> edited_scene;
 
 private:
 	// things made by the game we might want to take a look at

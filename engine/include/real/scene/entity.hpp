@@ -29,6 +29,11 @@ public:
 		return registry->emplace<C>(handle, std::forward<Args>(args)...);
 	}
 
+	template<class C, typename... Args>
+	C &EmplaceOrReplace(Args &&...args) {
+		return registry->emplace_or_replace<C>(handle, std::forward<Args>(args)...);
+	}
+
 	template <typename C>
 	bool HasComponent() {
 		return registry->any_of<C>(handle);

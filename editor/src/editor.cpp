@@ -67,7 +67,6 @@ void Editor::destroy_game() {
 	panels.clear();
 	active_scene->destroy();
 	active_scene.reset();
-	// edited_scene.reset();
 	Game::destroy_game_dll(game, game_loader);
 }
 
@@ -79,9 +78,11 @@ bool Editor::render(u32 delta_time) {
 		instance->renderer->attach_camera(*camera.camera.get());
 		viewport_framebuffer->clear_image(Color4(1,0,0,1));
 		gizmos.draw_gizmos(active_scene);
-		graphics_system->update(0);
+		graphics_system->update(delta_time);
 	} else {
-		game->update(0);
+		game->update(delta_time);
+		active_scene->update(delta_time);
+		graphics_system->bind_main_camera();
 	}
 
 	render_toolbar();
@@ -189,7 +190,6 @@ void Editor::render_viewport() {
 }
 
 void Editor::set_editing() {
-	/*
 	switch (editor_state) {
 		case EditorState::Editing: break;
 		case EditorState::Paused: break;
@@ -204,11 +204,9 @@ void Editor::set_editing() {
 			RL_LOG_INFO("began editing game");
 			return;
 	}
-	*/
 }
 
 void Editor::set_running() {
-	/*
 	switch (editor_state) {
 		case EditorState::Editing: 
 			game->shutdown();
@@ -224,7 +222,6 @@ void Editor::set_running() {
 		case EditorState::Paused: break;
 		case EditorState::Running: break;
 	}
-	*/
 }
 
 void Editor::set_paused() {

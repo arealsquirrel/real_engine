@@ -11,6 +11,7 @@
 #include "real/core/uuid.hpp"
 #include "real/scene/system.hpp"
 #include <entt/entity/registry.hpp>
+#include <set>
 #include <utility>
 
 namespace real {
@@ -54,6 +55,7 @@ public:
 
 public:
     entt::registry *registry;
+	std::set<entt::entity> entities;
     
     friend EntityHandle;
     friend System;

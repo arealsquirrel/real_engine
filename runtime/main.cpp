@@ -31,12 +31,16 @@ int main(int argc, char **argv) {
 	game->screen_framebuffer = screen_framebuffer;
 	game->start();
 	game->scene->awake();
+	
+	auto graphics_system = game->scene->get_system<GraphicsSystem>();
 	RL_INSTRUMENT_PROFILE_END;
 
 	RL_INSTRUMENT_PROFILE_START("Runtime");
 	while(instance->should_close() == false) {
 		instance->renderer->start_frame();
 		game->update(0);
+		game->scene->update(0);
+		graphics_system->bind_main_camera();
 		instance->renderer->end_frame(screen_framebuffer->get_color_resolve_image().get());
 	}
 	RL_INSTRUMENT_PROFILE_END;

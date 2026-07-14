@@ -6,6 +6,7 @@
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/scene/components.hpp"
+#include <memory>
 #include <real/scene/entity.hpp>
 #include <real/scene/scene.hpp>
 
@@ -23,6 +24,23 @@ Scene::~Scene() {
 	delete registry;
 }
 
+Shared<Scene> Scene::clone() {
+	Shared<Scene> scene = std::make_shared<Scene>(instance);
+
+	for (auto entity : entities) {
+		EntityHandle src_entity(entity, this);
+		auto &src_id = src_entity.GetComponent<ComponentID>();
+		EntityHandle dst_entity = scene->create_entity(src_id.name, src_id.id);
+		dst_entity.EmplaceOrReplace<ComponentTransform>(src_entity.GetComponent<ComponentTransform>());
+	}
+
+	for (auto &system : systems) {
+		scene->systems.emplace(system);
+	}
+	
+	return scene;
+}
+
 EntityHandle Scene::create_entity(String name) {
     return create_entity(name, UUID());
 }
@@ -33,6 +51,7 @@ EntityHandle Scene::create_entity(String name, UUID id) {
 
     eh.AddComponent<ComponentID>(name, id);
     eh.AddComponent<ComponentTransform>();
+	entities.emplace(entity);
 
     return eh;
 }

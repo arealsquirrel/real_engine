@@ -25,8 +25,6 @@ struct RotateObjectComponent {
 
 RL_REFLECT(RotateObjectComponent, RL_REFLECT_FIELD(rpt))
 
-Camera camera;
-
 void MyGame::start() {
 	auto graphics = scene->add_system<GraphicsSystem>(screen_framebuffer.get());
 
@@ -46,9 +44,9 @@ void MyGame::start() {
 
 	{
 		auto image = resource_database->get_resource<ResourceImage>("mk_16_16_nature_tileset_json-sheet.png");
-		auto viking_room = scene->create_entity("square");
+		auto viking_room = scene->create_entity("square1");
 		viking_room.AddComponent<ComponentSpriteRenderer>(
-			image, image.get()->tiles[StringHash("1")]
+			image, image.get()->tiles[StringHash("2")]
 		);
 
 		auto &transform = viking_room.GetComponent<ComponentTransform>();
@@ -62,17 +60,11 @@ void MyGame::start() {
 		auto entity = scene->create_entity("camera");
 		entity.AddComponent<ComponentCamera>();
 		entity.GetComponent<ComponentTransform>().position.z = -3;
+		graphics->set_main_camera(entity);
 	}
-
-	camera.translate_camera(Vec3(0,0,-3));
-	camera.change_projection(Camera::Projection::Orthographic);
 }
 
 void MyGame::update(u32 delta_time) {
-	renderer->attach_camera(camera);
-	screen_framebuffer->clear_image(Color4(0.0f, 0.0f, 0.0f, 1.0f));
-	scene->update(delta_time);
-
 	auto view = scene->registry->view<RotateObjectComponent, ComponentTransform>();
 	for(auto [ent, rotate, transform] : view.each()) {
 		transform.rotation.z += rotate.rpt;

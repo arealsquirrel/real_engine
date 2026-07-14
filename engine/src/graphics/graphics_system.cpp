@@ -22,8 +22,13 @@ GraphicsSystem::GraphicsSystem(Instance *_instance, Scene *_scene, Framebuffer *
 GraphicsSystem::~GraphicsSystem() = default;
 
 void GraphicsSystem::set_main_camera(EntityHandle entity) {
-	auto &cam_comp = entity.GetComponent<ComponentCamera>();
-	// main_camera = cam_comp.camera;
+	camera_entity = entity;
+}
+
+void GraphicsSystem::bind_main_camera() {
+	auto &cam = camera_entity.GetComponent<ComponentCamera>();
+	instance->renderer->attach_camera(cam.camera);
+	framebuffer->clear_image(cam.camera.clear_color);
 }
 
 void GraphicsSystem::awake() {
@@ -33,8 +38,12 @@ void GraphicsSystem::awake() {
 
 void GraphicsSystem::update(u32 delta_time) {
 
-	// instance->renderer->attach_camera(main_camera);
-	// framebuffer->clear_image(main_camera->clear_color);
+	{
+	auto view = scene->registry->view<ComponentCamera, ComponentTransform>();
+	for (auto [ent, camera, trans] : view.each()) {
+		camera.camera.set_position(trans.position);
+	}
+	}
 
 	{
 	auto view = scene->registry->view<ComponentMeshRenderer, ComponentTransform>();
