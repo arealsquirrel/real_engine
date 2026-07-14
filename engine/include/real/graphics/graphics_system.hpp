@@ -11,7 +11,6 @@
 #include "real/scene/entity.hpp"
 #include "real/scene/scene.hpp"
 #include "real/scene/system.hpp"
-#include <memory>
 
 namespace real {
 

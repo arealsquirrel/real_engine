@@ -7,7 +7,6 @@
 #include "real/core/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
-#include "real/graphics/camera.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/math/mat4.hpp"

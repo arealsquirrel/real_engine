@@ -1,12 +1,14 @@
 #ifndef RL_REFLECTION_HPP
 #define RL_REFLECTION_HPP
 
+#include "imgui.h"
 #include "real/core/core.hpp"
 #include "real/core/string_hash.hpp"
 #include "real/core/templates.hpp"
 #include "real/core/types.hpp"
 #include <cstddef>
 #include <cstdio>
+#include <iterator>
 #include <map>
 #include <real/core/uuid.hpp>
 #include <real/math/math.hpp>
@@ -79,23 +81,17 @@ static const Type *type_ptr_reflect() {
 	return nullptr;
 }
 
-}
-
 // we are in the real namespace right now BTW
 class REALLIB_EXPORT Reflection {
-public:
-
 public:
 	template<typename T>
 	static const reflect::Type *get_type() {
 		auto at = type_map.find(typeid(T).hash_code());
 		if(at == type_map.end()) {
 			auto *type = reflect::type_ptr_reflect<T>(); // reflect TS into the map
-			std::printf("reflecting and returning type\n");
 			return type;
 		}
 
-		std::printf("type found in map\n");
 		return at->second;
 	}
 
@@ -103,11 +99,14 @@ public:
 		return type_map.at(type_id);
 	}
 
+	template<typename T>
+	bool is_type_in_map() {
+		return (type_map.count(typeid(T).hash_code()) != 0);
+	}
+
 public:
 	static std::map<size_t, const reflect::Type*> type_map;
 };
-
-namespace reflect {
 
 template<typename T>
 inline static Field reflect_get_field(std::string name, size_t offset, size_t element_size) {
@@ -115,7 +114,6 @@ inline static Field reflect_get_field(std::string name, size_t offset, size_t el
 	field.field_name = name;
 	field.offset = offset;
 	field.field_size = element_size;
-	field.type_size = sizeof(T);
 	field.is_ptr = std::is_pointer_v<T>;
 	field.storage_structure = StorageStructure::Instance;
 
@@ -123,18 +121,21 @@ inline static Field reflect_get_field(std::string name, size_t offset, size_t el
 		field.array_dims = std::extent_v<T>;
 		field.next = Reflection::get_type<std::remove_all_extents_t<T>>();
 		field.primitive_type = get_type_enum<std::remove_all_extents_t<T>>();
+		field.type_size = sizeof(std::remove_all_extents_t<T>);
 		field.storage_structure = StorageStructure::Array;
 		return field;
-	} else if(is_specialization<T, std::vector>::value) {
+	} else if constexpr (is_specialization<T, std::vector>::value) {
 		field.array_dims = 1;
 		field.next = Reflection::get_type<std_vector_type<T>>();
 		field.primitive_type = get_type_enum<std_vector_type<T>>();
 		field.storage_structure = StorageStructure::Vector;
+		field.type_size = sizeof(std_vector_type<T>);
 		return field;
 	} else {
 		field.array_dims = 1;
 		field.primitive_type = get_type_enum<T>();
 		field.next = Reflection::get_type<T>();
+		field.type_size = sizeof(T);
 		return field;
 	}
 }
@@ -144,6 +145,51 @@ inline const PrimitiveTypes get_type_enum<std::string>() {
 	return PrimitiveTypes::t_string;
 }
 
+class FieldView;
+
+class REALLIB_EXPORT TypeReflector {
+public:
+	TypeReflector(const Type *_type, char *_view, size_t _offset=0)
+		: view(_view), type(_type), offset(_offset) {}
+	~TypeReflector() = default;
+
+public:
+	FieldView view_field(std::string name);
+	bool has_field(std::string name);
+
+public:
+	char *view;
+	const reflect::Type *type;
+	size_t offset;
+};
+
+class REALLIB_EXPORT FieldView {
+public:
+	FieldView(const reflect::Field &_field, char *_view, size_t _offset=0)
+		: field(_field), view(_view), offset(_offset) {}
+	~FieldView() = default;
+
+	template<typename R>
+	void set(const R &value) {
+		void *ptr = view+offset+field.offset;
+		((R)ptr) = value; // woah
+	}
+
+	template<typename R>
+	R *get() {
+		void *ptr = view+offset+field.offset;
+		return (R*)ptr;
+	}
+
+	TypeReflector next();
+	bool has_next();
+
+public:
+	const reflect::Field field;
+	char *view;
+	size_t offset;
+};
+
 #define RL_REFLECT(TypeName, ...) \
 	template<> \
 	const real::reflect::Type *real::reflect::type_ptr_reflect<TypeName>() { \
@@ -152,7 +198,7 @@ inline const PrimitiveTypes get_type_enum<std::string>() {
 		type.name = #TypeName; \
 		type.hash = real::StringHash(type.name); \
 		type.fields = {__VA_ARGS__}; \
-		real::Reflection::type_map.emplace(typeid(TypeName).hash_code(), &type); \
+		real::reflect::Reflection::type_map.emplace(typeid(TypeName).hash_code(), &type); \
 		return &type; \
 	}
 
@@ -173,6 +219,24 @@ RL_REFLECT_INTERNAL_PRIM(Vec3)
 RL_REFLECT_INTERNAL_PRIM(Vec4)
 
 }
+
+template<typename T>
+REALLIB_EXPORT
+const reflect::Type *reflect_type() {
+	return reflect::Reflection::get_type<T>();
+}
+
+template<typename T>
+REALLIB_EXPORT
+reflect::TypeReflector reflect_view_type(T *type) {
+	return reflect::TypeReflector(reflect_type<T>(), (char*)type);
+}
+
+/** 
+ * draws out the fields of this type with imgui
+ */
+REALLIB_EXPORT
+void reflect_imgui(reflect::TypeReflector refl, ImGuiID id);
 
 }
 
