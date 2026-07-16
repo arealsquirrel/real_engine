@@ -113,54 +113,44 @@ public:
 	 * very important here, this input variable is not how many bytes are allocated,
 	 * but how many T's can be stored in here
 	 */
-	PageAllocator(u32 _type_size, u32 amount_of_ts) 
-		: Allocator((_type_size+sizeof(Header))*amount_of_ts + sizeof(Header)), type_size(_type_size) {
-	
-		char *pointer = buffer;
-		for (size_t i = 0; i < amount_of_ts; i++) {
-			Header *h = (Header*)pointer;
-			pointer += sizeof(Header);
-			pointer += type_size;
-			h->next = (Header*)(pointer);
-		}
-
-		((Header*)pointer)->next = nullptr;
-
-		alloc_list_start = (Header*)buffer;
-		alloc_list_head = (Header*)buffer;
-	}
-
+	PageAllocator(u32 _type_size, u32 amount_of_ts);
 	~PageAllocator() = default;
 
-	char *allocate_mem(u32 size=0) final override {
-		if(free_list == nullptr) {
-			if(alloc_list_head->next == nullptr) {
-				RL_LOG_WARN("Page Allocator out of memory");
-				return nullptr;
-			}
+	char *allocate_mem(u32 size=0);
 
-			Header *alloc = alloc_list_head;
-			alloc_list_head = alloc_list_head->next;
-			return (char*)alloc + sizeof(Header);
-		}
-
-		Header *alloc = free_list;
-		free_list = free_list->next;
-		return (char*)alloc + sizeof(Header);
-	}
-
-	void free_mem(char *mem, u32 size=0) final override {
-		Header *header = (Header*)(mem-sizeof(Header));
-		header->next = nullptr;
-		free_list->next = header;
-	}
+	void free_mem(char *mem, u32 size=0);
 
 	Header *alloc_list_start;
 
 private:
-	Header *alloc_list_head;
 	Header *free_list {nullptr};
 	const size_t type_size;
+};
+
+class REALLIB_EXPORT LinkedListAllocator : public Allocator {
+public:
+	struct Header {
+		Header *next;
+		Header *back;
+		u32 size;
+		bool used;
+	};
+
+public:
+	LinkedListAllocator(u32 size);
+	~LinkedListAllocator();
+
+	char *allocate_mem(u32 size=0);
+	void free_mem(char *mem, u32 size=0);
+
+	Header *list_begin;
+	Header *list_end;
+
+private:
+	void compact();
+
+private:
+	Header *last_alloc;
 };
 
 }

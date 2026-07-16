@@ -1,7 +1,11 @@
 
 #include "real/core/allocator.hpp"
 #include "real/core/logging.hpp"
+#include "real/core/types.hpp"
+#include <array>
+#include <cstdio>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <string>
 
 TEST(AllocatorTest, SystemAllocator) {
@@ -43,22 +47,42 @@ TEST(AllocatorTest, PageAllocator) {
 	}
 
 	EXPECT_EQ(header_count, 11);
-	RL_LOG_INFO("here");
 
-	auto str1 = (std::string*)(str_alloc.allocate_mem());
+	std::string *str1 = str_alloc.allocate_object<std::string>();
 	str1->assign("hello");
 
-
-	RL_LOG_INFO("here");
-	auto str2 = (std::string*)(str_alloc.allocate_mem());
+	std::string *str2 = str_alloc.allocate_object<std::string>();
 	str2->assign("hello");
 
-
-	RL_LOG_INFO("here");
 	str_alloc.free_mem((char*)str1);
 
-	RL_LOG_INFO("here");
-	auto str3 = (std::string*)(str_alloc.allocate_mem());
+	std::string *str3 = str_alloc.allocate_object<std::string>();
 	str3->assign("hello");
+}
+
+TEST(AllocatorTest, LinkedAllocator) {
+	using namespace real;
+
+	LinkedListAllocator alloc(500);
+
+	std::string *str = alloc.allocate_object<std::string>();
+	int *str1 = alloc.allocate_object<int>();
+	auto *str2 = alloc.allocate_object<std::array<int, 7>>();
+	std::string *str4 = alloc.allocate_object<std::string>();
+	int *str11 = alloc.allocate_object<int>();
+	auto *str22 = alloc.allocate_object<std::array<int, 7>>();
+
+	alloc.free_object(str2);
+	alloc.free_object(str4);
+	alloc.free_object(str1);
+
+	LinkedListAllocator::Header *selected_block = nullptr;
+	u32 total_size = 0;
+	for(auto *iter = alloc.list_begin; iter != nullptr; iter = iter->next) {
+		total_size += iter->size + sizeof(LinkedListAllocator::Header);
+		std::cout << iter->used << " " << iter->size << std::endl;
+	}
+
+	EXPECT_EQ(total_size, 500);
 }
 

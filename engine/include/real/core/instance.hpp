@@ -27,7 +27,6 @@ public:
 	Unique<EventMessenger> event_messenger;
 	ArgParams arg_params;
 
-	// cleared every frame!
 	StackAllocator frame_allocator;
 	SystemAllocator system_allocator;
 };

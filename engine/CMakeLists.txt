@@ -1,7 +1,7 @@
 
 project (reallib VERSION 1.0.0)
 
-file(GLOB_RECURSE ENGINE_SRCS src/*.cpp external/*.cpp external/*.c)
+file(GLOB_RECURSE ENGINE_SRCS src/*.cpp ../external/*.cpp ../external/*.c)
 
 configure_file(${PROJECT_SOURCE_DIR}/include/real/config/config.hpp.in
 			   ${PROJECT_SOURCE_DIR}/include/real/config/config.hpp)
@@ -19,11 +19,11 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${ENGINE_SRCS})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden -fPIC -DTRACY_ENABLE)
+target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden -fPIC)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/external
+	${PROJECT_SOURCE_DIR}/../external
 )
 
 if("${REAL_RENDER_BACKEND}" STREQUAL "vulkan")

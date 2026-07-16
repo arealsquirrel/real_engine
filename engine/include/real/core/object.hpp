@@ -7,6 +7,9 @@
 
 namespace real {
 
+template<typename T>
+class Ref;
+
 class Instance;
 class EventListener;
 
@@ -36,6 +39,9 @@ protected:
 
 private:
 	static u32 object_count;
+
+	template<typename T>
+	friend class Ref;
 };
 
 #define RL_OBJECT(CLASS_NAME, CLASS_PARENT) public: \
