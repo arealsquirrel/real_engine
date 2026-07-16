@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <optional>
+#include <tracy/Tracy.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include <real/graphics/framebuffer.hpp>
@@ -32,7 +33,8 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		std::vector<RenderPassResource> _resources)
 		: RenderPassGeometry(_instance, shaders[0].get()->get_layout(), _resources) {
 
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	DescriptorLayoutBuilder builder;
@@ -253,7 +255,8 @@ VkPipelineMultisampleStateCreateInfo VulkanRenderPassGeometry::create_multisampl
 }
 
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+	
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	free(push_constant_buffer);
     vkDeviceWaitIdle(renderer->device);
@@ -263,7 +266,8 @@ VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
 }
 
 void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer, bool clear_depth) {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceImage *vimg = (VulkanResourceImage*)framebuffer->get_msaa_color_image().get();
@@ -311,7 +315,8 @@ void VulkanRenderPassGeometry::draw_indexed(
 		ResourceMesh *mesh,
 		u32 indices, u32 instances, u32 start_index) {
 
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh;
@@ -329,6 +334,8 @@ void VulkanRenderPassGeometry::draw(
 		u32 vertex_count, u32 instance_count,
 		u32 first_vertex, u32 first_instance) {
 
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	RenderPass::set_variable("_vertex_buffer", ((VulkanResourceMesh*)mesh)->address);
@@ -344,6 +351,8 @@ void VulkanRenderPassGeometry::draw(
 void VulkanRenderPassGeometry::draw_mesh(
 		ResourceMesh *mesh, ResourceMesh::Mesh submesh) {
 
+	ZoneScoped
+
 	draw_indexed(mesh, submesh.count, 1, submesh.start_index);
 }
 
@@ -352,14 +361,16 @@ void VulkanRenderPassGeometry::draw_mesh(ResourceMesh *mesh) {
 }
 
 void VulkanRenderPassGeometry::bind_descriptors() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	writer.update_set(renderer->device, descriptor_set);
 	vkCmdBindDescriptorSets(renderer->get_current_frame().main_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptor_set, 0, nullptr);
 }
 
 void VulkanRenderPassGeometry::end_pass() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 	vkCmdEndRendering(frame.main_command_buffer);
@@ -368,7 +379,7 @@ void VulkanRenderPassGeometry::end_pass() {
 void VulkanRenderPassGeometry::set_variable(
 		ShaderField field, char *data, size_t size) {
 
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	switch (field.type) {
@@ -398,7 +409,7 @@ void VulkanRenderPassGeometry::set_variable(
 void VulkanRenderPassGeometry::set_variable_array(
 		ShaderField field, char *data, size_t size) {
 
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	switch (field.type) {

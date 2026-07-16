@@ -5,6 +5,7 @@
 #include "real/resource/resource_handle.hpp"
 #include <cassert>
 #include <real/resource/resource_database.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -18,7 +19,8 @@ ResourceDatabase::~ResourceDatabase() {
 }
 
 void ResourceDatabase::unregister_resource(std::string name) {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	auto f = name_to_resource_UUID.find(name);
 	if(f == name_to_resource_UUID.end()) {
 		RL_LOG_WARN("can not find resource {}", name);

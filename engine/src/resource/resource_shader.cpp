@@ -6,6 +6,7 @@
 #include "real/debug/timer.hpp"
 #include "real/resource/resource.hpp"
 #include <real/resource/resource_shader.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -42,7 +43,7 @@ ResourceShader::ResourceShader(
 ResourceShader::~ResourceShader() = default;
 
 ShaderField ShaderLayout::get_field(std::string str) const {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	
 	if(field_map.find(str) == field_map.end()) {
 		RL_LOG_WARN("Field {} could not be found in shader layout", str);

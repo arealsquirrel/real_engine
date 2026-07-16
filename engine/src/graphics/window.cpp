@@ -10,6 +10,7 @@
 #include <memory>
 #include <real/graphics/window.hpp>
 #include <assert.h>
+#include <tracy/Tracy.hpp>
 #include <utility>
 
 namespace real {
@@ -31,7 +32,7 @@ static void glfw_key_callback() {
 
 Window::Window(Instance *_instance, const WindowInfo &info)
 	: Object(_instance) {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
     if(s_window_count++ == 0) {
         RL_LOG_INFO("initilizing GLFW {}:{}", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR);
@@ -51,7 +52,7 @@ Window::Window(Instance *_instance, const WindowInfo &info)
 }
 
 Window::~Window() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
     glfwDestroyWindow(window);
 
     if(--s_window_count == 0) {

@@ -38,6 +38,14 @@ if (nlohmann_json_ADDED)
   target_include_directories(nlohmann_json INTERFACE ${nlohmann_json_SOURCE_DIR}/include)
 endif()
 
+FetchContent_Declare(
+    tracy
+    GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+    GIT_TAG        v0.13.1 # Replace with your preferred stable release tag
+)
+
+FetchContent_MakeAvailable(tracy)
+
 set(BUILD_SHARED_LIBS OFF)
 
 file(DOWNLOAD 

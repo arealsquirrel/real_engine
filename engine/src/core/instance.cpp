@@ -11,13 +11,16 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <real/core/game.hpp>
+#include <tracy/Tracy.hpp>
 #include <utility>
 
 namespace real {
 
 Instance::Instance(ArgParams _arg_params)
 	: arg_params(_arg_params), frame_allocator(1024) {
-	RL_INSTRUMENT_FUNCTION
+	
+	ZoneScoped
+
 	WindowInfo info;
 	info.width = arg_params.window_width;
 	info.height = arg_params.window_height;
@@ -34,7 +37,8 @@ Instance::Instance(ArgParams _arg_params)
 }
 
 Instance::~Instance() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	resource_database.reset();
 	renderer->destroy_renderers();
 	// resource_database->unregister_all();

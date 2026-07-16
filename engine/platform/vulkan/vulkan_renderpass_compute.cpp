@@ -3,6 +3,7 @@
 #include <cstring>
 #include <memory>
 #include <real/graphics/renderpass_compute.hpp>
+#include <tracy/Tracy.hpp>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include "real/core/game.hpp"
@@ -25,7 +26,7 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 		std::vector<RenderPassResource> _resources)
 	: RenderPassCompute(_instance, shader.get()->get_layout(), _resources) {
 
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	DescriptorLayoutBuilder lb;
@@ -74,7 +75,8 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 }
 
 VulkanRenderPassCompute::~VulkanRenderPassCompute() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	free(push_constant_buffer);
 
@@ -86,7 +88,8 @@ VulkanRenderPassCompute::~VulkanRenderPassCompute() {
 }
 
 void VulkanRenderPassCompute::begin_pass() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 
@@ -100,7 +103,8 @@ void VulkanRenderPassCompute::begin_pass() {
 }
 
 void VulkanRenderPassCompute::bind_descriptors() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 
@@ -109,7 +113,8 @@ void VulkanRenderPassCompute::bind_descriptors() {
 }
 
 void VulkanRenderPassCompute::dispatch(u32 groupCountX, u32 groupCountY, u32 groupCountZ) {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
 

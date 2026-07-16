@@ -9,14 +9,15 @@
 #include "vulkan_resource_mesh.hpp"
 #include <cstring>
 #include <memory>
+#include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
 
 namespace real {
 
 VulkanUniformBuffer::VulkanUniformBuffer(Instance *_instance, size_t _size) 
     : UniformBuffer(_instance, _size), renderer((VulkanRenderer*)_instance->renderer.get()) {
-    
-    RL_INSTRUMENT_FUNCTION
+
+	ZoneScoped
 
     buffer = vkutil::create_buffer(
         renderer, _size,
@@ -26,7 +27,8 @@ VulkanUniformBuffer::VulkanUniformBuffer(Instance *_instance, size_t _size)
 }
 
 VulkanUniformBuffer::~VulkanUniformBuffer() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
     vkutil::destroy_buffer(renderer, buffer);
 }
 

@@ -4,6 +4,7 @@
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include <real/graphics/mesh_renderer.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -37,6 +38,8 @@ void MeshRenderer::draw_mesh(Mat4 model,
 		ResourceMesh *mesh, ResourceMesh::Mesh submesh,
 		ResourceImage *texture, ShaderMode mode) {
 
+	ZoneScoped
+
 	auto img_itr = batched_images.find(texture->get_instance_uuid());
 	if(img_itr == batched_images.end()) {
 		batched_images.emplace(texture->get_instance_uuid(), image_count);
@@ -49,6 +52,8 @@ void MeshRenderer::draw_mesh(Mat4 model,
 }
 
 void MeshRenderer::draw_commands(Framebuffer *framebuffer) {
+	ZoneScoped
+
     diffuse_pass->begin_pass(framebuffer);
 	diffuse_pass->set_variable("scene_data", renderer->scene_data->get_handle());
 	diffuse_pass->set_variable_array_image("sampler", queued_images.data(), MAX_BATCH_SPRITE_COUNT);

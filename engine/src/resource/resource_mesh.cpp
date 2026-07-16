@@ -10,6 +10,7 @@
 #include "real/math/vec4.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>
+#include <tracy/Tracy.hpp>
 #include <unordered_map>
 
 #define TINYOBJLOADER_IMPLEMENTATION
@@ -61,7 +62,7 @@ ResourceMesh::~ResourceMesh() {
 
 template<>
 ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, std::string name) {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;

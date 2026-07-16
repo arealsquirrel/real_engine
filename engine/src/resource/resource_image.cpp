@@ -9,6 +9,7 @@
 #include <nlohmann/json_fwd.hpp>
 #include <real/resource/resource_image.hpp>
 #include <string>
+#include <tracy/Tracy.hpp>
 #include <utility>
 #include <nlohmann/json.hpp>
 
@@ -51,7 +52,7 @@ template<>
 ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 	Path path, std::string name) {
 	
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
 	Path image_path;
 	std::map<StringHash, ResourceImage::Tile> tiles;

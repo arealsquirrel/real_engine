@@ -8,6 +8,7 @@
 #include <real/graphics/graphics_system.hpp>
 #include <real/scene/scene.hpp>
 #include <real/core/event.hpp>
+#include <tracy/Tracy.hpp>
 #include "real/graphics/mesh_renderer.hpp"
 #include "real/graphics/sprite_renderer.hpp"
 #include "real/scene/components.hpp"
@@ -37,6 +38,8 @@ void GraphicsSystem::awake() {
 }
 
 void GraphicsSystem::update(u32 delta_time) {
+
+	ZoneScoped
 
 	{
 	auto view = scene->registry->view<ComponentCamera, ComponentTransform>();

@@ -34,10 +34,9 @@ TEST(AllocatorTest, StackAllocator) {
 TEST(AllocatorTest, PageAllocator) {
 	using namespace real;
 
-	/*
-	PageAllocator<std::string> str_alloc(10);
+	PageAllocator str_alloc(sizeof(std::string), 10);
 	u32 header_count = 0;
-	PageAllocator<std::string>::Header *itr = str_alloc.alloc_list_start;
+	PageAllocator::Header *itr = str_alloc.alloc_list_start;
 	while(itr != nullptr) {
 		itr = itr->next;
 		header_count++;
@@ -61,6 +60,5 @@ TEST(AllocatorTest, PageAllocator) {
 	RL_LOG_INFO("here");
 	auto str3 = (std::string*)(str_alloc.allocate_mem());
 	str3->assign("hello");
-	*/
 }
 

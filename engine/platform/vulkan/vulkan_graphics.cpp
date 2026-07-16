@@ -19,6 +19,7 @@
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_mesh.hpp"
 #include <VkBootstrap.h>
+#include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
 #include <real/resource/resource_shader.hpp>
 
@@ -27,7 +28,7 @@ namespace real {
 static GraphicsBackendVulkan backend;
 
 void Graphics::init_backend(const GraphicsInfo &info) {
-	RL_INSTRUMENT_FUNCTION;
+	ZoneScoped
 
     vkb::InstanceBuilder builder;
     auto inst_ret = builder.set_app_name(info.name)
@@ -59,7 +60,8 @@ GraphicsBackend Graphics::get_backend() {
 }
 
 void Graphics::destroy_backend() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
     vkb::destroy_debug_utils_messenger(backend.instance, backend.debug_messenger);
     vkDestroyInstance(backend.instance, nullptr);
 }

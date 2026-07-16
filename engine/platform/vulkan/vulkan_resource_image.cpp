@@ -7,6 +7,7 @@
 #include "real/core/types.hpp"
 #include "vulkan_backend.hpp"
 #include <real/resource/resource_image.hpp>
+#include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
 #include "vulkan_resource_image.hpp"
 #include "vulkan_resource_mesh.hpp"
@@ -23,7 +24,7 @@ VulkanResourceImage::VulkanResourceImage(
     : ResourceImage(_instance, width, height, _cformat, _iformat, data, _tiles),
 	  samples(_samples) {
 	
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	renderer = (VulkanRenderer*)(instance->renderer.get());
 
 	VkExtent3D drawImageExtent = {width, height, 1};
@@ -117,7 +118,7 @@ void VulkanResourceImage::expose_to_imgui() {
 void VulkanResourceImage::make_image_from_data(
 			void *data, VkImageUsageFlags usage, bool mipmapped) {
 
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	RL_LOG_TRACE("making image from data");
 
 	size_t data_size = imageExtent.depth * imageExtent.width * imageExtent.height * 4;
@@ -153,7 +154,7 @@ void VulkanResourceImage::make_image_from_data(
 }
 
 VulkanResourceImage::~VulkanResourceImage() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	vkDeviceWaitIdle(renderer->device);
 	vkDestroyImageView(renderer->device, imageView, nullptr);
 	vmaDestroyImage(renderer->allocator, image, allocation);
@@ -165,6 +166,8 @@ ImTextureID VulkanResourceImage::get_imgui_textureID() {
 }
 
 void VulkanResourceImage::transition_image(VkImageLayout to_layout) {
+	ZoneScoped
+
 	if(current_layout == to_layout) {
 		return;
 	}

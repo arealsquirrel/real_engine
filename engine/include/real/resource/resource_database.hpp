@@ -7,7 +7,6 @@
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
-#include "real/debug/timer.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_handle.hpp"
 #include <functional>
@@ -56,8 +55,6 @@ public:
 	ResourceHandle<T> register_resource(
 			T *resource, std::string name, UUID id=UUID(),
 			std::optional<Path> load_path=std::nullopt, ResourceLoadFn load_fn=std::nullopt) {
-		
-		RL_INSTRUMENT_FUNCTION
 
 		if(name == "") {
 			if(load_path.has_value() == false) {

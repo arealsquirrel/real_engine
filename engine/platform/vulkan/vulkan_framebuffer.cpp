@@ -10,6 +10,7 @@
 #include "vulkan_resource_image.hpp"
 #include "vulkan_util.hpp"
 #include <memory>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -63,10 +64,11 @@ ResourceHandle<ResourceImage> VulkanFramebuffer::get_color_resolve_image() {
 }
 
 void VulkanFramebuffer::bind() {
-    // idk, nothing for vulkan as far as I know
 }
 
 void VulkanFramebuffer::clear_image(Color4 col) {
+	ZoneScoped
+
     FrameDataVulkan &frame = ((VulkanRenderer*)instance->renderer.get())->get_current_frame();
     VkImageSubresourceRange range{};
 	range.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -82,6 +84,8 @@ void VulkanFramebuffer::clear_image(Color4 col) {
 }
 
 void VulkanFramebuffer::unbind() {
+	ZoneScoped
+		
     if(msaa != MultisamplingCount::One) {
         FrameDataVulkan &frame = ((VulkanRenderer*)instance->renderer.get())->get_current_frame();
         VkCommandBuffer cmd = frame.main_command_buffer;

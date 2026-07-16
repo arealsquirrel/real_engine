@@ -9,6 +9,7 @@
 #include <memory>
 #include <real/scene/entity.hpp>
 #include <real/scene/scene.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -63,6 +64,8 @@ void Scene::awake() {
 }
 
 void Scene::update(u32 delta_time) {
+	ZoneScoped
+
     for (auto s : systems) {
     	s->update(delta_time);
 	}

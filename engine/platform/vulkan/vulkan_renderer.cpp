@@ -15,6 +15,7 @@
 #include <cassert>
 #include "vulkan_resource_image.hpp"
 #include <real/graphics/renderer.hpp>
+#include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
 #include "vulkan_util.hpp"
 #include <imgui.h>
@@ -43,7 +44,7 @@ VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
     : Renderer(_instance, _window), EventListener(_instance, this) {}
 
 void VulkanRenderer::init() {
-    RL_INSTRUMENT_FUNCTION
+    ZoneScoped
 
 	RL_LOG_TRACE("Creating vulkan renderer");
 	auto [width, height] = window->get_glfw_window_dimensions();
@@ -75,7 +76,7 @@ void VulkanRenderer::init() {
 }
 
 VulkanRenderer::~VulkanRenderer() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 	RL_LOG_TRACE("destroying vulkan renderer");
@@ -120,7 +121,7 @@ VulkanRenderer::~VulkanRenderer() {
 }
 
 void VulkanRenderer::create_imgui() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
 	RL_LOG_TRACE("Vulkan renderer creating imgui");
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
@@ -178,7 +179,7 @@ void VulkanRenderer::create_imgui() {
 }
 
 void VulkanRenderer::create_descriptors() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
 	RL_LOG_TRACE("Vulkan renderer creating descriptors");
 	descriptor_allocator.init_pool(device, 10,{
@@ -187,7 +188,8 @@ void VulkanRenderer::create_descriptors() {
 }
 
 void VulkanRenderer::create_vma() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	RL_LOG_TRACE("Vulkan renderer creating vma");
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 	VmaAllocatorCreateInfo allocatorInfo = {};
@@ -199,14 +201,16 @@ void VulkanRenderer::create_vma() {
 }
 
 void VulkanRenderer::create_queues() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	RL_LOG_TRACE("Vulkan renderer creating queues");
     graphics_queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
 	graphics_queue_family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 }
 
 void VulkanRenderer::create_frame_objects() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	RL_LOG_TRACE("Vulkan renderer creating frame objects");
     VkFenceCreateInfo fenceCreateInfo = vkutil::fence_create_info(VK_FENCE_CREATE_SIGNALED_BIT);
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vkutil::semaphore_create_info();
@@ -266,7 +270,8 @@ void VulkanRenderer::create_frame_objects() {
 }
 
 void VulkanRenderer::create_swapchain(u32 width, u32 height) {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	RL_LOG_TRACE("Vulkan renderer creating swapchain");
     vkb::SwapchainBuilder swapchainBuilder{ chosenGPU, device, surface };
 
@@ -274,7 +279,7 @@ void VulkanRenderer::create_swapchain(u32 width, u32 height) {
 
 	vkb::Swapchain vkbSwapchain = swapchainBuilder
 		.set_desired_format(VkSurfaceFormatKHR{ .format = swapchain_image_format, .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR })
-		.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+		.set_desired_present_mode(VK_PRESENT_MODE_MAILBOX_KHR)//VK_PRESENT_MODE_FIFO_KHR)
 		.set_desired_extent(width, height)
 		.add_image_usage_flags(VK_IMAGE_USAGE_TRANSFER_DST_BIT)
 		.build()
@@ -287,7 +292,8 @@ void VulkanRenderer::create_swapchain(u32 width, u32 height) {
 }
 
 void VulkanRenderer::destroy_swapchain() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     vkDestroySwapchainKHR(device, swapchain, nullptr);
 
@@ -297,7 +303,8 @@ void VulkanRenderer::destroy_swapchain() {
 }
 
 void VulkanRenderer::create_device() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	RL_LOG_TRACE("Vulkan renderer creating device");
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 
@@ -341,6 +348,7 @@ void VulkanRenderer::create_device() {
 }
 
 void VulkanRenderer::swapchain_resize() {
+	ZoneScoped
     RL_LOG_TRACE("Resizing window");
     should_resize = false;
 
@@ -352,7 +360,8 @@ void VulkanRenderer::swapchain_resize() {
 }
 
 void VulkanRenderer::start_frame() {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
     if(should_resize)
         swapchain_resize();
 
@@ -397,7 +406,8 @@ void VulkanRenderer::start_frame() {
 }
 
 void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
     FrameDataVulkan &frame = get_current_frame();
     VkCommandBuffer cmd = frame.main_command_buffer;
@@ -466,6 +476,7 @@ void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
 }
 
 void VulkanRenderer::transition_swapchain(VkImageLayout to_layout) {
+	ZoneScoped
 	VkImageLayout current_swapchain_layout = get_current_frame().current_swapchain_layout;
 
 	if(current_swapchain_layout == to_layout) {

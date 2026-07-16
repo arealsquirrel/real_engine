@@ -7,6 +7,7 @@
 #include "real/math/quaternion.hpp"
 #include "real/resource/resource_mesh.hpp"
 #include <real/graphics/sprite_renderer.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -43,6 +44,8 @@ void SpriteRenderer::draw_sprite(
 		Mat4 model, ResourceImage *texture,
 		Vec2 uv0, Vec2 uv1, Color4 tint_color) {
 
+	ZoneScoped
+
 	auto img_itr = batched_images.find(texture->get_instance_uuid());
 	if(img_itr == batched_images.end()) {
 		batched_images.emplace(texture->get_instance_uuid(), image_count);
@@ -78,6 +81,8 @@ void SpriteRenderer::draw_sprite(ResourceImage *image, ResourceImage::Tile tile,
 }
 
 void SpriteRenderer::draw_commands(Framebuffer *framebuffer) {
+	ZoneScoped
+
 	if(draw_commands_vec.size() == 0)
 		return;
 		

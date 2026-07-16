@@ -5,6 +5,7 @@
 #include "real/resource/resource_mesh.hpp"
 #include "vulkan_resource_mesh.hpp"
 #include "vulkan_renderer.hpp"
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -16,7 +17,7 @@ VulkanResourceMesh::VulkanResourceMesh(
 
 	renderer((VulkanRenderer*)instance->renderer.get()) {
 
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
 	const size_t vertexBufferSize = size;
 	const size_t indexBufferSize = indices.size() * sizeof(uint32_t);
@@ -44,6 +45,8 @@ VulkanResourceMesh::VulkanResourceMesh(
 }
 
 void VulkanResourceMesh::upload_index_data(std::vector<u32> indices) {
+	ZoneScoped
+
 	u32 indexBufferSize = indices.size() * sizeof(u32);
 	vkutil::AllocatedBuffer staging = vkutil::create_buffer(
 			renderer, indexBufferSize,
@@ -98,7 +101,8 @@ void VulkanResourceMesh::upload_vertex_data(char *vertex_data, u32 size) {
 }
 
 VulkanResourceMesh::~VulkanResourceMesh() {
-	RL_INSTRUMENT_FUNCTION
+	ZoneScoped
+
 	vkutil::destroy_buffer(renderer, vertexBuffer);
 
 	if(indexBuffer.has_value())

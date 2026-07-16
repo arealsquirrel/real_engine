@@ -8,6 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <cassert>
 #include <real/core/game.hpp>
+#include <tracy/Tracy.hpp>
 #include <utility>
 #include <dlfcn.h>
 
@@ -19,15 +20,12 @@ Game::Game(Shared<Instance> _instance, ArgParams params)
 	window = _instance->window; 
 	resource_database = _instance->resource_database;
 	renderer = _instance->renderer;
-
-    // screen_framebuffer;
-	// = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight);
 }
 
 Game::~Game() {}
 
 std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance, ArgParams params) {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 
 	DLLGameLoad load;
 	load.game_dll_handle = dlopen(params.game_dll_path.c_str(), RTLD_LAZY);
@@ -56,7 +54,7 @@ std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance, Arg
 }
 
 void Game::destroy_game_dll(Game* game, DLLGameLoad load) {
-    RL_INSTRUMENT_FUNCTION
+	ZoneScoped
 	load.destroy_game(game);
 	dlclose(load.game_dll_handle);
 }

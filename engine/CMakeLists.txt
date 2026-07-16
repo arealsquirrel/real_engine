@@ -19,7 +19,7 @@ endif()
 
 add_library(${PROJECT_NAME} SHARED ${ENGINE_SRCS})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden -fPIC)
+target_compile_options(${PROJECT_NAME} PRIVATE -fvisibility=hidden -fPIC -DTRACY_ENABLE)
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${PROJECT_SOURCE_DIR}/include
@@ -38,6 +38,7 @@ if("${REAL_RENDER_BACKEND}" STREQUAL "vulkan")
 		PUBLIC imgui_cmake_wrapper
 		PUBLIC EnTT::EnTT
 		PRIVATE nlohmann_json
+		PUBLIC TracyClient
 	)
 
 elseif("${REAL_RENDER_BACKEND}" STREQUAL "opengl")

@@ -1,6 +1,7 @@
 
 #include "real/core/game.hpp"
 #include <real/graphics/renderer.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -11,6 +12,8 @@ Renderer::~Renderer() {
 }
 
 void Renderer::attach_camera(Camera &camera) {
+	ZoneScoped
+
 	SceneData *data = scene_data->get_data<SceneData>();
 	data->view = camera.view;
 	data->proj = camera.proj;

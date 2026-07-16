@@ -3,6 +3,7 @@
 #include "real/math/mat4.hpp"
 #include "real/math/math_fwd.hpp"
 #include <real/graphics/camera.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -77,6 +78,7 @@ void Camera::change_projection(Projection _projection) {
 }
 
 void Camera::update_proj() {
+	ZoneScoped
     float aspect = (960)/(540.0f);// ((float)width) / height;
 
     if(projection == Projection::Perspective) {
@@ -87,6 +89,7 @@ void Camera::update_proj() {
 }
 
 void Camera::update_view() {
+	ZoneScoped
 	view = math::look_at(position, position + camera_front, camera_up);
 }
 
