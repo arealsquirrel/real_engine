@@ -1,9 +1,8 @@
 
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include "real/core/uuid.hpp"
-#include "real/debug/timer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/resource/resource.hpp"
 #include <nlohmann/json_fwd.hpp>

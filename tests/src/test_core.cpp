@@ -1,5 +1,5 @@
 
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include <gtest/gtest.h>
 #include <real/real.hpp>
 

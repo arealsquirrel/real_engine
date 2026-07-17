@@ -3,12 +3,9 @@
 
 #include <real/core/event.hpp>
 #include "real/core/object.hpp"
-#include "real/core/vec.hpp"
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_handle.hpp"
-#include "real/resource/resource_image.hpp"
-#include <optional>
 
 namespace real {
 

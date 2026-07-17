@@ -1,7 +1,7 @@
 #ifndef REALLIB_GRAPHICS_FRAMEBUFFER
 #define REALLIB_GRAPHICS_FRAMEBUFFER
 
-#include "real/core/color.hpp"
+#include "real/container/color.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
 #include "real/resource/resource_image.hpp"

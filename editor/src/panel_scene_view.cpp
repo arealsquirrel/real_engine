@@ -2,7 +2,7 @@
 #include "panel_scene_view.hpp"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/sprite_renderer.hpp"
 #include "real/scene/components.hpp"

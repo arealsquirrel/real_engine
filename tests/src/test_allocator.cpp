@@ -63,26 +63,29 @@ TEST(AllocatorTest, PageAllocator) {
 TEST(AllocatorTest, LinkedAllocator) {
 	using namespace real;
 
-	LinkedListAllocator alloc(500);
-
-	std::string *str = alloc.allocate_object<std::string>();
-	int *str1 = alloc.allocate_object<int>();
-	auto *str2 = alloc.allocate_object<std::array<int, 7>>();
-	std::string *str4 = alloc.allocate_object<std::string>();
-	int *str11 = alloc.allocate_object<int>();
-	auto *str22 = alloc.allocate_object<std::array<int, 7>>();
-
-	alloc.free_object(str2);
-	alloc.free_object(str4);
-	alloc.free_object(str1);
+	LinkedListAllocator sys(10000);
+	char *mem1 = sys.allocate_mem(rand() % 500);
+	char *mem2 = sys.allocate_mem(rand() % 500);
+	char *mem3 = sys.allocate_mem(rand() % 500);
+	char *mem4 = sys.allocate_mem(rand() % 500);
+	char *mem5 = sys.allocate_mem(rand() % 500);
+	sys.free_mem(mem4);
+	sys.free_mem(mem2);
+	mem4 = sys.allocate_mem(rand() % 500);
+	mem2 = sys.allocate_mem(rand() % 500);
+	sys.free_mem(mem1);
+	sys.free_mem(mem3);
+	sys.free_mem(mem5);
+	sys.free_mem(mem4);
+	sys.free_mem(mem2);
 
 	LinkedListAllocator::Header *selected_block = nullptr;
 	u32 total_size = 0;
-	for(auto *iter = alloc.list_begin; iter != nullptr; iter = iter->next) {
+	for(auto *iter = sys.list_begin; iter != nullptr; iter = iter->next) {
 		total_size += iter->size + sizeof(LinkedListAllocator::Header);
-		std::cout << iter->used << " " << iter->size << std::endl;
+		std::cout << iter->used << " " << iter->size << "[" << iter << "][" << iter->back << "," << iter->next << "]" << std::endl;
 	}
 
-	EXPECT_EQ(total_size, 500);
+	EXPECT_EQ(total_size, 10000);
 }
 

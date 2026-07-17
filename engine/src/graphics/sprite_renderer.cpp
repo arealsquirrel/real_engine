@@ -1,6 +1,6 @@
 
 #include "real/core/logging.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/math/mat4.hpp"

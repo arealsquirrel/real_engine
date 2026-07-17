@@ -13,7 +13,7 @@
 #include <real/resource/resource_database.hpp>
 #include <real/resource/resource_handle.hpp>
 #include <real/resource/resource_pack.hpp>
-#include <real/core/color.hpp>
+#include <real/container/color.hpp>
 
 #include <real/debug/cvars.hpp>
 #include <real/debug/instrumentation.hpp>

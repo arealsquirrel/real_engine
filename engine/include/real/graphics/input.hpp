@@ -3,7 +3,7 @@
 
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include <cstddef>
 #include <initializer_list>
 #include <map>

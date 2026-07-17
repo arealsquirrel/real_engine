@@ -11,7 +11,7 @@
 #include "real/resource/resource_handle.hpp"
 #include <functional>
 #include <optional>
-#include <real/core/string_hash.hpp>
+#include <real/container/string_hash.hpp>
 #include <string>
 #include <unordered_map>
 #include <real/core/core.hpp>

@@ -3,12 +3,11 @@
 
 #include "imgui.h"
 #include "real/core/core.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include "real/core/templates.hpp"
 #include "real/core/types.hpp"
 #include <cstddef>
 #include <cstdio>
-#include <iterator>
 #include <map>
 #include <real/core/uuid.hpp>
 #include <real/math/math.hpp>

@@ -5,7 +5,7 @@
 #include <map>
 #include <real/core/event.hpp>
 #include "real/core/object.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
 #include <cstdint>

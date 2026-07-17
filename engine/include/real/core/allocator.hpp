@@ -2,8 +2,7 @@
 #define REALLIB_ALLOCATOR_HPP
 
 #include "real/core/core.hpp"
-#include "real/core/logging.hpp"
-#include "real/core/span.hpp"
+#include "real/container/span.hpp"
 #include "real/core/types.hpp"
 #include <cstddef>
 
@@ -57,7 +56,7 @@ public:
 
 	/* ------------- ALLOCATE OBJECT METHODS ------------- */
 
-	/* allocates one T with constructor args Arsg... */
+	/* allocates one T with constructor args Args... */
 	template<class T, typename ...Args>
 	[[nodiscard]]
 	inline T *allocate_object(Args &&...args) {
@@ -84,8 +83,8 @@ public:
 	SystemAllocator();
 	~SystemAllocator();
 
-	inline char *allocate_mem(u32 size) final override;
-	inline void free_mem(char *mem, u32 size) final override;
+	char *allocate_mem(u32 size) final override;
+	void free_mem(char *mem, u32 size=0) final override;
 };
 
 class REALLIB_EXPORT StackAllocator : public Allocator {
@@ -147,11 +146,17 @@ public:
 	Header *list_end;
 
 private:
-	void compact();
+	void compact(Header *iter);
+	void print();
 
 private:
 	Header *last_alloc;
 };
+
+static Allocator *global_system_allocator() {
+	static SystemAllocator alloc;
+	return &alloc;
+}
 
 }
 

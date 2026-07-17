@@ -74,8 +74,8 @@ file(DOWNLOAD
 )
 
 file(DOWNLOAD
-	"https://raw.githubusercontent.com/sheredom/ubench.h/refs/heads/main/ubench.h"
-	"${PROJECT_SOURCE_DIR}/external/ubench.h"
+	"https://raw.githubusercontent.com/iboB/picobench/refs/heads/master/include/picobench/picobench.hpp"
+	"${PROJECT_SOURCE_DIR}/external/picobench.h"
 )
 
 

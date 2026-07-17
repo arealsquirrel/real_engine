@@ -2,6 +2,7 @@
 #define REALLIB_SPAN_HPP
 
 #include "real/core/types.hpp"
+
 namespace real {
 
 

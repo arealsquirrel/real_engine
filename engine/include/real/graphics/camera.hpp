@@ -1,7 +1,7 @@
 #ifndef REALLIB_CAMERA_HPP
 #define REALLIB_CAMERA_HPP
 
-#include "real/core/color.hpp"
+#include "real/container/color.hpp"
 #include "real/core/core.hpp"
 #include "real/core/types.hpp"
 #include <real/math/math.hpp>

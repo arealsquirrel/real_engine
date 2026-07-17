@@ -1,6 +1,6 @@
 
-#include "real/core/core.hpp"
 #include "real/core/logging.hpp"
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <real/core/allocator.hpp>
@@ -31,12 +31,12 @@ SystemAllocator::~SystemAllocator() {
 }
 
 char *SystemAllocator::allocate_mem(u32 size) {
-	allocated_mem += size;
+	// allocated_mem += size;
 	return (char*)malloc(size);
 }
 
 void SystemAllocator::free_mem(char *mem, u32 size) {
-	allocated_mem -= size;
+	// allocated_mem -= size;
 	free(mem);
 }
 
@@ -84,23 +84,22 @@ PageAllocator::PageAllocator(u32 _type_size, u32 amount_of_ts)
 		h->next = (Header*)(pointer);
 	}
 
-	((Header*)pointer)->next = nullptr;
 
 	free_list = (Header*)buffer;
 	alloc_list_start = (Header*)buffer;
+	((Header*)pointer)->next = nullptr;
 }
 
 char *PageAllocator::allocate_mem(u32) {
-	std::cout << "giving mem from free list" << std::endl;
 	Header *alloc = free_list;
 	free_list = free_list->next;
-	return (char*)alloc + sizeof(Header);
+	return ((char*)alloc) + sizeof(Header);
 }
 
 void PageAllocator::free_mem(char *mem, u32) {
 	Header *header = (Header*)(mem-sizeof(Header));
 	header->next = free_list;
-	free_list = header->next;
+	free_list = header;
 }
 
 LinkedListAllocator::LinkedListAllocator(u32 size) 
@@ -116,11 +115,9 @@ LinkedListAllocator::LinkedListAllocator(u32 size)
 LinkedListAllocator::~LinkedListAllocator() = default;
 
 char *LinkedListAllocator::allocate_mem(u32 size) {
-
-	// very simple first free block search
 	Header *selected_block = nullptr;
 	for(Header *iter = list_begin; iter != nullptr; iter = iter->next) {
-		if(iter->used == false && iter->size >= size) {
+		if(iter->used == false && (iter->size) > (size+sizeof(Header))) {
 			selected_block = iter;
 			break;
 		}
@@ -129,6 +126,7 @@ char *LinkedListAllocator::allocate_mem(u32 size) {
 	if(selected_block == nullptr) {
 		return nullptr;
 	}
+
 
 	Header *alloc_header = (Header*)(((char*)selected_block) + sizeof(Header) + size);
 	alloc_header->used = false;
@@ -145,28 +143,38 @@ char *LinkedListAllocator::allocate_mem(u32 size) {
 void LinkedListAllocator::free_mem(char *mem, u32 size) {
 	Header *h = (Header*)(mem - sizeof(Header));
 	h->used = false;
-	compact();
+	compact(h);
 }
 
-void LinkedListAllocator::compact() {
-	Header *selected_block = nullptr;
-	for(Header *iter = list_begin; iter != nullptr; iter = iter->next) {
-		if(iter->used)
-			continue;
+void LinkedListAllocator::print() {
+	LinkedListAllocator::Header *selected_block = nullptr;
+	u32 total_size = 0;
+	for(auto *iter = list_begin; iter != nullptr; iter = iter->next) {
+		total_size += iter->size + sizeof(LinkedListAllocator::Header);
+		std::cout << iter->used << " " << iter->size << "[" << iter << "][" << iter->back << "," << iter->next << "]" << std::endl;
+	}
+}
 
-		if(iter->next != nullptr && iter->next->used == false) {
-			iter->size += iter->next->size + sizeof(Header);
-			if(iter->next->next != nullptr)
-				iter->next->next->back = iter;
-			iter->next = iter->next->next;
-		}
+void LinkedListAllocator::compact(Header *iter) {
+	if(iter->used == true)
+		return;
 
-		if(iter->back != nullptr && iter->back->used == false) {
-			iter->size += iter->back->size + sizeof(Header);
-			if(iter->back->back != nullptr)
-				iter->back->back->next = iter;
-			iter->back = iter->back->back;
-		}
+	if(iter->back != nullptr && iter->back->used == false) {
+		iter->back->size += iter->size + sizeof(Header);
+		if(iter->next != nullptr)
+			iter->next->back = iter->back;
+		iter->back->next = iter->next;
+		compact(iter->back);
+		return;
+	}
+
+	if(iter->next != nullptr && iter->next->used == false) {
+		iter->size += iter->next->size + sizeof(Header);
+		if(iter->next->next != nullptr)
+			iter->next->next->back = iter;
+		iter->next = iter->next->next;
+		compact(iter);
+		return;
 	}
 }
 

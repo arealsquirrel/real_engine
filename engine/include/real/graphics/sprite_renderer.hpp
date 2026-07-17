@@ -1,10 +1,10 @@
 #ifndef REALLIB_SPRITE_RENDERER_HPP
 #define REALLIB_SPRITE_RENDERER_HPP
 
-#include "real/core/color.hpp"
+#include "real/container/color.hpp"
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/graphics/graphics_system.hpp"

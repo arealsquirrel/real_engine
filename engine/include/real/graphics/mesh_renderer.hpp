@@ -1,7 +1,6 @@
 #ifndef REALLIB_MESH_RENDERER_HPP
 #define REALLIB_MESH_RENDERER_HPP
 
-#include "real/core/color.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"

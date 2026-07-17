@@ -1,7 +1,7 @@
 
 #include "real/graphics/input.hpp"
 #include "real/core/object.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/string_hash.hpp"
 #include <GLFW/glfw3.h>
 #include <real/graphics/window.hpp>
 

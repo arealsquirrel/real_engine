@@ -6,7 +6,7 @@
 #include "panel_resource_database.hpp"
 #include "panel_resource_viewer.hpp"
 #include "panel_scene_view.hpp"
-#include "real/core/color.hpp"
+#include "real/container/color.hpp"
 #include "real/core/core.hpp"
 #include <GLFW/glfw3.h>
 #include <memory>
