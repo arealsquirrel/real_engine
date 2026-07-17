@@ -133,12 +133,15 @@ public:
 	}
 
 	~UniquePointer() {
-		allocator->free_object(object);
+		if(object != nullptr)
+			allocator->free_object(object);
 	}
 
-	UniquePointer(const UniquePointer &&other) {
+	UniquePointer(UniquePointer &&other) {
 		allocator = other.allocator;
 		object = other.object;
+		other.object = nullptr;
+		other.allocator = nullptr;
 	}
 
 	UniquePointer(const UniquePointer<T>&) = delete;

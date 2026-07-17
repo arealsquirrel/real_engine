@@ -51,7 +51,7 @@ void EventMessenger::unsubscribe(Object *object, UUID eventID) {
     for (auto it = objs->second.begin(); it != objs->second.end(); ++it) {
         if(it->get()->attached_uuid.uuid == object->get_instance_uuid().uuid) {
             auto *p = it->release();
-            delete p;
+			global_system_allocator()->free_object(p);
             it = objs->second.erase(it);
             return;
         }
