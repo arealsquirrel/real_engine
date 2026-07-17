@@ -42,7 +42,7 @@ public:
     std::pair<double, double> get_mouse_position();
 
 public:
-    Unique<Input> input;
+    UniquePointer<Input> input;
 
 private:
     GLFWwindow *window;

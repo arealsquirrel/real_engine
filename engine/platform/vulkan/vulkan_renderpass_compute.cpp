@@ -149,10 +149,12 @@ void VulkanRenderPassCompute::set_variable_array(
 	RL_LOG_WARN("fuck you");
 }
 
-Unique<RenderPassCompute> RenderPassCompute::create(
+UniquePointer<RenderPassCompute> RenderPassCompute::create(
 	Instance *instance, ResourceHandle<ResourceShader> shader, std::vector<RenderPassResource> _resources) {
 
-	return std::make_unique<VulkanRenderPassCompute>(instance, shader, _resources);
+    return UniquePointer<RenderPassCompute>(
+			&instance->engine_allocator,
+			(RenderPassCompute*)instance->engine_allocator.allocate_object<VulkanRenderPassCompute>(instance, shader, _resources));
 }
 
 

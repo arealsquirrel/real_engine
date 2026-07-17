@@ -98,8 +98,8 @@ ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 			instance, (u32)x, (u32)y,
 			ColorFormat::RGBA_FLOAT8, ImageFormat::RENDER_ATTACHMENT_COLOR,
 			data, 0, tiles).release();
-
 	free(data);
+
 	return register_resource(image, name, UUID(), image_path);
 }
 

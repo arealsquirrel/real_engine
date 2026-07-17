@@ -12,7 +12,7 @@
 namespace editor {
 
 PanelSceneView::PanelSceneView(
-    Shared<real::Instance> _instance, Shared<real::Scene> _scene)
+    real::Ref<real::Instance> _instance, real::Ref<real::Scene> _scene)
     : Panel(_instance), scene(_scene) {}
 
 PanelSceneView::~PanelSceneView() = default;

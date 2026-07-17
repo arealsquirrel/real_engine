@@ -67,11 +67,12 @@ static ShaderDataType reflect_to_datatype(SpvReflectTypeDescription* type) {
 VulkanResourceShader::VulkanResourceShader(
 		Instance *_instance, std::vector<char> data, 
 		std::vector<ShaderField> fields, u32 _type) 
-	: ResourceShader(_instance, data, fields, _type), 
-		renderer(std::dynamic_pointer_cast<VulkanRenderer>(_instance->renderer)) {
+	: ResourceShader(_instance, data, fields, _type) {
 
 	ZoneScoped
 			
+	renderer = (VulkanRenderer*)instance->renderer.get();
+
 	serialize_shader(data);
 
     VkShaderModuleCreateInfo createInfo = {};

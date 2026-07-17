@@ -438,12 +438,14 @@ void VulkanRenderPassGeometry::set_variable_array(
 	}
 }
 
-Unique<RenderPassGeometry> RenderPassGeometry::create(
+UniquePointer<RenderPassGeometry> RenderPassGeometry::create(
 		Instance *instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
 		std::vector<RenderPassResource> _resources) {
-	
-	return std::make_unique<VulkanRenderPassGeometry>(instance, info, shaders, _resources);
+
+    return UniquePointer<RenderPassGeometry>(
+			&instance->engine_allocator,
+			(RenderPassGeometry*)instance->engine_allocator.allocate_object<VulkanRenderPassGeometry>(instance, info, shaders, _resources));	
 }
 
 }

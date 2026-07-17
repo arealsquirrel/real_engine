@@ -33,7 +33,7 @@ class VulkanRenderer : public Renderer, EventListener {
 RL_OBJECT(VulkanRenderer, Renderer)
 
 public:
-	VulkanRenderer(Instance *_instance, Shared<Window> _window);
+	VulkanRenderer(Instance *_instance, Ref<Window> _window);
 	~VulkanRenderer();
 
 	void start_frame() final override;

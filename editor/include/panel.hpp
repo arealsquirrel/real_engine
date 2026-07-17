@@ -11,21 +11,21 @@ namespace editor {
 
 class Editor;
 
-class Panel {
+class Panel : public real::RefCounted {
 public:
-	Panel(Shared<real::Instance> _instance);
+	Panel(real::Ref<real::Instance> _instance);
 	~Panel();
 
 	virtual void draw() = 0;
 
-	void set_scene(Shared<real::Scene> _scene) { scene = _scene; }
+	void set_scene(real::Ref<real::Scene> _scene) { scene = _scene; }
 
 public:
 	const real::UUID panelID;
 
 protected:
-	Shared<real::Instance> instance;
-	Shared<real::Scene> scene;
+	real::Ref<real::Instance> instance;
+	real::Ref<real::Scene> scene;
 
 	friend Editor;
 };

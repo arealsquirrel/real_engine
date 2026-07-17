@@ -30,7 +30,7 @@ public:
     virtual void clear_image(Color4 col={0.0f, 0.0f, 0.0f, 0.0f}) = 0;
     virtual void unbind() = 0;
 
-    static Unique<Framebuffer> create(
+    static UniquePointer<Framebuffer> create(
         Instance *instance, u32 width, u32 height,
         bool depth=true, MultisamplingCount count=MultisamplingCount::One);
 

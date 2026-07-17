@@ -29,7 +29,7 @@ private:
 
 public:
     VkShaderModule module;
-	Shared<VulkanRenderer> renderer;
+	VulkanRenderer *renderer;
 	std::vector<VkDescriptorType> descriptor_types;
 };
 

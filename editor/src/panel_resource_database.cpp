@@ -9,7 +9,7 @@
 
 namespace editor {
 
-PanelResourceDatabase::PanelResourceDatabase(Shared<real::Instance> _instance)
+PanelResourceDatabase::PanelResourceDatabase(real::Ref<real::Instance> _instance)
 	: Panel(_instance) {
 
 	icon_file = instance->resource_database->get_resource<real::ResourceImage>("file.png");

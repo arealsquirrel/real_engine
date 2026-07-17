@@ -1,5 +1,4 @@
 
-#include "real/core/logging.hpp"
 #include "real/container/string_hash.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
@@ -8,6 +7,7 @@
 #include "real/resource/resource_mesh.hpp"
 #include <real/graphics/sprite_renderer.hpp>
 #include <tracy/Tracy.hpp>
+#include <real/resource/resource_database.hpp>
 
 namespace real {
 
@@ -37,7 +37,7 @@ SpriteRenderer::SpriteRenderer(Instance *_instance, Renderer *_renderer)
 SpriteRenderer::~SpriteRenderer() = default;
 
 void SpriteRenderer::destroy() {
-	delete pass.release();
+	pass.destroy();
 }
 
 void SpriteRenderer::draw_sprite(

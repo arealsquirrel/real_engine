@@ -11,15 +11,15 @@ namespace editor {
 
 class EditorGizmos {
 public:
-	EditorGizmos(Shared<real::Instance> _instance);
+	EditorGizmos(real::Ref<real::Instance> _instance);
 	~EditorGizmos();
 
-	void draw_gizmos(Shared<real::Scene> scene);
+	void draw_gizmos(real::Ref<real::Scene> scene);
 
 private:
 	real::ResourceHandle<real::ResourceImage> icon_camera;
-	Shared<real::SpriteRenderer> sprite_renderer;
-	Shared<real::Instance> instance;
+	real::Ref<real::SpriteRenderer> sprite_renderer;
+	real::Ref<real::Instance> instance;
 };
 
 }

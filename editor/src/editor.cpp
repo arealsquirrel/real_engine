@@ -7,6 +7,7 @@
 #include "panel_resource_viewer.hpp"
 #include "panel_scene_view.hpp"
 #include "real/container/color.hpp"
+#include "real/container/ref.hpp"
 #include "real/core/core.hpp"
 #include <GLFW/glfw3.h>
 #include <memory>
@@ -25,14 +26,14 @@ namespace editor {
 
 using namespace real;
 
-Editor::Editor(Shared<real::Instance> _instance, real::ArgParams _params) 
+Editor::Editor(real::Ref<real::Instance> _instance, real::ArgParams _params) 
 	: instance(_instance), camera(_instance.get()), params(_params), gizmos(instance) {
 
 	camera.block_input = true;
 	editor_state = EditorState::Editing;
 	camera.camera->clear_color = real::Color4(1.0f, 1.0f, 1.0f, 1.0f);
-	active_scene = std::make_shared<Scene>(instance.get());
-	viewport_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight);
+	active_scene = create_ref<Scene>(&_instance->engine_allocator, instance.get());
+	viewport_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight).to_ref();
 }
 
 Editor::~Editor() {
@@ -57,9 +58,9 @@ void Editor::load_game(Path path) {
 	game->scene->awake();
 	graphics_system = active_scene->get_system<GraphicsSystem>();
 
-	add_panel<editor::PanelResourceDatabase>();
-	add_panel<editor::PanelResourceViewer>();
-	add_panel<editor::PanelSceneView>(active_scene);
+	add_panel<editor::PanelResourceDatabase>(&instance->engine_allocator);
+	add_panel<editor::PanelResourceViewer>(&instance->engine_allocator);
+	add_panel<editor::PanelSceneView>(&instance->engine_allocator, active_scene);
 }
 
 void Editor::destroy_game() {
@@ -112,6 +113,16 @@ void Editor::render_engine_panel() {
 	ImGui::Text("Object Count: %u", real::Object::get_object_count());
 	ImGui::Text("Stack Allocator mem: %u/%u", instance->frame_allocator.allocated_mem, instance->frame_allocator.alloc_size);
 	ImGui::Text("System Allocator mem: %u/%u", instance->system_allocator.allocated_mem, instance->system_allocator.alloc_size);
+	ImGui::Text("Engine Allocator mem: %u/%u", instance->engine_allocator.allocated_mem, instance->engine_allocator.alloc_size);
+
+	LinkedListAllocator::Header *selected_block = nullptr;
+	u32 total_size = 0;
+	for(auto *iter = instance->engine_allocator.list_begin; iter != nullptr; iter = iter->next) {
+		total_size += iter->size + sizeof(LinkedListAllocator::Header);
+		ImVec4 col = iter->used ? ImVec4{1.0f, 0.0f, 0.0f, 1.0f} : ImVec4{0.0f, 1.0f, 0.0f, 1.0f};
+		ImGui::TextColored(col, "[%p] size: %u", iter, iter->size);
+	}
+
 	ImGui::SeparatorText("Renderer");
 	u32 micro_seconds = instance->renderer->render_stats.frame_time.micro_seconds; 
 	ImGui::Text("Frametime %f ms", micro_seconds / 1000.0f);
@@ -196,7 +207,7 @@ void Editor::set_editing() {
 		case EditorState::Running:
 			game->shutdown();
 			active_scene.reset();
-			active_scene = std::make_shared<Scene>(instance.get());
+			active_scene = create_ref<Scene>(&instance->engine_allocator, instance.get());
 			game->scene = active_scene;
 			game->start();
 			game->scene->awake();
@@ -211,7 +222,7 @@ void Editor::set_running() {
 		case EditorState::Editing: 
 			game->shutdown();
 			active_scene.reset();
-			active_scene = std::make_shared<Scene>(instance.get());
+			active_scene = create_ref<Scene>(&instance->engine_allocator, instance.get());
 			game->scene = active_scene;
 			game->start();
 			game->scene->awake();

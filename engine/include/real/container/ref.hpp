@@ -35,7 +35,7 @@ private:
 template<typename T>
 class Ref {
 public:
-	static_assert(std::is_base_of_v<RefCounted, T>, "T must derive from ref counted to be a Ref");
+	// static_assert(std::is_base_of_v<RefCounted, T>, "T must derive from ref counted to be a Ref");
 
 	Ref() {
 		allocator = nullptr;
@@ -102,6 +102,13 @@ public:
 		allocator = nullptr;
 	}
 
+	// LOOK AWAY!!!
+	void destroy() {
+		allocator->free_object(object);
+		allocator = nullptr;
+		object = nullptr;
+	}
+
 	operator bool() { return (object == nullptr); }
 
 private:
@@ -129,8 +136,15 @@ public:
 		allocator->free_object(object);
 	}
 
+	UniquePointer(const UniquePointer &&other) {
+		allocator = other.allocator;
+		object = other.object;
+	}
+
 	UniquePointer(const UniquePointer<T>&) = delete;
-	void operator =(const UniquePointer<T> &alloc) {
+	void operator =(const UniquePointer<T> &alloc) = delete;
+
+	void operator =(const UniquePointer<T> &&alloc) {
 		object = alloc.object;
 		allocator = alloc.allocator;
 	}
@@ -146,7 +160,20 @@ public:
 		allocator = nullptr;
 		object = nullptr;
 		return r;
-	};
+	}
+
+	void destroy() {
+		allocator->free_object(object);
+		allocator = nullptr;
+		object = nullptr;
+	}
+
+	T *release() {
+		auto *sobj = object;
+		allocator = nullptr;
+		object = nullptr;
+		return sobj;
+	}
 
 private:
 	T *object;
@@ -158,12 +185,6 @@ inline UniquePointer<T> create_unique(Allocator *alloc, Args &&...args) { return
 
 template<typename T, typename ...Args>
 inline Ref<T> create_ref(Allocator *alloc, Args &&...args) { return Ref<T>(alloc, alloc->allocate_object<T>(std::forward<Args>(args)...)); }
-
-template<typename T>
-class RefView {
-public:
-
-};
 
 }
 

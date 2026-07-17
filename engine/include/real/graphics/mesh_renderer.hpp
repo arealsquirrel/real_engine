@@ -52,7 +52,7 @@ public:
 	void destroy() final override;
 
 private:
-	Unique<RenderPassGeometry> diffuse_pass;
+	UniquePointer<RenderPassGeometry> diffuse_pass;
 	ResourceHandle<ResourceImage> image;
 	std::vector<DrawCommand> draw_commands_cmd;
 	u32 image_count;

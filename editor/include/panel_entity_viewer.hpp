@@ -8,7 +8,7 @@ namespace editor {
 
 class PanelEntityViewer : public Panel {
 public:
-    PanelEntityViewer(Shared<real::Instance> _instance);
+    PanelEntityViewer(real::Ref<real::Instance> _instance);
     ~PanelEntityViewer();
 
     void draw();

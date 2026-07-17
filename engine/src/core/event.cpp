@@ -1,4 +1,6 @@
 
+#include "real/container/ref.hpp"
+#include "real/core/allocator.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/object.hpp"
 #include <memory>
@@ -32,10 +34,10 @@ void EventMessenger::emit_event(Object *from, UUID eventID, Event &event) {
 void EventMessenger::subscribe(Object *attached, UUID eventID, EventFunctionHandle *unq) {
     auto vec_itr = event_map.find(eventID);
     if(vec_itr == event_map.end()) {
-        vec_itr = event_map.emplace(eventID, std::vector<Unique<EventFunctionHandle>>()).first;
+        vec_itr = event_map.emplace(eventID, std::vector<UniquePointer<EventFunctionHandle>>()).first;
     }
 
-    std::unique_ptr<EventFunctionHandle> hdn(unq);
+    UniquePointer<EventFunctionHandle> hdn(global_system_allocator(), unq);
     vec_itr->second.push_back(std::move(hdn));
 }
  

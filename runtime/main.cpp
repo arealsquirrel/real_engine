@@ -1,15 +1,14 @@
 
+#include "real/core/allocator.hpp"
 #include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
-#include "real/core/types.hpp"
 #include "real/debug/cvars.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/scene/scene.hpp"
 #include <real/graphics/framebuffer.hpp>
-#include <memory>
 
 #include <real/real.hpp>
 #include <tracy/Tracy.hpp>
@@ -26,10 +25,10 @@ int main(int argc, char **argv) {
 	ArgParams params = parse_args(argc, argv);
     
 	Graphics::init_backend({});
-	Shared<Instance> instance = std::make_shared<Instance>(params);
+	Ref<Instance> instance = create_ref<Instance>(global_system_allocator(), params);
     auto [game, dll] = Game::load_game_dll(instance, params);
-	Shared<Framebuffer> screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight);
-	Shared<Scene> scene = std::make_shared<Scene>(instance.get());
+	Ref<Framebuffer> screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight).to_ref();
+	Ref<Scene> scene = create_ref<Scene>(&instance->engine_allocator, instance.get());
 	game->scene = scene;
 	game->screen_framebuffer = screen_framebuffer;
 	game->start();

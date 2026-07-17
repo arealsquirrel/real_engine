@@ -29,7 +29,7 @@ public:
 
     virtual BufferHandle get_handle() = 0;
 
-    static Unique<UniformBuffer> create(Instance *instance, size_t size);
+    static UniquePointer<UniformBuffer> create(Instance *instance, size_t size);
 
 public:
     virtual void *get_data() = 0;

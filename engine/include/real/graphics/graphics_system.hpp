@@ -47,8 +47,8 @@ public:
 
 private:
 	EXPOSE_TO_EDITOR
-	Shared<MeshRenderer> mesh_renderer;
-	Shared<SpriteRenderer> sprite_renderer;
+	Ref<MeshRenderer> mesh_renderer;
+	Ref<SpriteRenderer> sprite_renderer;
 	EntityHandle camera_entity;
 
 	// TODO : better :/

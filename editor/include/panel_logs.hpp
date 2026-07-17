@@ -10,7 +10,7 @@ namespace editor {
 
 class PanelLogs : public Panel {
 public:
-	PanelLogs(Shared<real::Instance> _instance, real::LogSink_Buffer *lb);
+	PanelLogs(real::Ref<real::Instance> _instance, real::LogSink_Buffer *lb);
 	~PanelLogs() = default;
 
 	void draw();

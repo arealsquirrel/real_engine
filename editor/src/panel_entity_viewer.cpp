@@ -4,7 +4,7 @@
 
 namespace editor {
 
-PanelEntityViewer::PanelEntityViewer(Shared<real::Instance> _instance) 
+PanelEntityViewer::PanelEntityViewer(real::Ref<real::Instance> _instance) 
     : Panel(_instance) {}
 
 PanelEntityViewer::~PanelEntityViewer() {}

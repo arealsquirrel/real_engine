@@ -14,7 +14,7 @@
 
 namespace real {
 
-Game::Game(Shared<Instance> _instance, ArgParams params) 
+Game::Game(Ref<Instance> _instance, ArgParams params) 
 	: EventListener(_instance.get(), nullptr), instance(_instance) {
 
 	window = _instance->window; 
@@ -24,7 +24,7 @@ Game::Game(Shared<Instance> _instance, ArgParams params)
 
 Game::~Game() {}
 
-std::pair<Game*, DLLGameLoad> Game::load_game_dll(Shared<Instance> instance, ArgParams params) {
+std::pair<Game*, DLLGameLoad> Game::load_game_dll(Ref<Instance> instance, ArgParams params) {
 	ZoneScoped
 
 	DLLGameLoad load;

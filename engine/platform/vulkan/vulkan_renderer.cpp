@@ -32,7 +32,6 @@
 #pragma clang diagnostic pop
 
 #include <real/real.hpp>
-
 #include "real/resource/resource_image.hpp"
 
 #define GLFW_INCLUDE_VULKAN
@@ -40,7 +39,7 @@
 
 namespace real {
 
-VulkanRenderer::VulkanRenderer(Instance *_instance, Shared<Window> _window)
+VulkanRenderer::VulkanRenderer(Instance *_instance, Ref<Window> _window)
     : Renderer(_instance, _window), EventListener(_instance, this) {}
 
 void VulkanRenderer::init() {
@@ -82,7 +81,7 @@ VulkanRenderer::~VulkanRenderer() {
 	RL_LOG_TRACE("destroying vulkan renderer");
     vkDeviceWaitIdle(device);
 
-	delete scene_data.release();
+	scene_data.destroy();
 
     ImGui_ImplVulkan_Shutdown();
 	vkDestroyDescriptorPool(device, imgui_descriptor_pool, nullptr);
@@ -495,8 +494,10 @@ FrameDataVulkan &VulkanRenderer::get_current_frame() {
     return frame_data[frame_number % VULKAN_FRAME_OVERLAP];
 }
 
-Unique<Renderer> Renderer::create(Instance *instance, Shared<Window> window) {
-	return std::make_unique<VulkanRenderer>(instance, window);
+UniquePointer<Renderer> Renderer::create(Instance *instance, Ref<Window> window) {
+    return UniquePointer<Renderer>(
+			&instance->engine_allocator,
+			(Renderer*)instance->engine_allocator.allocate_object<VulkanRenderer>(instance, window));
 }
 
 }

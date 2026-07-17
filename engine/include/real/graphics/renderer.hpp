@@ -2,6 +2,7 @@
 #define REALLIB_RENDERER_HPP
 
 #include <real/core/event.hpp>
+#include "real/container/ref.hpp"
 #include "real/core/object.hpp"
 #include "real/core/object_container.hpp"
 #include "real/core/types.hpp"
@@ -81,7 +82,7 @@ class REALLIB_EXPORT Renderer : public Object {
 RL_OBJECT(Renderer, Object)
 
 public:
-    Renderer(Instance *_instance, Shared<Window> _window);
+    Renderer(Instance *_instance, Ref<Window> _window);
     virtual ~Renderer();
 
 	// some of the constructors need instance things to be initilized
@@ -122,7 +123,7 @@ public:
 	void destroy_renderers();
 
 
-	static Unique<Renderer> create(Instance *instance, Shared<Window> window);
+	static UniquePointer<Renderer> create(Instance *instance, Ref<Window> window);
 
 public:
 	
@@ -133,10 +134,10 @@ public:
 	RendererStats render_stats;
 
 	// created by the graphics API
-	Unique<UniformBuffer> scene_data;
+	UniquePointer<UniformBuffer> scene_data;
 
 protected:
-    Shared<Window> window;
+    Ref<Window> window;
 };
 
 }

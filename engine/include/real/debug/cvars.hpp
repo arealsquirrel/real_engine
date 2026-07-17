@@ -1,6 +1,8 @@
 #ifndef REALLIB_CVARS_HPP
 #define REALLIB_CVARS_HPP
 
+#include "real/container/ref.hpp"
+#include "real/core/allocator.hpp"
 #include "real/core/core.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
@@ -23,7 +25,7 @@ enum class REALLIB_EXPORT CVarType : u32 {
     Float,
 };
 
-class REALLIB_EXPORT CVarWrapper {
+class REALLIB_EXPORT CVarWrapper : public RefCounted {
 public:
     CVarWrapper(std::string _name, CVarEditParamers _params)
         : params(_params), name(_name) {};
@@ -68,8 +70,8 @@ public:
     void render_imgui();
 
     template<typename T>
-    Shared<CVar<T>> register_cvar(std::string name, T init_value=T(), CVarEditParamers params=CVarEditParamers::ReadWrite) {
-        Shared<CVar<T>> var = std::make_shared<CVar<T>>(init_value, name, params);
+	Ref<CVar<T>> register_cvar(std::string name, T init_value=T(), CVarEditParamers params=CVarEditParamers::ReadWrite) {
+        Ref<CVar<T>> var = create_ref<T>(global_system_allocator(), init_value, name, params); 
         cvars.emplace(name, var);
         return var;
     }
@@ -78,7 +80,7 @@ public:
     
 public:
     static CVarSystem &get();
-    std::map<std::string, Shared<CVarWrapper>> cvars;
+    std::map<std::string, Ref<CVarWrapper>> cvars;
 };
 
 

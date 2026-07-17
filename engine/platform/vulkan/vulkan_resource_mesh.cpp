@@ -115,11 +115,16 @@ void VulkanResourceMesh::bind() {
 void VulkanResourceMesh::unbind() {
 }
 
-Unique<ResourceMesh> ResourceMesh::create(
+UniquePointer<ResourceMesh> ResourceMesh::create(
 		Instance *instance, std::vector<uint32_t> indices,
 		char *data, size_t size, std::map<StringHash, ResourceMesh::Mesh> meshes) {
 
-	return std::make_unique<VulkanResourceMesh>(instance, indices, data, size, meshes);
+    return UniquePointer<ResourceMesh>(
+			&instance->engine_allocator,
+			(ResourceMesh*)instance->engine_allocator.allocate_object<VulkanResourceMesh>(
+				instance, indices, data, size, meshes));
+
+	//return std::make_unique<VulkanResourceMesh>(instance, indices, data, size, meshes);
 }
 
 }

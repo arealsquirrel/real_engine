@@ -10,7 +10,7 @@ namespace editor {
 
 class PanelResourceDatabase : public Panel {
 public:
-	PanelResourceDatabase(Shared<real::Instance> _instance);
+	PanelResourceDatabase(real::Ref<real::Instance> _instance);
 	~PanelResourceDatabase() = default;
 
 	void draw() override;

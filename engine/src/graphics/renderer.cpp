@@ -5,8 +5,8 @@
 
 namespace real {
 
-Renderer::Renderer(Instance *_instance, Shared<Window> _window) 
-    : Object(_instance), window(_window) {}
+Renderer::Renderer(Instance *_instance, Ref<Window> _window) 
+    : Object(_instance), window(_window), subrenderers(&_instance->engine_allocator), post_effects(&_instance->engine_allocator) {}
 
 Renderer::~Renderer() {
 }

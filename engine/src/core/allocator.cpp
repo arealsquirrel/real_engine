@@ -31,12 +31,10 @@ SystemAllocator::~SystemAllocator() {
 }
 
 char *SystemAllocator::allocate_mem(u32 size) {
-	// allocated_mem += size;
 	return (char*)malloc(size);
 }
 
 void SystemAllocator::free_mem(char *mem, u32 size) {
-	// allocated_mem -= size;
 	free(mem);
 }
 
@@ -110,6 +108,8 @@ LinkedListAllocator::LinkedListAllocator(u32 size)
 	list_begin->next = nullptr;
 	list_begin->used = false;
 	list_begin->size = size-sizeof(Header);
+
+	allocated_mem = 0;
 }
 
 LinkedListAllocator::~LinkedListAllocator() = default;
@@ -136,6 +136,7 @@ char *LinkedListAllocator::allocate_mem(u32 size) {
 	selected_block->next = alloc_header;
 	selected_block->size = size;
 	selected_block->used = true;
+	allocated_mem += size;
 
 	return ((char*)selected_block)+sizeof(Header);
 }
@@ -144,6 +145,7 @@ void LinkedListAllocator::free_mem(char *mem, u32 size) {
 	Header *h = (Header*)(mem - sizeof(Header));
 	h->used = false;
 	compact(h);
+	allocated_mem -= size;
 }
 
 void LinkedListAllocator::print() {

@@ -12,7 +12,6 @@
 #include "real/scene/system.hpp"
 #include <entt/entity/registry.hpp>
 #include <set>
-#include <utility>
 
 namespace real {
 
@@ -31,21 +30,21 @@ public:
 	/*
 	 * clones entities, but does not clone systems
 	 */
-	Shared<Scene> clone();
+	Ref<Scene> clone();
 
     void awake();
     void update(u32 delta_time);
     void destroy();
 
     template<typename T, typename ...Args>
-    Shared<T> add_system(Args ...args) {
+    Ref<T> add_system(Args ...args) {
 		RL_LOG_TRACE("adding system");
         auto [emp, ptr] = systems.make_emplace<T>(instance, this, std::forward<Args>(args)...);
         return ptr;
     }
 
 	template<typename T>
-	Shared<T> get_system() {
+	Ref<T> get_system() {
 		return systems.get<T>();
 	}
 

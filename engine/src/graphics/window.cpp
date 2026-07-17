@@ -1,4 +1,5 @@
 
+#include "real/container/ref.hpp"
 #include "real/core/event.hpp"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
@@ -48,7 +49,7 @@ Window::Window(Instance *_instance, const WindowInfo &info)
 
     glfwSetFramebufferSizeCallback(window, glfw_resize_callback);
 
-    input = std::make_unique<Input>(instance, this);
+    input = create_unique<Input>(&instance->engine_allocator, instance, this);
 }
 
 Window::~Window() {

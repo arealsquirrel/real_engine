@@ -3,7 +3,6 @@
 #include "imgui.h"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
-#include "real/core/logging.hpp"
 #include "real/resource/resource.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
@@ -66,7 +65,7 @@ void PanelResourceViewer::display(real::ResourceMesh *resource) {
 }
 
 PanelResourceViewer::PanelResourceViewer(
-		Shared<real::Instance> _instance, 
+		real::Ref<real::Instance> _instance, 
 		std::optional<real::ResourceHandle<real::Resource>> _current_handle)
 	: Panel(_instance), current_handle(_current_handle) {}
 

@@ -1,13 +1,6 @@
 #ifndef REALLIB_GRAPHICS_HPP
 #define REALLIB_GRAPHICS_HPP
 
-#include "real/core/game.hpp"
-#include "real/core/instance.hpp"
-#include "real/core/types.hpp"
-#include "real/graphics/renderer.hpp"
-#include "real/graphics/window.hpp"
-#include "real/resource/resource_image.hpp"
-#include "real/resource/resource_mesh.hpp"
 #include <real/resource/resource_handle.hpp>
 
 namespace real {

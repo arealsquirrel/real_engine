@@ -4,12 +4,13 @@
 #include "real/resource/resource_image.hpp"
 #include "real/scene/components.hpp"
 #include <editor_gizmos.hpp>
+#include <real/real.hpp>
 
 namespace editor {
 
 using namespace real;
 
-EditorGizmos::EditorGizmos(Shared<Instance> _instance)
+EditorGizmos::EditorGizmos(real::Ref<Instance> _instance)
 	: instance(_instance) {
 
 	sprite_renderer = instance->renderer->subrenderers.get<SpriteRenderer>();
@@ -20,7 +21,7 @@ EditorGizmos::~EditorGizmos() {
 
 }
 
-void EditorGizmos::draw_gizmos(Shared<real::Scene> scene) {
+void EditorGizmos::draw_gizmos(real::Ref<real::Scene> scene) {
 
 	{
 		auto view = scene->registry->view<ComponentCamera, ComponentTransform>();

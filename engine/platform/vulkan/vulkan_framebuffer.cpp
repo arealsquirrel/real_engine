@@ -108,11 +108,14 @@ void VulkanFramebuffer::unbind() {
     }
 }
 
-Unique<Framebuffer> Framebuffer::create(
+UniquePointer<Framebuffer> Framebuffer::create(
         Instance *instance, u32 width, u32 height,
         bool depth, MultisamplingCount count) {
 
-    return std::make_unique<VulkanFramebuffer>(instance, width, height, depth, count);
+    return UniquePointer<Framebuffer>(
+			&instance->engine_allocator,
+			(Framebuffer*)instance->engine_allocator.allocate_object<VulkanFramebuffer>(instance, width, height, depth, count));
+    // return std::make_unique<VulkanFramebuffer>(instance, width, height, depth, count);
 }
 
 }

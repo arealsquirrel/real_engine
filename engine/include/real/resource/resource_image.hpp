@@ -10,7 +10,6 @@
 #include "real/core/object.hpp"
 #include "real/container/string_hash.hpp"
 #include "real/core/types.hpp"
-#include "real/container/vec.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource.hpp"
 
@@ -80,7 +79,7 @@ public:
 	ImageFormat get_image_format();
 	ColorFormat get_color_format();
 
-	static Unique<ResourceImage> create(
+	static UniquePointer<ResourceImage> create(
 			Instance *_instance, u32 width, u32 height,
 			ColorFormat cformat, ImageFormat iformat, 
 			void *data=nullptr, int mips=0, std::map<StringHash, Tile> tiles={});

@@ -1,6 +1,7 @@
 #ifndef REALLIB_OBJECT_HPP
 #define REALLIB_OBJECT_HPP
 
+#include "real/container/ref.hpp"
 #include "real/core/allocator.hpp"
 #include "real/core/core.hpp"
 #include "real/core/types.hpp"
@@ -17,7 +18,7 @@ struct TypeInfo {
     const TypeInfo *parent;
 };
 
-class REALLIB_EXPORT Object {
+class REALLIB_EXPORT Object : public RefCounted {
 public:
     explicit Object(Instance *_instance);
 	explicit Object(Instance *_instance, Allocator *_allocator);

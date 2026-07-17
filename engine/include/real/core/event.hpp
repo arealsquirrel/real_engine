@@ -1,6 +1,8 @@
 #ifndef REALLIB_EVENT_HPP
 #define REALLIB_EVENT_HPP
 
+#include "real/container/ref.hpp"
+#include "real/core/allocator.hpp"
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
@@ -58,7 +60,7 @@ public:
     EntityHandle entity;
 };
 
-class REALLIB_EXPORT EventMessenger {
+class REALLIB_EXPORT EventMessenger : public RefCounted {
 public:
     struct EventFunctionHandle {
         EventFunctionHandle(Object *attached);
@@ -96,7 +98,7 @@ public:
     template<typename T>
     void subscribe(Object *attached, EventFunctionPtr<T> fn) {
         static_assert(std::is_base_of<Event, T>::value, "can not subscribe to event that does not derive from Event");
-        subscribe(attached, T::get_event_id(), new EventFunction<T>(fn, attached));
+        subscribe(attached, T::get_event_id(), global_system_allocator()->allocate_object<EventFunction<T>>(fn, attached));
     }
 
     template<typename T>
@@ -110,7 +112,7 @@ public:
     void unsubscribe(Object *object, UUID eventID);
 
 private:
-    std::unordered_map<UUID, std::vector<Unique<EventFunctionHandle>>> event_map;
+    std::unordered_map<UUID, std::vector<UniquePointer<EventFunctionHandle>>> event_map;
 };
 
 }

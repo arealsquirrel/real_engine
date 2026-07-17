@@ -14,7 +14,7 @@ namespace editor {
 
 class PanelResourceViewer : public Panel {
 public:
-	PanelResourceViewer(Shared<real::Instance> _instance, 
+	PanelResourceViewer(real::Ref<real::Instance> _instance, 
 		std::optional<real::ResourceHandle<real::Resource>> _current_handle = std::nullopt);
 
 	~PanelResourceViewer();

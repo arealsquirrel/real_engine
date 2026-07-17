@@ -5,7 +5,6 @@
 #include "real/core/types.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_database.hpp"
-#include <optional>
 #include <real/core/core.hpp>
 
 namespace real {
@@ -15,7 +14,7 @@ class Game;
 class Framebuffer;
 class Scene;
 
-typedef real::Game* create_real_game_f(Shared<real::Instance> instance, ArgParams params);
+typedef real::Game* create_real_game_f(Ref<real::Instance> instance, ArgParams params);
 typedef void destroy_real_game_f(real::Game*);
 
 /**
@@ -33,7 +32,7 @@ struct DLLGameLoad {
  */
 class REALLIB_EXPORT Game : public EventListener {
 public:
-	Game(Shared<Instance> _instance, ArgParams params);
+	Game(Ref<Instance> _instance, ArgParams params);
 	virtual ~Game();
 
 public:
@@ -59,7 +58,7 @@ public:
 	 * @param instance A created instance class handle to be given to the game
 	 * @return std::pair<Game*, DLLGameLoad> a pointer to the created game class and function pointers for creation and deletion functions for that dll
 	 */
-	static std::pair<Game*, DLLGameLoad> load_game_dll(Shared<Instance> instance, ArgParams params);
+	static std::pair<Game*, DLLGameLoad> load_game_dll(Ref<Instance> instance, ArgParams params);
 
 	/**
 	 * @brief destroys a Game* from a dll
@@ -70,12 +69,12 @@ public:
 	static void destroy_game_dll(Game* game, DLLGameLoad load);
 
 public:
-	Shared<Instance> instance;
-	Shared<ResourceDatabase> resource_database;
-	Shared<Window> window;
-    Shared<Renderer> renderer;
-	Shared<Framebuffer> screen_framebuffer;
-	Shared<Scene> scene;
+	Ref<Instance> instance;
+	Ref<ResourceDatabase> resource_database;
+	Ref<Window> window;
+    Ref<Renderer> renderer;
+	Ref<Framebuffer> screen_framebuffer;
+	Ref<Scene> scene;
 };
 
 }

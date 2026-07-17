@@ -27,7 +27,7 @@ protected:
 		: RenderPass(_instance, layout, _resources) {};
 
 public:
-	static Unique<RenderPassCompute> create(
+	static UniquePointer<RenderPassCompute> create(
 		Instance *instance, ResourceHandle<ResourceShader> shader, std::vector<RenderPassResource> _resources);
 
 public:

@@ -183,12 +183,17 @@ ImageHandle VulkanResourceImage::get_handle() {
 	return imageView;
 }
 
-Unique<ResourceImage> ResourceImage::create(
+UniquePointer<ResourceImage> ResourceImage::create(
 			Instance *instance, u32 width, u32 height,
 			ColorFormat cformat, ImageFormat iformat,
 			void *data, int mips, std::map<StringHash, Tile> tiles) {
+
+
+    return UniquePointer<ResourceImage>(
+			&instance->engine_allocator,
+			(ResourceImage*)instance->engine_allocator.allocate_object<VulkanResourceImage>(instance, width, height, cformat, iformat, data, mips, VK_SAMPLE_COUNT_1_BIT, tiles));
 	
-	return std::make_unique<VulkanResourceImage>(instance, width, height, cformat, iformat, data, mips, VK_SAMPLE_COUNT_1_BIT, tiles);
+	// return std::make_unique<VulkanResourceImage>(instance, width, height, cformat, iformat, data, mips, VK_SAMPLE_COUNT_1_BIT, tiles);
 }
 
 

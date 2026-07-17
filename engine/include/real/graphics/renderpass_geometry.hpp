@@ -6,6 +6,7 @@
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_handle.hpp"
+#include "real/resource/resource_mesh.hpp"
 
 namespace real {
 
@@ -83,7 +84,7 @@ public:
 	virtual void draw(ResourceMesh *mesh, u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) = 0;
 
 
-	static Unique<RenderPassGeometry> create(
+	static UniquePointer<RenderPassGeometry> create(
 		Instance *instance, RenderPassGeometryInfo info,
 		std::vector<ResourceHandle<ResourceShader>> shaders,
 		std::vector<RenderPassResource> _resources);

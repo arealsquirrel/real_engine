@@ -14,7 +14,7 @@
 namespace real {
 
 Scene::Scene(Instance *instance)
-    : Object(instance) {
+    : Object(instance), systems(&instance->engine_allocator) {
 
 	RL_LOG_INFO("Scene Made");
     registry = new entt::registry();
@@ -25,7 +25,8 @@ Scene::~Scene() {
 	delete registry;
 }
 
-Shared<Scene> Scene::clone() {
+Ref<Scene> Scene::clone() {
+	/*
 	Shared<Scene> scene = std::make_shared<Scene>(instance);
 
 	for (auto entity : entities) {
@@ -40,6 +41,7 @@ Shared<Scene> Scene::clone() {
 	}
 	
 	return scene;
+	*/
 }
 
 EntityHandle Scene::create_entity(String name) {

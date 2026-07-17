@@ -10,7 +10,7 @@ namespace editor {
 
 class PanelSceneView : public Panel {
 public:
-    PanelSceneView(Shared<real::Instance> _instance, Shared<real::Scene> _scene);
+    PanelSceneView(real::Ref<real::Instance> _instance, real::Ref<real::Scene> _scene);
     ~PanelSceneView();
 
     void draw() override;
@@ -20,7 +20,7 @@ public:
 
 public:
     real::EntityHandle handle;
-    Shared<real::Scene> scene;
+	real::Ref<real::Scene> scene;
 };
 
 }

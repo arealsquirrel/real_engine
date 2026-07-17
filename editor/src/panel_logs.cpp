@@ -12,7 +12,7 @@ ImVec4 ImGuiIntRGBToFloatRGB(int r, int g, int b){
 }
 
 PanelLogs::PanelLogs(
-		Shared<real::Instance> _instance, real::LogSink_Buffer *lb) 
+		real::Ref<real::Instance> _instance, real::LogSink_Buffer *lb) 
 	: Panel(_instance), log_buffer(lb) {};
 
 void PanelLogs::draw() {

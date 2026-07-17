@@ -1,10 +1,8 @@
 #ifndef REALLIB_VULKAN_BUFFER_HPP
 #define REALLIB_VULKAN_BUFFER_HPP
 
-#include "real/core/core.hpp"
 #include "real/core/object.hpp"
 #include "real/graphics/buffer.hpp"
-#include "real/graphics/renderer.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_renderpass_geometry.hpp"
 #include "vulkan_resource_mesh.hpp"

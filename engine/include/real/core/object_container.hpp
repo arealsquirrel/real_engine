@@ -1,6 +1,8 @@
 #ifndef REALLIB_OBJECT_CONTAINER_HPP
 #define REALLIB_OBJECT_CONTAINER_HPP
 
+#include "real/container/ref.hpp"
+#include "real/core/allocator.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include <memory>
@@ -18,20 +20,23 @@ namespace real {
 template<typename Base>
 class REALLIB_EXPORT UniqueObjectSet {
 public:
-	UniqueObjectSet() = default;
+	UniqueObjectSet(Allocator *_allocator)
+		: allocator(_allocator) {}
+
 	~UniqueObjectSet() = default;
 
 	template<typename T, typename ...Args>
-	std::pair<bool, Shared<T>> make_emplace(Args &&...args) {
-		auto obj = std::make_shared<T>(std::forward<Args>(args)...);
-		return std::make_pair(emplace(obj), obj);
+	std::pair<bool, Ref<T>> make_emplace(Args &&...args) {
+		Ref<Base> base_obj(allocator, (Base*)allocator->allocate_object<T>(std::forward<Args>(args)...));
+		Ref<T> poly_obj(allocator, (T*)base_obj.get());
+		return std::make_pair(emplace(base_obj), poly_obj);
 	}
 
 	template<typename T>
-	std::shared_ptr<T> get() {
+	Ref<T> get() {
 		static_assert(std::is_base_of_v<Base, T>, "must derive from object");
 		u32 index = obj_set.at(T::object_typeinfo_static()->id);
-		return std::static_pointer_cast<T>(obj_array[index]);
+		return Ref<T>(allocator, (T*)obj_array[index].get());
 	}
 
 	template<typename T>
@@ -46,7 +51,7 @@ public:
 		return erase(T::object_typeinfo_static()->id);
 	} 
 
-	bool emplace(std::shared_ptr<Base> ptr) {
+	bool emplace(Ref<Base> ptr) {
 		auto resp = obj_set.emplace(ptr->object_typeinfo()->id, elements++);
 		obj_array.push_back(ptr);
 		return resp.second;
@@ -70,25 +75,28 @@ public:
 	auto end() { return obj_array.end(); }
 
 private:
-	std::vector<Shared<Base>> obj_array;
+	std::vector<Ref<Base>> obj_array;
 	std::map<UUID, u32> obj_set;
 	u32 elements {0};
+	Allocator *allocator;
 };
 
 template<typename T, typename Base=Object>
 class REALLIB_EXPORT ObjectSet {
 public:
-	ObjectSet() = default;
+	ObjectSet(Allocator *_allocator)
+		: allocator(_allocator) {}
+
 	~ObjectSet() = default;
 
 	template<typename X, typename ...Args>
 	void emplace(Args &&...args) {
 		static_assert(std::is_base_of_v<Base, X>, "must derive from object");
-		auto obj = std::make_shared<X>(std::forward<X>(args)...);
+		auto obj = create_ref<X>(allocator, std::forward<Args>(args)...);
 		return std::make_pair(emplace(obj), obj);
 	}
 
-	bool emplace(std::shared_ptr<Object> ptr) {	
+	bool emplace(Ref<Object> ptr) {	
 		auto resp = obj_set.emplace(ptr->get_instance_uuid(), elements++);
 		obj_array.push_back(ptr);
 		return resp.second;
@@ -112,9 +120,10 @@ public:
 	auto end() { return obj_array.end(); }
 
 private:
-	std::vector<Shared<Object>> obj_array;
+	std::vector<Ref<Object>> obj_array;
 	std::map<UUID, u32> obj_set;
 	u32 elements {0};
+	Allocator *allocator;
 };
 
 }

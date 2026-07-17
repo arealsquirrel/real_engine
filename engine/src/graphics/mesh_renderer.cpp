@@ -5,6 +5,7 @@
 #include "real/graphics/renderpass_geometry.hpp"
 #include <real/graphics/mesh_renderer.hpp>
 #include <tracy/Tracy.hpp>
+#include <real/resource/resource_database.hpp>
 
 namespace real {
 

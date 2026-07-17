@@ -68,8 +68,8 @@ public:
 	void draw_sprite(ResourceImage *image, ResourceImage::Tile tile, Color4 tint_color={1,1,1,1}, Vec3 position={0,0,0}, Vec3 rotation={0,0,0}, Vec3 scale={1,1,1});
 
 private:
-	Unique<RenderPassGeometry> pass;
-	Unique<ResourceMesh> mesh;
+	UniquePointer<RenderPassGeometry> pass;
+	UniquePointer<ResourceMesh> mesh;
 	ResourceHandle<ResourceImage> image;
 	
 	std::vector<Vertex> draw_commands_vec;

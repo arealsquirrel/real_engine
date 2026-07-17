@@ -1,5 +1,6 @@
 
 #include "vulkan_buffer.hpp"
+#include "real/container/ref.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/debug/timer.hpp"
@@ -40,8 +41,10 @@ BufferHandle VulkanUniformBuffer::get_handle() {
     return (BufferHandle)(this);
 }
 
-Unique<UniformBuffer> UniformBuffer::create(Instance *instance, size_t size) {
-    return std::make_unique<VulkanUniformBuffer>(instance, size);
+UniquePointer<UniformBuffer> UniformBuffer::create(Instance *instance, size_t size) {
+    return UniquePointer<UniformBuffer>(
+			&instance->engine_allocator,
+			(UniformBuffer*)instance->engine_allocator.allocate_object<VulkanUniformBuffer>(instance, size));
 }
 
 }
