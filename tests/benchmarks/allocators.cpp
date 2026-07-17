@@ -80,11 +80,11 @@ static void freelist_allocator(picobench::state &s) {
 static void freelist_ref_allocator(picobench::state &s) {
 	LinkedListAllocator sys(10000);
 	for (auto _ : s) {
-		Ref<A> mem1(&sys);
-		Ref<B> mem2(&sys);
-		Ref<A> mem3(&sys);
-		Ref<B> mem4(&sys);
-		Ref<A> mem5(&sys);
+		Ref<A> mem1 = create_ref<A>(&sys);
+		Ref<B> mem2 = create_ref<B>(&sys);
+		Ref<A> mem3 = create_ref<A>(&sys);
+		Ref<B> mem4 = create_ref<B>(&sys);
+		Ref<A> mem5 = create_ref<A>(&sys);
 
 		{
 			Ref<A> rmem1(mem1);
@@ -114,8 +114,6 @@ static void system_shared_ptr(picobench::state &s) {
     }
 }
 
-// PICOBENCH(system_allocator);
-//PICOBENCH(freelist_allocator);
 PICOBENCH(freelist_ref_allocator);
 PICOBENCH(system_shared_ptr);
-// PICOBENCH(page_allocator);
+

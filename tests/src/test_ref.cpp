@@ -17,7 +17,7 @@ TEST(ref_test, count) {
 
 	{
 		Ref<A> a;
-		a = Ref<A>(&alloc);
+		a = create_ref<A>(&alloc);
 		a->x = 2;
 
 		{
@@ -35,7 +35,7 @@ TEST(ref_test, UniquePointer) {
 
 	{
 		UniquePointer<A> a;
-		a = UniquePointer<A>(&alloc);
+		a = create_unique<A>(&alloc);
 	}
 }
 

@@ -8,7 +8,7 @@
 
 namespace real {
 
-template<typename T, typename Alloc>
+template<typename T>
 class Ref;
 
 template<typename T>
@@ -24,7 +24,7 @@ public:
 private:
 	u32 count {0};
 
-	template<typename T, typename Alloc>
+	template<typename T>
 	friend class Ref;
 };
 
@@ -32,7 +32,7 @@ private:
  * signifies shared ownership of a pointer and its lifetime
  * and must be created with an allocator :3
  */
-template<typename T, typename Alloc=Allocator>
+template<typename T>
 class Ref {
 public:
 	static_assert(std::is_base_of_v<RefCounted, T>, "T must derive from ref counted to be a Ref");
@@ -42,15 +42,7 @@ public:
 		object = nullptr;
 	}
 
-	template<typename ...Args>
-	Ref(Alloc *_allocator, Args &&...args) 
-		: allocator(_allocator) {
-		
-		object = allocator->template allocate_object<T>(std::forward<Args>(args)...);
-		object->count++;
-	}
-
-	Ref(Alloc *_allocator, T *obj) 
+	Ref(Allocator *_allocator, T *obj) 
 		: object(obj), allocator(_allocator) {
 		
 		if(object != nullptr) {
@@ -58,7 +50,7 @@ public:
 		}
 	}
 
-	Ref(const Ref<T, Alloc> &r) 
+	Ref(const Ref<T> &r) 
 		: allocator(r.allocator) {
 
 		object = r.object;
@@ -114,13 +106,13 @@ public:
 
 private:
 	T *object;
-	Alloc *allocator;
+	Allocator *allocator;
 
 	template<typename Ts>
 	friend class RefView;
 };
 
-template<typename T, typename Alloc=Allocator>
+template<typename T>
 class UniquePointer {
 public:
 	UniquePointer() {
@@ -128,18 +120,17 @@ public:
 		allocator = nullptr;
 	}
 
-	template<typename ...Args>
-	UniquePointer(Alloc *_allocator, Args &&...args) 
+	UniquePointer(Allocator *_allocator, T *_object) 
 		: allocator(_allocator) {
-		object = allocator->template allocate_object<T>(std::forward<Args>(args)...);
+		object = _object;
 	}
 
 	~UniquePointer() {
 		allocator->free_object(object);
 	}
 
-	UniquePointer(const UniquePointer<T, Alloc>&) = delete;
-	void operator =(const UniquePointer<T, Alloc> &alloc) {
+	UniquePointer(const UniquePointer<T>&) = delete;
+	void operator =(const UniquePointer<T> &alloc) {
 		object = alloc.object;
 		allocator = alloc.allocator;
 	}
@@ -150,10 +141,23 @@ public:
 	T *get() { return object; }
 	operator bool() { return (object == nullptr); }
 
+	Ref<T> to_ref() { 
+		auto r = Ref<T>(allocator, object);
+		allocator = nullptr;
+		object = nullptr;
+		return r;
+	};
+
 private:
 	T *object;
-	Alloc *allocator;
+	Allocator *allocator;
 };
+
+template<typename T, typename ...Args>
+inline UniquePointer<T> create_unique(Allocator *alloc, Args &&...args) { return UniquePointer<T>(alloc, alloc->allocate_object<T>(std::forward<Args>(args)...)); }
+
+template<typename T, typename ...Args>
+inline Ref<T> create_ref(Allocator *alloc, Args &&...args) { return Ref<T>(alloc, alloc->allocate_object<T>(std::forward<Args>(args)...)); }
 
 template<typename T>
 class RefView {
