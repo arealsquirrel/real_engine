@@ -3,3 +3,4 @@ build
 engine/external/
 docs/generated_docs
 docs/Doxyfile
+external
