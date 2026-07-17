@@ -15,7 +15,7 @@ namespace real {
 template<typename T>
 struct Span {
 public:
-	const u32 elements 	{0};
+	const size_t elements 	{0};
 	T *buffer 		{nullptr};
 
 public:

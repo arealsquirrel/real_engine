@@ -1,7 +1,7 @@
 
 #include "game.hpp"
-#include "real/core/color.hpp"
-#include "real/core/string_hash.hpp"
+#include "real/container/color.hpp"
+#include "real/container/string_hash.hpp"
 #include "real/graphics/camera.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/sprite_renderer.hpp"

@@ -27,6 +27,7 @@ public:
 	Unique<EventMessenger> event_messenger;
 	ArgParams arg_params;
 
+	LinkedListAllocator engine_allocator;
 	StackAllocator frame_allocator;
 	SystemAllocator system_allocator;
 };

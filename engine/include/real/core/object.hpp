@@ -1,14 +1,12 @@
 #ifndef REALLIB_OBJECT_HPP
 #define REALLIB_OBJECT_HPP
 
+#include "real/core/allocator.hpp"
 #include "real/core/core.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 
 namespace real {
-
-template<typename T>
-class Ref;
 
 class Instance;
 class EventListener;
@@ -22,6 +20,7 @@ struct TypeInfo {
 class REALLIB_EXPORT Object {
 public:
     explicit Object(Instance *_instance);
+	explicit Object(Instance *_instance, Allocator *_allocator);
     virtual ~Object();
 
 public:
@@ -36,12 +35,10 @@ public:
 protected:
     Instance *instance {nullptr};
     UUID object_id;
+	Allocator *allocator;
 
 private:
 	static u32 object_count;
-
-	template<typename T>
-	friend class Ref;
 };
 
 #define RL_OBJECT(CLASS_NAME, CLASS_PARENT) public: \

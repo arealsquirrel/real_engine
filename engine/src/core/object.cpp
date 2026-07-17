@@ -10,6 +10,12 @@ Object::Object(Instance *_instance) {
 	object_count++;
 }
 
+Object::Object(Instance *_instance, Allocator *_allocator) {
+	instance = _instance;
+	allocator = _allocator;
+	object_count++;
+}
+
 Object::~Object() {
 	object_count -= 1;
 }

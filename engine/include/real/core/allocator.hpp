@@ -5,6 +5,7 @@
 #include "real/container/span.hpp"
 #include "real/core/types.hpp"
 #include <cstddef>
+#include <iostream>
 
 namespace real {
 
@@ -157,6 +158,47 @@ static Allocator *global_system_allocator() {
 	static SystemAllocator alloc;
 	return &alloc;
 }
+
+template<typename T, typename Alloc=Allocator>
+class STDAllocator {
+public:
+	using value_type = T;
+
+	STDAllocator(Alloc &alloc) noexcept
+		: allocator(alloc) {};
+
+    template <typename U, typename uAlloc>
+    STDAllocator(const STDAllocator<U, uAlloc>&) noexcept {}
+
+	T* allocate(std::size_t n) {
+        if (n == 0) return nullptr;
+        std::cout << "Allocating " << n << " element(s) of size " << sizeof(T) << "\n";
+		Span<T> ptr = allocator.template allocate_array<T>(n);
+		return ptr.buffer;
+        throw std::bad_alloc();
+    }
+
+    void deallocate(T* p, std::size_t n) noexcept {
+        std::cout << "Deallocating " << n << " element(s) of size " << sizeof(T) << "\n";
+		Span<T> ptr = Span<T>{n, p};
+		allocator.template free_array<T>(ptr);
+    }
+
+private:
+	Alloc &allocator;
+};
+
+template<typename T>
+using AllocSTDLinkedList = STDAllocator<T, LinkedListAllocator>;
+
+template<typename T>
+using AllocSTDPage = STDAllocator<T, PageAllocator>;
+
+template<typename T>
+using AllocSTDSystem = STDAllocator<T, SystemAllocator>;
+
+template<typename T>
+using AllocSTDStack = STDAllocator<T, StackAllocator>;
 
 }
 

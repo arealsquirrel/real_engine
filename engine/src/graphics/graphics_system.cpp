@@ -18,7 +18,9 @@ namespace real {
 
 GraphicsSystem::GraphicsSystem(Instance *_instance, Scene *_scene, Framebuffer *_framebuffer) 
     : System(_instance, _scene), framebuffer(_framebuffer), 
-    EventListener(_instance, this) {}
+    EventListener(_instance, this) {
+
+}
 
 GraphicsSystem::~GraphicsSystem() = default;
 

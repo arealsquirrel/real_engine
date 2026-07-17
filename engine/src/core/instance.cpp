@@ -17,7 +17,7 @@
 namespace real {
 
 Instance::Instance(ArgParams _arg_params)
-	: arg_params(_arg_params), frame_allocator(1024) {
+	: arg_params(_arg_params), frame_allocator(1024), engine_allocator(10000) {
 	
 	ZoneScoped
 
@@ -41,7 +41,6 @@ Instance::~Instance() {
 
 	resource_database.reset();
 	renderer->destroy_renderers();
-	// resource_database->unregister_all();
     renderer.reset();
     window.reset();
 	auto *p = event_messenger.release();

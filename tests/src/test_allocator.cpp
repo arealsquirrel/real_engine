@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
+#include <vector>
 
 TEST(AllocatorTest, SystemAllocator) {
 	using namespace real;
@@ -87,5 +88,14 @@ TEST(AllocatorTest, LinkedAllocator) {
 	}
 
 	EXPECT_EQ(total_size, 10000);
+}
+
+TEST(AllocatorTest, in_std) {
+	using namespace real;
+	LinkedListAllocator sys(10000);
+	STDAllocator<int, LinkedListAllocator> vec_alloc(sys);
+	std::vector<int, STDAllocator<int, LinkedListAllocator>> my_vec(vec_alloc);
+
+	my_vec.push_back(3);
 }
 
