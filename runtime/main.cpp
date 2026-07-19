@@ -25,33 +25,33 @@ int main(int argc, char **argv) {
 	ArgParams params = parse_args(argc, argv);
     
 	Graphics::init_backend({});
-	Ref<Instance> instance = create_ref<Instance>(global_system_allocator(), params);
-    auto [game, dll] = Game::load_game_dll(instance, params);
-	Ref<Framebuffer> screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight).to_ref();
-	Ref<Scene> scene = create_ref<Scene>(&instance->engine_allocator, instance.get());
-	game->scene = scene;
-	game->screen_framebuffer = screen_framebuffer;
-	game->start();
-	game->scene->awake();
-	auto graphics_system = game->scene->get_system<GraphicsSystem>();
-	FrameMarkEnd("Startup");
+	{
+		Ref<Instance> instance = create_ref<Instance>(global_system_allocator(), params);
+		auto [game, dll] = Game::load_game_dll(instance, params);
+		Ref<Framebuffer> screen_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight).to_ref();
+		Ref<Scene> scene = create_ref<Scene>(&instance->engine_allocator, instance.get());
+		game->scene = scene;
+		game->screen_framebuffer = screen_framebuffer;
+		game->start();
+		game->scene->awake();
+		auto graphics_system = game->scene->get_system<GraphicsSystem>();
+		FrameMarkEnd("Startup");
 
-	while(instance->should_close() == false) {
-		FrameMarkStart("Render Frame");
-		instance->renderer->start_frame();
-		game->update(0);
-		game->scene->update(0);
-		graphics_system->bind_main_camera();
-		instance->renderer->end_frame(screen_framebuffer->get_color_resolve_image().get());
-		FrameMarkEnd("Render Frame");
-	}
+		while(instance->should_close() == false) {
+			FrameMarkStart("Render Frame");
+			instance->renderer->start_frame();
+			game->update(0);
+			game->scene->update(0);
+			graphics_system->bind_main_camera();
+			instance->renderer->end_frame(screen_framebuffer->get_color_resolve_image().get());
+			FrameMarkEnd("Render Frame");
+		}
  
-	CVarSystem::get().clear_cvars();
-	game->scene->destroy();
-    Game::destroy_game_dll(game, dll);
-	scene.reset();
-	screen_framebuffer.reset();
-	instance.reset();
+		CVarSystem::get().clear_cvars();
+		game->scene->destroy();
+		Game::destroy_game_dll(game, dll);
+	}
+
 	Graphics::destroy_backend();
 }
 

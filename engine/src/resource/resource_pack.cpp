@@ -86,7 +86,7 @@ ResourceHandle<ResourcePack> ResourceDatabase::load_resource_disk(Path path, std
 		}
 	}
 
-	auto *pack = new ResourcePack(instance, resources);
+	auto *pack = instance->engine_allocator.allocate_object<ResourcePack>(instance, resources); //new ResourcePack(instance, resources);
 	return register_resource(pack, path.filename().string());
 }
 

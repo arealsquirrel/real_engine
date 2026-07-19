@@ -2,6 +2,7 @@
 #define REALLIB_REF_HPP
 
 #include "real/core/allocator.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include <type_traits>
 #include <utility>
@@ -66,6 +67,7 @@ public:
 
 		object->count--;
 		if(object->count == 0 && object != nullptr) {
+			RL_LOG_TRACE("deleting {}", typeid(T).name());
 			allocator->free_object(object);
 		}
 	}
@@ -73,14 +75,14 @@ public:
 	void operator =(const Ref<T> &r) {
 		if(object != nullptr) {
 			object->count--;
-			if(object->count == 0 && object != nullptr) {
+			if(object->count == 0) {
+				RL_LOG_TRACE("deleting {}", typeid(T).name());
 				allocator->free_object(object);
 			}
 		}
 
 		object = r.object;
 		allocator = r.allocator;
-
 		if(object != nullptr)
 			object->count++;
 	}
@@ -98,16 +100,19 @@ public:
 		if(object->count == 0 && object != nullptr) {
 			allocator->free_object(object);
 		}
+
 		object = nullptr;
 		allocator = nullptr;
 	}
 
 	// LOOK AWAY!!!
+	/*
 	void destroy() {
 		allocator->free_object(object);
 		allocator = nullptr;
 		object = nullptr;
 	}
+	*/
 
 	operator bool() { return (object == nullptr); }
 
@@ -147,9 +152,11 @@ public:
 	UniquePointer(const UniquePointer<T>&) = delete;
 	void operator =(const UniquePointer<T> &alloc) = delete;
 
-	void operator =(const UniquePointer<T> &&alloc) {
+	void operator =(UniquePointer<T> &&alloc) {
 		object = alloc.object;
 		allocator = alloc.allocator;
+		alloc.object = nullptr;
+		alloc.allocator = nullptr;
 	}
 
 	T *operator ->() { return object; }

@@ -27,7 +27,6 @@ public:
         }
 
         subscribed_events.emplace(T::get_event_id());
-
         ev_instance->event_messenger->subscribe<T>(attached, fn);
     }
 

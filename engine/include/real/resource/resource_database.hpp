@@ -72,10 +72,10 @@ public:
 
 		if(resource_map.find(id) != resource_map.end()) {
 			RL_LOG_WARN("UUID collision, giving new ID to resource {}", id.uuid);
-			id = UUID(); // lets hope this works :D
+			id = UUID();
 		}
 
-		ResourceHandle<T> handle(this, resource, ResourceState::Loaded, id);
+		ResourceHandle<T> handle(this, resource, ResourceState::Loaded, id, &instance->engine_allocator);
 		resource_map.emplace(id, handle);
 		name_to_resource_UUID.emplace(name, Entry{id, name, load_path, load_fn});
 		RL_LOG_TRACE("registered resource {}", name.c_str());

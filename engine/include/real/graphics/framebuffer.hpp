@@ -22,9 +22,9 @@ protected:
 public:
     virtual ~Framebuffer();
 
-    virtual ResourceHandle<ResourceImage> get_depth_image() = 0;
-    virtual ResourceHandle<ResourceImage> get_msaa_color_image() = 0;
-    virtual ResourceHandle<ResourceImage> get_color_resolve_image() = 0;
+    virtual Ref<ResourceImage> get_depth_image() = 0;
+    virtual Ref<ResourceImage> get_msaa_color_image() = 0;
+    virtual Ref<ResourceImage> get_color_resolve_image() = 0;
 
     virtual void bind() = 0;
     virtual void clear_image(Color4 col={0.0f, 0.0f, 0.0f, 0.0f}) = 0;

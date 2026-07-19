@@ -1,5 +1,6 @@
 
 #include "vulkan_resource_shader.hpp"
+#include "real/container/ref.hpp"
 #include "real/core/core.hpp"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
@@ -18,6 +19,7 @@
 #include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
 #include <spirv_reflect.h>
+#include <real/core/allocator.hpp>
 
 namespace real {
 
@@ -224,8 +226,10 @@ ResourceHandle<ResourceShader> ResourceDatabase::load_resource_disk(Path path, s
     file.read((char*)buffer.data(), fileSize);
     file.close();
 
-    auto shader = (ResourceShader*)(new VulkanResourceShader(instance, buffer, {}, ShaderTypeFlag_NONE));
-	return register_resource(shader , name, UUID(), path);
+	// absolute rage bait by the way. refuses to work with any other method
+	char *shader_mem = instance->engine_allocator.allocate_mem(sizeof(VulkanResourceShader));
+	ResourceShader *shader = new (shader_mem) VulkanResourceShader(instance, buffer, {}, ShaderTypeFlag_NONE);
+	return register_resource(shader, name, UUID(), path);
 }
 
 }

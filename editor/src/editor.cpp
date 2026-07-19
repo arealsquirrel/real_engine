@@ -37,7 +37,7 @@ Editor::Editor(real::Ref<real::Instance> _instance, real::ArgParams _params)
 }
 
 Editor::~Editor() {
-
+	destroy_game();
 }
 
 void Editor::step_game() {
@@ -67,8 +67,9 @@ void Editor::destroy_game() {
 	graphics_system.reset();
 	panels.clear();
 	active_scene->destroy();
-	active_scene.reset();
 	Game::destroy_game_dll(game, game_loader);
+	RL_LOG_TRACE("scene ref count {}", active_scene->get_reference_count());
+	active_scene.reset();
 }
 
 bool Editor::render(u32 delta_time) {
@@ -205,6 +206,7 @@ void Editor::set_editing() {
 		case EditorState::Editing: break;
 		case EditorState::Paused: break;
 		case EditorState::Running:
+			/*
 			game->shutdown();
 			active_scene.reset();
 			active_scene = create_ref<Scene>(&instance->engine_allocator, instance.get());
@@ -213,6 +215,7 @@ void Editor::set_editing() {
 			game->scene->awake();
 			editor_state = EditorState::Editing;
 			RL_LOG_INFO("began editing game");
+			*/
 			return;
 	}
 }
@@ -220,6 +223,7 @@ void Editor::set_editing() {
 void Editor::set_running() {
 	switch (editor_state) {
 		case EditorState::Editing: 
+			/*
 			game->shutdown();
 			active_scene.reset();
 			active_scene = create_ref<Scene>(&instance->engine_allocator, instance.get());
@@ -228,6 +232,7 @@ void Editor::set_running() {
 			game->scene->awake();
 			editor_state = EditorState::Running;
 			RL_LOG_INFO("began running game");
+			*/
 			return;
 
 		case EditorState::Paused: break;

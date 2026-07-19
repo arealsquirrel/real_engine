@@ -3,6 +3,7 @@
 #include "real/container/ref.hpp"
 #include "real/core/core.hpp"
 #include "real/core/event.hpp"
+#include "real/core/logging.hpp"
 #include "real/graphics/mesh_renderer.hpp"
 #include "real/graphics/sprite_renderer.hpp"
 #include "real/resource/resource_database.hpp"
@@ -14,7 +15,7 @@
 namespace real {
 
 Instance::Instance(ArgParams _arg_params)
-	: arg_params(_arg_params), frame_allocator(1024), engine_allocator(10000) {
+	: arg_params(_arg_params), frame_allocator(1024), engine_allocator(20000) {
 	
 	ZoneScoped
 
@@ -39,6 +40,7 @@ Instance::~Instance() {
 	resource_database.reset();
 	renderer->destroy_renderers();
     renderer.reset();
+	event_messenger.destroy();
     window.reset();
 }
 

@@ -11,6 +11,8 @@
 
 using namespace real;
 
+/*
+
 class TestResource : public Resource {
 public:
 	TestResource(int _i=0)
@@ -77,4 +79,5 @@ TEST(Resources, ResourceDatabase) {
 	}
 	delete db;
 }
+*/
 

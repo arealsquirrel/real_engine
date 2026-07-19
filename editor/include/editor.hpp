@@ -73,7 +73,7 @@ private:
 	EditorGizmos gizmos;
 
 	real::Ref<real::Scene> active_scene;
-	real::Ref<real::Scene> edited_scene;
+	// real::Ref<real::Scene> edited_scene;
 
 private:
 	// things made by the game we might want to take a look at

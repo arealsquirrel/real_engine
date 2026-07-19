@@ -1,15 +1,12 @@
 
 #include "vulkan_framebuffer.hpp"
-#include "real/core/logging.hpp"
+#include "real/container/ref.hpp"
 #include "real/core/types.hpp"
-#include "real/core/uuid.hpp"
 #include "real/graphics/framebuffer.hpp"
-#include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
 #include "vulkan_util.hpp"
-#include <memory>
 #include <tracy/Tracy.hpp>
 
 namespace real {
@@ -19,31 +16,26 @@ VulkanFramebuffer::VulkanFramebuffer(
         bool _depth, MultisamplingCount _count) 
             : Framebuffer(_instance, _width, _height, _depth, _count) {
 
-    auto *resolve_image_ptr = new VulkanResourceImage(
-        instance, width, height,
-         ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR, nullptr, 0);
-
-    resolve_image = ResourceHandle<VulkanResourceImage>(
-            instance->resource_database.get(), resolve_image_ptr, ResourceState::Loaded, UUID());    
+	resolve_image = Ref<VulkanResourceImage>(
+		&instance->engine_allocator,
+		instance->engine_allocator.allocate_object<VulkanResourceImage>(
+			instance, width, height, ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR, nullptr, 0));
 
     if(depth) {
-        auto *depth_image_ptr = new VulkanResourceImage(
-        instance, width, height,
-         ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH,
-          nullptr, 0, vkutil::MSAA_to_vulkan_counts(_count));
+        depth_image = Ref<VulkanResourceImage>(
+			&instance->engine_allocator,
+			instance->engine_allocator.allocate_object<VulkanResourceImage>(
+				instance, width, height, ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH,
+				nullptr, 0, vkutil::MSAA_to_vulkan_counts(_count)));
 
-        depth_image = ResourceHandle<VulkanResourceImage>(
-            instance->resource_database.get(), depth_image_ptr, ResourceState::Loaded, UUID());
     }
 
     if(_count != MultisamplingCount::One) {
-        auto *msaa_color_image_ptr = new VulkanResourceImage(
-        instance, width, height,
-         ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR,
-          nullptr, 0, vkutil::MSAA_to_vulkan_counts(_count));
-
-        msaa_color_image = ResourceHandle<VulkanResourceImage>(
-            instance->resource_database.get(), msaa_color_image_ptr, ResourceState::Loaded, UUID());
+        msaa_color_image = Ref<VulkanResourceImage>(
+			&instance->engine_allocator,
+			instance->engine_allocator.allocate_object<VulkanResourceImage>(
+				instance, width, height, ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR,
+				nullptr, 0, vkutil::MSAA_to_vulkan_counts(_count)));
     }
 }
 
@@ -51,16 +43,16 @@ VulkanFramebuffer::~VulkanFramebuffer() {
     
 }
 
-ResourceHandle<ResourceImage> VulkanFramebuffer::get_depth_image() {
-    return depth_image;
+Ref<ResourceImage> VulkanFramebuffer::get_depth_image() {
+    return Ref<ResourceImage>(&instance->engine_allocator, (ResourceImage*)depth_image.get());
 }
 
-ResourceHandle<ResourceImage> VulkanFramebuffer::get_msaa_color_image() {
-    return msaa_color_image;
+Ref<ResourceImage> VulkanFramebuffer::get_msaa_color_image() {
+    return Ref<ResourceImage>(&instance->engine_allocator, (ResourceImage*)msaa_color_image.get());
 }
 
-ResourceHandle<ResourceImage> VulkanFramebuffer::get_color_resolve_image() {
-    return resolve_image;
+Ref<ResourceImage> VulkanFramebuffer::get_color_resolve_image() {
+    return Ref<ResourceImage>(&instance->engine_allocator, (ResourceImage*)resolve_image.get());
 }
 
 void VulkanFramebuffer::bind() {

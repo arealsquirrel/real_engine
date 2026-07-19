@@ -127,7 +127,6 @@ char *LinkedListAllocator::allocate_mem(u32 size) {
 		return nullptr;
 	}
 
-
 	Header *alloc_header = (Header*)(((char*)selected_block) + sizeof(Header) + size);
 	alloc_header->used = false;
 	alloc_header->size = selected_block->size-sizeof(Header)-size;

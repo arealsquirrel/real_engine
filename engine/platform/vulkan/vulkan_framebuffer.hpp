@@ -18,18 +18,18 @@ public:
 
     ~VulkanFramebuffer();
 
-    ResourceHandle<ResourceImage> get_depth_image() final override;
-    ResourceHandle<ResourceImage> get_msaa_color_image() final override;
-    ResourceHandle<ResourceImage> get_color_resolve_image() final override;
+    Ref<ResourceImage> get_depth_image() final override;
+    Ref<ResourceImage> get_msaa_color_image() final override;
+	Ref<ResourceImage> get_color_resolve_image() final override;
 
     void bind() final override;
     void clear_image(Color4 col={0.0f, 0.0f, 0.0f, 0.0f}) final override;
     void unbind() final override;
 
 private:
-    ResourceHandle<VulkanResourceImage> depth_image;
-    ResourceHandle<VulkanResourceImage> msaa_color_image;
-    ResourceHandle<VulkanResourceImage> resolve_image;
+    Ref<VulkanResourceImage> depth_image;
+    Ref<VulkanResourceImage> msaa_color_image;
+    Ref<VulkanResourceImage> resolve_image;
 };
 
 }

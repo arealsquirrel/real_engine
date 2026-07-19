@@ -32,7 +32,7 @@ MeshRenderer::MeshRenderer(Instance *_instance, Renderer *_renderer)
 MeshRenderer::~MeshRenderer() = default;
 
 void MeshRenderer::destroy() {
-	delete diffuse_pass.release();
+	diffuse_pass.destroy();
 }
 
 void MeshRenderer::draw_mesh(Mat4 model,

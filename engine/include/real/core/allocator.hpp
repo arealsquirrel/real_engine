@@ -3,6 +3,7 @@
 
 #include "real/core/core.hpp"
 #include "real/container/span.hpp"
+#include "real/core/logging.hpp"
 #include "real/core/types.hpp"
 #include <cstddef>
 #include <iostream>
@@ -61,6 +62,7 @@ public:
 	template<class T, typename ...Args>
 	[[nodiscard]]
 	inline T *allocate_object(Args &&...args) {
+		RL_LOG_INFO("Allocating object {}", typeid(T).name());
 		T *mem = reinterpret_cast<T*>(allocate_mem(sizeof(T)));
 		new (mem) T(std::forward<Args>(args)...);
 		return mem;
@@ -69,6 +71,7 @@ public:
 	/* calls the destructor on T */
 	template<class T>
 	inline void free_object(T *mem, u32 size=1) {
+		RL_LOG_INFO("Freeing object {}", typeid(T).name());
 		(mem)->~T();
 		this->free_mem(RL_MEM_POINTER(mem), size*sizeof(T));
 	}

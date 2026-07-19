@@ -1,6 +1,7 @@
 #ifndef REALLIB_RESOURCE_HANDLE_HPP
 #define REALLIB_RESOURCE_HANDLE_HPP
 
+#include "real/core/allocator.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 
@@ -43,6 +44,7 @@ class REALLIB_EXPORT ResourceHandle {
 public:
 	ResourceHandle() {
 		block = new ResourceHandleControlBlock();
+		allocator = nullptr;
 		block->count = 1;
 		block->state = ResourceState::DoesNotExist;
 		block->id = 0;
@@ -51,8 +53,8 @@ public:
 
 	ResourceHandle(
 			ResourceDatabase *_db, T *_resource,
-			ResourceState _state, UUID uuid)
-		: db(_db), resource(_resource) {
+			ResourceState _state, UUID uuid, Allocator *_allocator)
+		: db(_db), resource(_resource), allocator(_allocator) {
 
 		block = new ResourceHandleControlBlock;
 		block->count = 1;
@@ -64,6 +66,7 @@ public:
 	 	: resource(rh.resource), db(rh.db), block(rh.block) {
 		
 		block->count += 1;
+		allocator = rh.allocator;
 	}
 
 	/* casting between resource types WITH NO TYPE CHECKING WHAHAHAHAH */
@@ -73,6 +76,7 @@ public:
 		
 		block->count += 1;
 		resource = static_cast<T*>(rh.get());
+		allocator = rh.allocator;
 	}
 
 	~ResourceHandle() {
@@ -85,6 +89,7 @@ public:
 		resource = rh.resource;
 		db = rh.db;
 		block->count++;
+		allocator = rh.allocator;
 	}
 
 public:
@@ -109,7 +114,7 @@ public:
 	void free() {
 		if(block->state != ResourceState::Unloaded) {
 			block->state = ResourceState::Unloaded;
-			delete resource;
+			allocator->free_object(resource);
 		}
 	}
 
@@ -126,7 +131,7 @@ private:
 
 		if(block->count == 0) {
 			if(block->state != ResourceState::Unloaded && block->state != ResourceState::DoesNotExist) {
-				delete resource;
+				allocator->free_object(resource);
 			}
 
 			delete block;
@@ -137,6 +142,7 @@ protected:
 	T *resource;
 	ResourceDatabase *db;
 	ResourceHandleControlBlock *block;
+	Allocator *allocator;
 };
 
 }

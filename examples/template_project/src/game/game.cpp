@@ -1,8 +1,6 @@
 
 #include "game.hpp"
-#include "real/container/color.hpp"
 #include "real/container/string_hash.hpp"
-#include "real/graphics/camera.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/sprite_renderer.hpp"
 #include "real/math/vec3.hpp"

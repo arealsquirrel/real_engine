@@ -31,7 +31,6 @@ void init_engine() {
 }
 
 void destroy_engine() {
-	// assert(instance.use_count() == 1);
 	instance.reset();
 	Graphics::destroy_backend();
 }
@@ -41,7 +40,6 @@ int main(int argc, char **argv) {
 	init_engine();
 
 	editor::Editor *ed = new editor::Editor(instance, params);
-
 	ed->load_game(params.game_dll_path);
 	
 	bool should_exit = false;
@@ -50,8 +48,6 @@ int main(int argc, char **argv) {
 		should_exit = ed->render(0);
 		instance->renderer->end_frame();
 	}
-	
-	ed->destroy_game();
 	
 	delete ed;
 	destroy_engine();
