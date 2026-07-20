@@ -14,7 +14,7 @@ namespace real {
 SpriteRenderer::SpriteRenderer(Instance *_instance, Renderer *_renderer)
 	: SubRenderer(_instance, _renderer) {
 
-	mesh = ResourceMesh::create(instance, {}, nullptr, sizeof(Vertex)*1000);
+	mesh = ResourceMesh::create(instance, {}, nullptr, sizeof(Vertex)*1000, {}, false);
     auto sprite_shader = instance->resource_database->get_resource<ResourceShader>("sprite.slang.spv");
 	image = instance->resource_database->get_resource<ResourceImage>("prototype_512x512_green1.png");
 
@@ -82,6 +82,7 @@ void SpriteRenderer::draw_sprite(ResourceImage *image, ResourceImage::Tile tile,
 
 void SpriteRenderer::draw_commands(Framebuffer *framebuffer) {
 	ZoneScoped
+
 
 	if(draw_commands_vec.size() == 0)
 		return;

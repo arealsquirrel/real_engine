@@ -36,7 +36,7 @@ public:
 	ResourceImage::Tile tile;
 	Color4 tint_color;
 };
-
+	
 class REALLIB_EXPORT SpriteRenderer : public SubRenderer {
 RL_OBJECT(SpriteRenderer, SubRenderer)
 

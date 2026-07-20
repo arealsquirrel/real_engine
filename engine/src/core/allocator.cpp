@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <real/core/allocator.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace real {
 
@@ -137,6 +138,8 @@ char *LinkedListAllocator::allocate_mem(u32 size) {
 	selected_block->used = true;
 	allocated_mem += size;
 
+	TracyAllocN(selected_block, sizeof(Header)+size, "LinkedListAllocator");
+
 	return ((char*)selected_block)+sizeof(Header);
 }
 
@@ -145,6 +148,7 @@ void LinkedListAllocator::free_mem(char *mem, u32 size) {
 	h->used = false;
 	compact(h);
 	allocated_mem -= size;
+	TracyFreeN(mem-sizeof(Header), "LinkedListAllocator");
 }
 
 void LinkedListAllocator::print() {

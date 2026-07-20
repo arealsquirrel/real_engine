@@ -3,13 +3,11 @@
 #include "real/container/ref.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
-#include "real/debug/timer.hpp"
 #include "real/graphics/buffer.hpp"
 #include "vulkan_backend.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_mesh.hpp"
 #include <cstring>
-#include <memory>
 #include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
 
@@ -25,12 +23,16 @@ VulkanUniformBuffer::VulkanUniformBuffer(Instance *_instance, size_t _size)
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
     memset(buffer.info.pMappedData, 0, size);
+
+	renderer->delete_queue.push_function([&](){
+    	vkutil::destroy_buffer(renderer, buffer);
+	});
 }
 
 VulkanUniformBuffer::~VulkanUniformBuffer() {
 	ZoneScoped
 
-    vkutil::destroy_buffer(renderer, buffer);
+	RL_LOG_INFO("delete buffer");
 }
 
 void *VulkanUniformBuffer::get_data() {

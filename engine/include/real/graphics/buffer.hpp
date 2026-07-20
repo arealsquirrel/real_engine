@@ -17,7 +17,7 @@ protected:
     UniformBuffer(Instance *_instance, size_t _size);
 
 public:
-    ~UniformBuffer();
+    virtual ~UniformBuffer();
 
 public:
     size_t get_size() const { return size; }

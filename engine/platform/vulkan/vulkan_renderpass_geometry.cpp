@@ -150,6 +150,14 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	push_constant_buffer = (char*)malloc(128);
 	memset(push_constant_buffer, 0, 128);
 	addr_loc = shader_layout.get_field("_vertex_buffer");
+
+	renderer->delete_queue.push_function([&](){
+		free(push_constant_buffer);
+		vkDeviceWaitIdle(renderer->device);
+		vkDestroyDescriptorSetLayout(renderer->device, descriptor_set_layout, nullptr);
+		vkDestroyPipelineLayout(renderer->device, layout, nullptr);
+		vkDestroyPipeline(renderer->device, pipeline, nullptr);
+	});
 }
 
 VkPipelineDepthStencilStateCreateInfo VulkanRenderPassGeometry::create_depth(
@@ -257,12 +265,6 @@ VkPipelineMultisampleStateCreateInfo VulkanRenderPassGeometry::create_multisampl
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
 	ZoneScoped
 	
-	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
-	free(push_constant_buffer);
-    vkDeviceWaitIdle(renderer->device);
-	vkDestroyDescriptorSetLayout(renderer->device, descriptor_set_layout, nullptr);
-	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
-    vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }
 
 void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer, bool clear_depth) {
@@ -353,7 +355,8 @@ void VulkanRenderPassGeometry::draw_mesh(
 
 	ZoneScoped
 
-	draw_indexed(mesh, submesh.count, 1, submesh.start_index);
+	// draw_indexed(mesh, submesh.count, 1, submesh.start_index);
+	draw_indexed(mesh, mesh->indices_count, 1, 0);
 }
 
 void VulkanRenderPassGeometry::draw_mesh(ResourceMesh *mesh) {

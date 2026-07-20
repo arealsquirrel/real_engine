@@ -22,7 +22,6 @@ void Renderer::attach_camera(Camera &camera) {
 void Renderer::destroy_renderers() {
 	for(auto &r : subrenderers) {
 		r->destroy();
-		r.reset();
 	}
 }
 

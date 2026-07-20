@@ -173,7 +173,9 @@ public:
 	}
 
 	void destroy() {
-		allocator->free_object(object);
+		if(object != nullptr)
+			allocator->free_object(object);
+
 		allocator = nullptr;
 		object = nullptr;
 	}

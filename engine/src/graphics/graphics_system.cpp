@@ -53,7 +53,7 @@ void GraphicsSystem::update(u32 delta_time) {
 	{
 	auto view = scene->registry->view<ComponentMeshRenderer, ComponentTransform>();
 	for (auto [ent, mesh_comp, trans] : view.each()) {
-		mesh_renderer->draw_mesh(trans.get_transform(), mesh_comp.mesh.get(), mesh_comp.sub_mesh, mesh_comp.texture.get());
+		mesh_renderer->draw_mesh(trans.get_transform(), mesh_comp.mesh.get(), mesh_comp.sub_mesh, mesh_comp.texture.get(), mesh_comp.shader_mode);
 	}
 	}
 

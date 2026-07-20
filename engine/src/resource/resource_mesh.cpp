@@ -40,8 +40,8 @@ ResourceMesh::ResourceMesh(
 		Instance *_instance,
 		std::vector<uint32_t> indexes,
 		char *vertex_data, size_t vertex_data_size,
-		std::map<StringHash, ResourceMesh::Mesh> _meshes)
-	: Resource(_instance), meshes(_meshes) {
+		std::map<StringHash, ResourceMesh::Mesh> _meshes, bool _is_static)
+	: Resource(_instance), meshes(_meshes), is_static(_is_static) {
 
 	if(meshes.size() == 0) {
 		ResourceMesh::Mesh mesh = Mesh{

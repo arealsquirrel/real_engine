@@ -66,7 +66,9 @@ void Editor::load_game(Path path) {
 void Editor::destroy_game() {
 	graphics_system.reset();
 	panels.clear();
+	RL_LOG_TRACE("scene ref count {}", active_scene->get_reference_count());
 	active_scene->destroy();
+	RL_LOG_TRACE("scene ref count {}", active_scene->get_reference_count());
 	Game::destroy_game_dll(game, game_loader);
 	RL_LOG_TRACE("scene ref count {}", active_scene->get_reference_count());
 	active_scene.reset();

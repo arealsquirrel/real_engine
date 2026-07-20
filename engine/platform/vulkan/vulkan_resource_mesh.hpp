@@ -53,7 +53,7 @@ public:
 	VulkanResourceMesh(
 			Instance *_instance,
 			std::vector<uint32_t> indices,
-			char *data, size_t size, std::map<StringHash, ResourceMesh::Mesh> meshes={});
+			char *data, size_t size, std::map<StringHash, ResourceMesh::Mesh> meshes={}, bool is_static=true);
 
 	~VulkanResourceMesh();
 
@@ -61,7 +61,7 @@ public:
 	void unbind() final override;
 	MeshAddress get_address() final override { return (char*)address; }
 	void upload_vertex_data(char *vertex_data, u32 size) final override;
-	void upload_index_data(std::vector<u32> indices) final override;
+	// void upload_index_data(std::vector<u32> indices) final override;
 
 public:
 	vkutil::AllocatedBuffer vertexBuffer;

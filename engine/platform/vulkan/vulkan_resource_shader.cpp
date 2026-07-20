@@ -86,11 +86,14 @@ VulkanResourceShader::VulkanResourceShader(
     if (vkCreateShaderModule(renderer->device, &createInfo, nullptr, &module) != VK_SUCCESS) {
         RL_LOG_ERROR("VkCreateShaderModule failed on shader womp womp");
     }
+
+	renderer->delete_queue.push_function([&](){
+    	vkDestroyShaderModule(renderer->device, module, nullptr);
+	});
 }
 
 VulkanResourceShader::~VulkanResourceShader() {
 	ZoneScoped
-    vkDestroyShaderModule(renderer->device, module, nullptr);
 }
 
 void VulkanResourceShader::serialize_shader(std::vector<char> data) {

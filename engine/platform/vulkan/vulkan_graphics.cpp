@@ -1,23 +1,7 @@
 
 #include <cassert>
-#include <iostream>
-#include <memory>
 #include <real/graphics/graphics.hpp>
-#include "real/core/game.hpp"
-#include "real/core/instance.hpp"
-#include "real/core/types.hpp"
-#include "real/debug/instrumentation.hpp"
-#include "real/debug/timer.hpp"
-#include "real/graphics/renderpass_geometry.hpp"
-#include "real/graphics/renderpass_compute.hpp"
-#include "real/graphics/window.hpp"
-#include "real/resource/resource_mesh.hpp"
 #include "vulkan_backend.hpp"
-#include "vulkan_renderpass_geometry.hpp"
-#include "vulkan_renderer.hpp"
-#include "vulkan_renderpass_compute.hpp"
-#include "vulkan_resource_image.hpp"
-#include "vulkan_resource_mesh.hpp"
 #include <VkBootstrap.h>
 #include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>

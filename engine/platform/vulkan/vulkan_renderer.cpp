@@ -72,6 +72,8 @@ void VulkanRenderer::init() {
 	});
 
 	scene_data = UniformBuffer::create(instance, sizeof(SceneData));
+
+	GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 }
 
 VulkanRenderer::~VulkanRenderer() {
@@ -93,7 +95,6 @@ VulkanRenderer::~VulkanRenderer() {
 	for (int i = 0; i < swapchain_views.size(); i++) {
 		vkDestroySemaphore(device, render_semaphore[i], nullptr);
 	}
-
 
     for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
 		frame_data[i].frameDescriptors.destroy_pools(device);

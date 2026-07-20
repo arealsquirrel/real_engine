@@ -72,19 +72,19 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 	VK_CHECK(vkCreateComputePipelines(renderer->device, VK_NULL_HANDLE,1,&computePipelineCreateInfo, nullptr, &pipeline));
 	push_constant_buffer = (char*)malloc(128);
 	memset(push_constant_buffer, 0, 128);
+
+	renderer->delete_queue.push_function([&](){
+		free(push_constant_buffer);
+		vkDeviceWaitIdle(renderer->device);
+		vkDestroyDescriptorSetLayout(renderer->device, descriptor_set_layout, nullptr);
+		vkDestroyPipelineLayout(renderer->device, layout, nullptr);
+		vkDestroyPipeline(renderer->device, pipeline, nullptr);
+	});
 }
 
 VulkanRenderPassCompute::~VulkanRenderPassCompute() {
 	ZoneScoped
 
-	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
-	free(push_constant_buffer);
-
-    vkDeviceWaitIdle(renderer->device);
-	
-	vkDestroyDescriptorSetLayout(renderer->device, descriptor_set_layout, nullptr);
-	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
-    vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }
 
 void VulkanRenderPassCompute::begin_pass() {

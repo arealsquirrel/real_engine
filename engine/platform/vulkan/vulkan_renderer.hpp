@@ -1,11 +1,9 @@
 #ifndef REALLIB_VULKAN_RENDERER_HPP
 #define REALLIB_VULKAN_RENDERER_HPP
 
-#include "real/core/event.hpp"
 #include "real/core/object.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/window.hpp"
-#include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
 #include "vulkan_backend.hpp"
 #include "vulkan_descriptor_allocator.hpp"
@@ -27,6 +25,9 @@ struct FrameDataVulkan {
     vkutil::DeletionQueue delete_queue;
 	DescriptorAllocatorGrowable frameDescriptors;
 	VkImageLayout current_swapchain_layout {VK_IMAGE_LAYOUT_UNDEFINED};
+};
+
+struct VulkanFunctions {
 };
 
 class VulkanRenderer : public Renderer, EventListener {
@@ -58,18 +59,24 @@ private:
     void swapchain_resize();
 
 public:
+	// device and whatnot
 	VkDevice device;
     DescriptorAllocator descriptor_allocator;
     VmaAllocator allocator;
-    VkFence imm_fence;
+	VkQueue graphics_queue;
+
+	// Immediate submit things.
+	VkFence imm_fence;
     VkCommandBuffer imm_command_buffer;
     VkCommandPool imm_command_pool;
-    VkQueue graphics_queue;
-
+    
+	// samplers
 	VkSampler samplerNearest;
 	VkSampler samplerLinear;
-
 	VkSampleCountFlagBits samples;
+
+	VulkanFunctions fns;
+    vkutil::DeletionQueue delete_queue;
 	
 private:
 	vkb::Device vkbDevice;
@@ -85,7 +92,6 @@ private:
 	VkFormat swapchain_image_format;
 
     FrameDataVulkan frame_data[VULKAN_FRAME_OVERLAP];
-    vkutil::DeletionQueue delete_queue;
     VkDescriptorPool imgui_descriptor_pool;
     u32 frame_number=0;
     bool should_resize {false};
