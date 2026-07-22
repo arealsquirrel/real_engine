@@ -10,9 +10,9 @@
 #include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
 #include "vulkan_resource_image.hpp"
-#include "vulkan_resource_mesh.hpp"
 #include "vulkan_util.hpp"
 #include "vulkan_renderer.hpp"
+#include "vulkan_buffer.hpp"
 
 namespace real {
 

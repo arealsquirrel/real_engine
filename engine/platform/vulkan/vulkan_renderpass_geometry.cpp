@@ -14,7 +14,6 @@
 #include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
-#include "vulkan_resource_mesh.hpp"
 #include "vulkan_resource_shader.hpp"
 #include "vulkan_util.hpp"
 #include <GLFW/glfw3.h>

@@ -2,11 +2,13 @@
 #define REALLIB_SPRITE_RENDERER_HPP
 
 #include "real/container/color.hpp"
+#include "real/container/ref.hpp"
 #include "real/core/core.hpp"
 #include "real/core/object.hpp"
 #include "real/container/string_hash.hpp"
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/math/mat4.hpp"
@@ -68,7 +70,7 @@ public:
 
 private:
 	UniquePointer<RenderPassGeometry> pass;
-	UniquePointer<ResourceMesh> mesh;
+	UniquePointer<VertexBuffer> vertex_buffer;
 	ResourceHandle<ResourceImage> image;
 	
 	std::vector<Vertex> draw_commands_vec;

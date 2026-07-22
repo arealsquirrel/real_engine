@@ -113,6 +113,18 @@ void Editor::render_engine_panel() {
 			if(ImGui::Button("edit")) set_editing(); break;
 	}
 
+	ImGui::SeparatorText("Renderer");
+	u32 micro_seconds = instance->renderer->render_stats.frame_time.micro_seconds; 
+	ImGui::Text("Frametime %f ms", micro_seconds / 1000.0f);
+	ImGui::Text("FPS: %f", 1000.0f / (micro_seconds / 1000.0f));
+	ImGui::Text("Indices: %u", instance->renderer->render_stats.indicies);
+	ImGui::Text("Instances: %u", instance->renderer->render_stats.instances);
+	ImGui::SeparatorText("Window");
+	auto [width, height] = instance->window->get_glfw_window_dimensions();
+	ImGui::Text("Window size, x: %u, y: %u", width, height);
+	auto [xpos, ypos] = instance->window->get_mouse_position();
+	ImGui::Text("Mouse position: x: %f, y: %f", xpos, ypos);
+
 	ImGui::Text("Object Count: %u", real::Object::get_object_count());
 	ImGui::Text("Stack Allocator mem: %u/%u", instance->frame_allocator.allocated_mem, instance->frame_allocator.alloc_size);
 	ImGui::Text("System Allocator mem: %u/%u", instance->system_allocator.allocated_mem, instance->system_allocator.alloc_size);
@@ -125,18 +137,6 @@ void Editor::render_engine_panel() {
 		ImVec4 col = iter->used ? ImVec4{1.0f, 0.0f, 0.0f, 1.0f} : ImVec4{0.0f, 1.0f, 0.0f, 1.0f};
 		ImGui::TextColored(col, "[%p] size: %u", iter, iter->size);
 	}
-
-	ImGui::SeparatorText("Renderer");
-	u32 micro_seconds = instance->renderer->render_stats.frame_time.micro_seconds; 
-	ImGui::Text("Frametime %f ms", micro_seconds / 1000.0f);
-	ImGui::Text("FPS: %f", 1000.0f / (micro_seconds / 1000.0f));
-	ImGui::Text("Indices: %u", instance->renderer->render_stats.indicies);
-	ImGui::Text("Instances: %u", instance->renderer->render_stats.instances);
-	ImGui::SeparatorText("Window");
-	auto [width, height] = instance->window->get_glfw_window_dimensions();
-	ImGui::Text("Window size, x: %u, y: %u", width, height);
-	auto [xpos, ypos] = instance->window->get_mouse_position();
-	ImGui::Text("Mouse position: x: %f, y: %f", xpos, ypos);
 
 	ImGui::SeparatorText("Current Game");
 
