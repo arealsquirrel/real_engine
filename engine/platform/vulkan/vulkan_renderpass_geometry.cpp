@@ -4,6 +4,7 @@
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
@@ -315,25 +316,29 @@ void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer, bool clear_d
 }
 
 void VulkanRenderPassGeometry::draw_indexed(
-		ResourceMesh *mesh,
+		IndexBuffer *index_buffer, VertexBuffer *vertex_buffer,
 		u32 indices, u32 instances, u32 start_index) {
 
 	ZoneScoped
 
+	VulkanVertexBuffer *vk_vert_buffer = (VulkanVertexBuffer*)vertex_buffer;
+	VulkanIndexBuffer *vk_index_buffer = (VulkanIndexBuffer*)index_buffer;
+
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
-	VulkanResourceMesh *da_mesh = (VulkanResourceMesh*)mesh;
-	RenderPass::set_variable("_vertex_buffer", da_mesh->address);
+	RenderPass::set_variable("_vertex_buffer", vk_vert_buffer->address);
 
 	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
-	vkCmdBindIndexBuffer(frame.main_command_buffer, da_mesh->indexBuffer.value().buffer, 0, VK_INDEX_TYPE_UINT32);
+	vkCmdBindIndexBuffer(frame.main_command_buffer, vk_index_buffer->indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(frame.main_command_buffer, indices, instances, start_index, 0, 0);
-	renderer->render_stats.indicies += da_mesh->indices_count;
-	renderer->render_stats.verticies += da_mesh->verticie_count;
+
+	renderer->render_stats.indicies += indices;
+	renderer->render_stats.draw_calls += 1;
+	renderer->render_stats.instances += instances;
 }
 
 void VulkanRenderPassGeometry::draw(
-		ResourceMesh *mesh,
+		VertexBuffer *vertex_buffer,
 		u32 vertex_count, u32 instance_count,
 		u32 first_vertex, u32 first_instance) {
 
@@ -341,7 +346,9 @@ void VulkanRenderPassGeometry::draw(
 
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
-	RenderPass::set_variable("_vertex_buffer", ((VulkanResourceMesh*)mesh)->address);
+	VulkanVertexBuffer *vk_vert_buffer = (VulkanVertexBuffer*)vertex_buffer;
+
+	RenderPass::set_variable("_vertex_buffer", vk_vert_buffer->address);
 	vkCmdPushConstants(frame.main_command_buffer, layout, VK_SHADER_STAGE_VERTEX_BIT, 0, 128, push_constant_buffer);
 
 	vkCmdDraw(frame.main_command_buffer, 
@@ -349,19 +356,6 @@ void VulkanRenderPassGeometry::draw(
 			instance_count, 
 			first_vertex, 
 			first_instance);
-}
-
-void VulkanRenderPassGeometry::draw_mesh(
-		ResourceMesh *mesh, ResourceMesh::Mesh submesh) {
-
-	ZoneScoped
-
-	// draw_indexed(mesh, submesh.count, 1, submesh.start_index);
-	draw_indexed(mesh, mesh->indices_count, 1, 0);
-}
-
-void VulkanRenderPassGeometry::draw_mesh(ResourceMesh *mesh) {
-	draw_mesh(mesh, mesh->meshes.begin()->second);
 }
 
 void VulkanRenderPassGeometry::bind_descriptors() {

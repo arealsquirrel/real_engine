@@ -2,6 +2,7 @@
 #define REALLIB_VULKAN_RENDER_PASS_GEOMETRY_HPP
 
 #include "real/core/object.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
 #include "real/resource/resource_handle.hpp"
@@ -32,10 +33,9 @@ public:
 	void set_variable_array(ShaderField field, char *data, size_t size) final override;
 	
 	void bind_descriptors() final override;
-	void draw_mesh(ResourceMesh *mesh, ResourceMesh::Mesh submesh) final override;
-	void draw_mesh(ResourceMesh *mesh) final override;
-	void draw_indexed(ResourceMesh *mesh, u32 indices, u32 instances, u32 start_index) final override;
-	void draw(ResourceMesh *mesh, 
+	void draw_indexed(IndexBuffer *index_buffer, VertexBuffer *vertex_buffer, u32 indices, u32 instances, u32 start_index) final override;
+	void draw(
+			VertexBuffer *vertex_buffer, 
 			u32 vertex_count, u32 instance_count,
 			u32 first_vertex, u32 first_instance) final override;
 

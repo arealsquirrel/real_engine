@@ -27,7 +27,19 @@ void MyGame::start() {
 		entity.AddComponent<ComponentSpriteRenderer>(
 			resource_database->load_resource_disk<ResourceImage>("resources/mahjong/mahjong_tiles.json")
 		);
-		
+	}
+
+	{
+		auto entity = scene->create_entity("awesomeness");
+
+		entity.AddComponent<ComponentMeshRenderer>(
+			resource_database->load_resource_disk<ResourceMesh>("resources/models/sponza.obj"),
+			resource_database->get_resource<ResourceImage>("prototype_512x512_green1.png")
+		);
+
+		auto &trans = entity.GetComponent<ComponentTransform>();
+		trans.scale = Vec3(0.01, -0.01, 0.01);
+		trans.position = Vec3(0, 15, 0);
 	}
 
 	{

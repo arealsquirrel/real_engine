@@ -3,6 +3,7 @@
 
 #include <real/core/event.hpp>
 #include "real/core/object.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/resource/resource_handle.hpp"
@@ -77,12 +78,15 @@ public:
 	 */
 	virtual void begin_pass(Framebuffer *framebuffer, bool clear_depth=true) = 0;
 	virtual void end_pass() = 0;
-	virtual void draw_mesh(ResourceMesh *mesh, ResourceMesh::Mesh sub_mesh) = 0;
-	virtual void draw_mesh(ResourceMesh *mesh) = 0;
 	virtual void bind_descriptors() override = 0;
-	virtual void draw_indexed(ResourceMesh *mesh, u32 indices, u32 instances, u32 start_index) = 0;
-	virtual void draw(ResourceMesh *mesh, u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) = 0;
+	
+	virtual void draw_indexed(
+			IndexBuffer *index_buffer, VertexBuffer *vertex_buffer,
+			u32 indices, u32 instances, u32 start_index) = 0;
 
+	virtual void draw(
+			VertexBuffer *vertex_buffer,
+			u32 vertex_count, u32 instance_count, u32 first_vertex, u32 first_instance) = 0;
 
 	static UniquePointer<RenderPassGeometry> create(
 		Instance *instance, RenderPassGeometryInfo info,

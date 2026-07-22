@@ -5,6 +5,7 @@
 #include "real/core/types.hpp"
 #include "real/core/uuid.hpp"
 #include "real/debug/timer.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/graphics.hpp"
 #include "real/math/vec3.hpp"
 #include "real/math/vec4.hpp"
@@ -40,8 +41,8 @@ ResourceMesh::ResourceMesh(
 		Instance *_instance,
 		std::vector<uint32_t> indexes,
 		char *vertex_data, size_t vertex_data_size,
-		std::map<StringHash, ResourceMesh::Mesh> _meshes, bool _is_static)
-	: Resource(_instance), meshes(_meshes), is_static(_is_static) {
+		std::map<StringHash, ResourceMesh::Mesh> _meshes)
+	: Resource(_instance), meshes(_meshes) {
 
 	if(meshes.size() == 0) {
 		ResourceMesh::Mesh mesh = Mesh{
@@ -54,6 +55,12 @@ ResourceMesh::ResourceMesh(
 
 		meshes.insert({hash, mesh});
 	}
+
+	index_buffer = IndexBuffer::create(instance, indexes.size()*sizeof(u32));
+	index_buffer->upload_data(indexes);
+
+	vertex_buffer = VertexBuffer::create(instance, vertex_data_size);
+	vertex_buffer->upload_data(vertex_data, vertex_data_size);
 }
 
 ResourceMesh::~ResourceMesh() {
@@ -109,10 +116,9 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 		meshes.insert({StringHash(shape.name.c_str()), mesh});
 	}
 
-	auto *mesh = ResourceMesh::create(instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex), meshes).release();
-	mesh->verticie_count = vertices.size();
-	mesh->indices_count = indices.size();
-
+	auto *mesh = instance->engine_allocator.allocate_object<ResourceMesh>(
+			instance, indices, (char*)vertices.data(), vertices.size()*sizeof(Vertex), meshes);
+	
 	return register_resource(mesh, name, UUID(), path);
 }
 

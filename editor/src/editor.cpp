@@ -131,7 +131,7 @@ void Editor::render_engine_panel() {
 	ImGui::Text("Frametime %f ms", micro_seconds / 1000.0f);
 	ImGui::Text("FPS: %f", 1000.0f / (micro_seconds / 1000.0f));
 	ImGui::Text("Indices: %u", instance->renderer->render_stats.indicies);
-	ImGui::Text("Vertices: %u", instance->renderer->render_stats.verticies);
+	ImGui::Text("Instances: %u", instance->renderer->render_stats.instances);
 	ImGui::SeparatorText("Window");
 	auto [width, height] = instance->window->get_glfw_window_dimensions();
 	ImGui::Text("Window size, x: %u, y: %u", width, height);

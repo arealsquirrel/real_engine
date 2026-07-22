@@ -1,6 +1,9 @@
 #ifndef REALLIB_VULKAN_RESOURCE_MESH_HPP
 #define REALLIB_VULKAN_RESOURCE_MESH_HPP
 
+#include "vulkan_buffer.hpp"
+
+/*
 #include "real/core/game.hpp"
 #include "real/core/object.hpp"
 #include "real/resource/resource_mesh.hpp"
@@ -71,5 +74,6 @@ public:
 };
 
 }
+*/
 
 #endif

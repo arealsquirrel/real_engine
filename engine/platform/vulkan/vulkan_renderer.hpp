@@ -9,6 +9,7 @@
 #include "vulkan_descriptor_allocator.hpp"
 #include "vulkan_util.hpp"
 #include <VkBootstrap.h>
+#include <cstdint>
 #include <vulkan/vulkan_core.h>
 #include <real/core/event_listener.hpp>
 
@@ -28,6 +29,7 @@ struct FrameDataVulkan {
 };
 
 struct VulkanFunctions {
+	PFN_vkSetDebugUtilsObjectNameEXT pfn_vkSetDebugUtilsObjectNameEXT = nullptr;
 };
 
 class VulkanRenderer : public Renderer, EventListener {
@@ -44,6 +46,8 @@ public:
     FrameDataVulkan &get_current_frame();
 
 	void transition_swapchain(VkImageLayout to);
+
+	void tag_object(VkObjectType type, uint64_t tag, const char *name);
 
 private:
 	void create_imgui();

@@ -67,7 +67,6 @@ public:
 
 		object->count--;
 		if(object->count == 0 && object != nullptr) {
-			RL_LOG_TRACE("deleting {}", typeid(T).name());
 			allocator->free_object(object);
 		}
 	}
@@ -76,7 +75,6 @@ public:
 		if(object != nullptr) {
 			object->count--;
 			if(object->count == 0) {
-				RL_LOG_TRACE("deleting {}", typeid(T).name());
 				allocator->free_object(object);
 			}
 		}

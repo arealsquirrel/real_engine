@@ -74,6 +74,8 @@ void VulkanRenderer::init() {
 	scene_data = UniformBuffer::create(instance, sizeof(SceneData));
 
 	GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
+	fns.pfn_vkSetDebugUtilsObjectNameEXT =  (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(
+			vulkan_backend->instance, "vkSetDebugUtilsObjectNameEXT");
 }
 
 VulkanRenderer::~VulkanRenderer() {
@@ -272,6 +274,14 @@ void VulkanRenderer::create_frame_objects() {
     VK_CHECK(vkCreateFence(device, &fenceCreateInfo, nullptr, &imm_fence));
 }
 
+void VulkanRenderer::tag_object(VkObjectType type, uint64_t tag, const char *name) {
+	VkDebugUtilsObjectNameInfoEXT nameInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
+	nameInfo.objectType = VK_OBJECT_TYPE_BUFFER;
+	nameInfo.objectHandle = tag;
+	nameInfo.pObjectName = name;
+	fns.pfn_vkSetDebugUtilsObjectNameEXT(device, &nameInfo);
+}
+
 void VulkanRenderer::create_swapchain(u32 width, u32 height) {
 	ZoneScoped
 
@@ -369,8 +379,8 @@ void VulkanRenderer::start_frame() {
         swapchain_resize();
 
     render_stats.draw_calls = 0;
-    render_stats.verticies = 0;
     render_stats.indicies = 0;
+	render_stats.instances = 0;
     render_stats.frame_time.restart();
 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();

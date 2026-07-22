@@ -65,7 +65,7 @@ void MeshRenderer::draw_commands(Framebuffer *framebuffer) {
 		diffuse_pass->set_variable("shader_id", command.shader_mode);
 		diffuse_pass->set_variable("texture_index", command.texture_index);
 		diffuse_pass->set_variable("model", command.model);
-		diffuse_pass->draw_mesh(command.mesh, command.submesh);
+		diffuse_pass->draw_indexed(command.mesh->index_buffer.get(), command.mesh->vertex_buffer.get(), command.mesh->index_buffer->get_size() / sizeof(u32), 1, 0);
 	}
 
     diffuse_pass->end_pass();

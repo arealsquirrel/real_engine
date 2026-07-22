@@ -19,9 +19,10 @@ class Framebuffer;
 
 struct RendererStats {
     Timer frame_time;
-    u32 verticies;
     u32 indicies;
     u32 draw_calls;
+	u32 instances;
+	u32 textures;
 };
 
 struct SceneData {

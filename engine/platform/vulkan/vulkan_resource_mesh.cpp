@@ -1,4 +1,5 @@
 
+/*
 #include "vulkan_resource_mesh.hpp"
 #include "real/core/game.hpp"
 #include "real/core/instance.hpp"
@@ -78,7 +79,6 @@ VulkanResourceMesh::VulkanResourceMesh(
 void VulkanResourceMesh::upload_vertex_data(char *vertex_data, u32 size) {
 	ZoneScoped
 
-	/*
 	if(size == 0)
 		return;
 
@@ -110,7 +110,6 @@ void VulkanResourceMesh::upload_vertex_data(char *vertex_data, u32 size) {
 	});
 
 	vkutil::destroy_buffer(renderer, staging);
-	*/
 }
 
 VulkanResourceMesh::~VulkanResourceMesh() {
@@ -136,4 +135,5 @@ UniquePointer<ResourceMesh> ResourceMesh::create(
 }
 
 }
+*/
 
