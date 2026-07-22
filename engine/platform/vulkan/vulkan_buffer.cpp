@@ -23,16 +23,12 @@ VulkanUniformBuffer::VulkanUniformBuffer(Instance *_instance, size_t _size)
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
     memset(buffer.info.pMappedData, 0, size);
-
-	renderer->delete_queue.push_function([&](){
-    	vkutil::destroy_buffer(renderer, buffer);
-	});
 }
 
 VulkanUniformBuffer::~VulkanUniformBuffer() {
 	ZoneScoped
 
-	RL_LOG_INFO("delete buffer");
+	vkutil::destroy_buffer(renderer, buffer);
 }
 
 void *VulkanUniformBuffer::get_data() {

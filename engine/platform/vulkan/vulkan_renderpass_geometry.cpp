@@ -152,11 +152,6 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 	addr_loc = shader_layout.get_field("_vertex_buffer");
 
 	renderer->delete_queue.push_function([&](){
-		free(push_constant_buffer);
-		vkDeviceWaitIdle(renderer->device);
-		vkDestroyDescriptorSetLayout(renderer->device, descriptor_set_layout, nullptr);
-		vkDestroyPipelineLayout(renderer->device, layout, nullptr);
-		vkDestroyPipeline(renderer->device, pipeline, nullptr);
 	});
 }
 
@@ -265,6 +260,12 @@ VkPipelineMultisampleStateCreateInfo VulkanRenderPassGeometry::create_multisampl
 VulkanRenderPassGeometry::~VulkanRenderPassGeometry() {
 	ZoneScoped
 	
+	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
+	free(push_constant_buffer);
+	vkDeviceWaitIdle(renderer->device);
+	vkDestroyDescriptorSetLayout(renderer->device, descriptor_set_layout, nullptr);
+	vkDestroyPipelineLayout(renderer->device, layout, nullptr);
+	vkDestroyPipeline(renderer->device, pipeline, nullptr);
 }
 
 void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer, bool clear_depth) {

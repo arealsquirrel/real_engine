@@ -14,7 +14,6 @@ VulkanResourceMesh::VulkanResourceMesh(
 		std::vector<uint32_t> indices,
 		char *vertex_data, size_t size, std::map<StringHash, ResourceMesh::Mesh> meshes, bool _is_static) 
 	: ResourceMesh(_instance, indices, vertex_data, size, meshes, _is_static),
-
 	renderer((VulkanRenderer*)instance->renderer.get()) {
 
 	ZoneScoped
@@ -27,7 +26,7 @@ VulkanResourceMesh::VulkanResourceMesh(
 		VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
 		VMA_MEMORY_USAGE_GPU_ONLY);
 
-	VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,.buffer = vertexBuffer.buffer };
+	VkBufferDeviceAddressInfo deviceAdressInfo{ .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = vertexBuffer.buffer };
 	address = vkGetBufferDeviceAddress(renderer->device, &deviceAdressInfo);
 
 	if(indices.empty() == false) {	
@@ -55,9 +54,6 @@ VulkanResourceMesh::VulkanResourceMesh(
 		});
 		indices_count = indices.size();
 		vkutil::destroy_buffer(renderer, staging);
-		renderer->delete_queue.push_function([&](){
-			vkutil::destroy_buffer(renderer, indexBuffer.value());
-		});
 	}
 
 	if(vertex_data != nullptr) {
@@ -76,15 +72,13 @@ VulkanResourceMesh::VulkanResourceMesh(
 			vkCmdCopyBuffer(cmd, staging.buffer, vertexBuffer.buffer, 1, &vertexCopy);
 		});
 		vkutil::destroy_buffer(renderer, staging);
-		renderer->delete_queue.push_function([&](){
-			vkutil::destroy_buffer(renderer, vertexBuffer);
-		});
 	}
 }
 
 void VulkanResourceMesh::upload_vertex_data(char *vertex_data, u32 size) {
 	ZoneScoped
 
+	/*
 	if(size == 0)
 		return;
 
@@ -103,7 +97,6 @@ void VulkanResourceMesh::upload_vertex_data(char *vertex_data, u32 size) {
 
 	vkCmdCopyBuffer(renderer->get_current_frame().main_command_buffer, staging.buffer, vertexBuffer.buffer, 1, &vertexCopy);
 
-	/*
 	vkutil::immediate_submit(
 		renderer->imm_fence, renderer->imm_command_buffer,
 		renderer->device, renderer->graphics_queue, [&](VkCommandBuffer cmd) {
@@ -115,13 +108,15 @@ void VulkanResourceMesh::upload_vertex_data(char *vertex_data, u32 size) {
 
 		vkCmdCopyBuffer(cmd, staging.buffer, vertexBuffer.buffer, 1, &vertexCopy);
 	});
-	*/
 
 	vkutil::destroy_buffer(renderer, staging);
+	*/
 }
 
 VulkanResourceMesh::~VulkanResourceMesh() {
 	ZoneScoped
+	vkutil::destroy_buffer(renderer, vertexBuffer);
+	vkutil::destroy_buffer(renderer, indexBuffer.value());
 }
 
 void VulkanResourceMesh::bind() {

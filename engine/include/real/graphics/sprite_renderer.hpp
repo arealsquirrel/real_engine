@@ -54,7 +54,6 @@ public:
 	};
 
 public:
-	// using SubRenderer::SubRenderer;
 	SpriteRenderer(Instance *_instance, Renderer *_renderer);
 	~SpriteRenderer();
 

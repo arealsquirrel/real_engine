@@ -94,12 +94,6 @@ VulkanResourceImage::VulkanResourceImage(
 	VK_CHECK(vkCreateImageView(renderer->device, &rview_info, nullptr, &imageView));
 
 	expose_to_imgui();
-
-	renderer->delete_queue.push_function([&](){
-		vkDeviceWaitIdle(renderer->device);
-		vkDestroyImageView(renderer->device, imageView, nullptr);
-		vmaDestroyImage(renderer->allocator, image, allocation);
-	});
 }
 
 void VulkanResourceImage::expose_to_imgui() {
@@ -161,6 +155,9 @@ void VulkanResourceImage::make_image_from_data(
 
 VulkanResourceImage::~VulkanResourceImage() {
 	ZoneScoped
+	vkDeviceWaitIdle(renderer->device);
+	vkDestroyImageView(renderer->device, imageView, nullptr);
+	vmaDestroyImage(renderer->allocator, image, allocation);
 }
 
 ImTextureID VulkanResourceImage::get_imgui_textureID() {

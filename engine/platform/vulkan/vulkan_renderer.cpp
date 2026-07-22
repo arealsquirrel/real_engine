@@ -107,6 +107,7 @@ VulkanRenderer::~VulkanRenderer() {
         frame_data[i].delete_queue.flush();
     }
 
+	RL_LOG_TRACE("destroying vulkan renderer");
 	vkDestroyFence(device, imm_fence, nullptr);
     vkDestroyCommandPool(device, imm_command_pool, nullptr);
 
@@ -115,9 +116,11 @@ VulkanRenderer::~VulkanRenderer() {
 
 	descriptor_allocator.destroy_pool(device);
 
+	RL_LOG_TRACE("destroying vulkan renderer");
 	vmaDestroyAllocator(allocator);
 
 	vkDestroyDevice(device, nullptr);
+	RL_LOG_TRACE("destroying vulkan renderer");
 }
 
 void VulkanRenderer::create_imgui() {
