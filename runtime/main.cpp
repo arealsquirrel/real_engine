@@ -35,14 +35,15 @@ int main(int argc, char **argv) {
 		game->start();
 		game->scene->awake();
 		auto graphics_system = game->scene->get_system<GraphicsSystem>();
+		graphics_system->bind_main_camera = true;
 		FrameMarkEnd("Startup");
 
 		while(instance->should_close() == false) {
+			graphics_system->bind_main_camera = true;
 			FrameMarkStart("Render Frame");
 			instance->renderer->start_frame();
 			game->update(0);
 			game->scene->update(0);
-			graphics_system->bind_main_camera();
 			instance->renderer->end_frame(screen_framebuffer->get_color_resolve_image().get());
 			FrameMarkEnd("Render Frame");
 		}

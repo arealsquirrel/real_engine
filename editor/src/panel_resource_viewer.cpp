@@ -15,11 +15,11 @@ namespace editor {
 template<>
 void PanelResourceViewer::display(real::ResourceShader *resource) {
 	ImGui::Text("fields");
-	for(auto &field : resource->layout.fields) {
+	for(const auto &field : resource->get_layout().fields) {
 		ImGui::Text("name:%s type:%s format:%s offset:%lu loc:%lu dim:%i", 
 				field.name.c_str(),
 				real::ShaderDataType_to_string(field.data_type),
-				ShaderFieldType_to_string(field.type),
+				real::ShaderFieldType_to_string(field.type),
 				field.offset, field.location, field.array_size);
 	}
 }

@@ -5,8 +5,6 @@
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/renderpass.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
-#include "real/resource/resource_handle.hpp"
-#include "real/resource/resource_shader.hpp"
 #include "vulkan_descriptor_allocator.hpp"
 #include <cstddef>
 #include <vector>
@@ -20,7 +18,7 @@ RL_OBJECT(VulkanRenderPassGeometry, RenderPassGeometry)
 public:
 	VulkanRenderPassGeometry(
 		Instance *_instance, RenderPassGeometryInfo info,
-		std::vector<ResourceHandle<ResourceShader>> _shaders,
+		std::vector<Shader*> _shaders,
 		std::vector<RenderPassResource> _resources);
 
 	~VulkanRenderPassGeometry();

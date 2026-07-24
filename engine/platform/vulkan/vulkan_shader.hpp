@@ -3,8 +3,7 @@
 
 #include "real/core/game.hpp"
 #include "real/core/object.hpp"
-#include "real/core/types.hpp"
-#include "real/resource/resource_shader.hpp"
+#include "real/graphics/shader.hpp"
 #include <vulkan/vulkan_core.h>
 #include <spirv_reflect.h>
 
@@ -12,20 +11,17 @@ namespace real {
 
 class VulkanRenderer;
 
-class VulkanResourceShader : public ResourceShader {
-RL_OBJECT(VulkanResourceShader, ResourceShader)
+class VulkanShader : public Shader {
+RL_OBJECT(VulkanShader, Shader)
 
 public:
-	VulkanResourceShader(
+	VulkanShader(
 			Instance *_instance, std::vector<char> data,
+			bool reflect = true,
 			std::vector<ShaderField> fields={},
 			ShaderTypeFlags _type=ShaderTypeFlag_NONE);
 
-	~VulkanResourceShader();
-
-private:
-	void serialize_shader(std::vector<char> data);
-	void serialize_function_compute(SpvReflectEntryPoint fn);
+	~VulkanShader();
 
 public:
     VkShaderModule module;

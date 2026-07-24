@@ -90,7 +90,7 @@ public:
 
 	static UniquePointer<RenderPassGeometry> create(
 		Instance *instance, RenderPassGeometryInfo info,
-		std::vector<ResourceHandle<ResourceShader>> shaders,
+		std::vector<Shader*> shaders,
 		std::vector<RenderPassResource> _resources);
 };
 

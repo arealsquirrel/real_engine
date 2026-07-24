@@ -25,11 +25,6 @@ struct RendererStats {
 	u32 textures;
 };
 
-struct SceneData {
-    alignas(16) Mat4 proj;
-    alignas(16) Mat4 view;
-};
-
 /**
  * renders something somewere <3
  */
@@ -39,7 +34,7 @@ RL_OBJECT(SubRenderer, Object)
 	~SubRenderer() = default;
 
 public:
-	virtual void draw_commands(Framebuffer *framebuffer) = 0;
+	virtual void draw_commands(Framebuffer *framebuffer, UniformBuffer *scene_data) = 0;
 
 	/* flushes the commands */
 	virtual void flush_commands() = 0;
@@ -103,19 +98,11 @@ public:
 	 * calls the draw function for all subrenderers and
 	 * uploads their commands to the API cmd buffer to be sent to the GPU
 	 */
-	void draw_render_frame();
-
+	// void draw_render_frame();
 	/* calls the draw function for all post effects */
-	void draw_post_frame();
-
+	// void draw_post_frame();
 	/* flushes the commands for the renderer */
-	void flush_all();
-
-	/* 
-	 * uploads the camera's data to the uniform buffer
-	 * scene data for use by the subrenderers
-	 */
-	void attach_camera(Camera &camera);
+	// void flush_all();
 
 	/**
 	 * must be called before the object is destructed or the program
@@ -131,11 +118,7 @@ public:
 	// the graphics API must take care of destroying these objects
 	UniqueObjectSet<SubRenderer> subrenderers;
 	UniqueObjectSet<PostEffect> post_effects;
-
 	RendererStats render_stats;
-
-	// created by the graphics API
-	UniquePointer<UniformBuffer> scene_data;
 
 protected:
     Ref<Window> window;

@@ -30,6 +30,10 @@ struct PSInput {
 struct SceneData {
     float4x4 projection;
     float4x4 view;
+	float3 view_position;
+	float ambient_power;
+	float4 light_color;
+	float4 light_position;
 };
 
 [[vk::push_constant]]
@@ -61,22 +65,30 @@ VSOutput vertex_main(uint vertexIndex : SV_VertexID) {
 }
 
 float4 diffuse_light(float3 vertPos, float3 normal) {
-	float ambientStrength = 0.5;
-	float3 lightColor = float3(1.0f, 1.0f, 1.0f);
-	float3 lightPos = float3(0.0f, 0.0f, 0.0f);
+	float ambientStrength = scene_data.ambient_power;
+	float specularStrength = 0.5;
+	float3 lightColor = scene_data.light_color.xyz;
+	float3 lightPos = scene_data.light_position.xyz;
 
 	float3 norm = normalize(normal);
 	float3 lightDir = normalize(lightPos - vertPos);
 	float diff = max(dot(norm, lightDir), 0.0);
 	float3 diffuse = diff * lightColor;
 
+	float3 viewDir = normalize(scene_data.view_position - vertPos);
+	float3 reflectDir = reflect(-lightDir, norm);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	float3 specular = specularStrength * spec * lightColor;  
+
+
     float3 ambient = ambientStrength * lightColor;
-	return float4(ambient + diffuse, 1.0f);
+	return float4(ambient + diffuse + specular, 1.0f);
 }
 
 [shader("fragment")]
 float4 fragment_main(PSInput input) : SV_Target {
-	float4 color;
+	float4 color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+
 	if(input.shader_id == 0) { // flat
 		color = float4(input.color, 1.0f) * sampler[input.texture_index].Sample(input.uv);
 	} else if(input.shader_id == 1) { // lit (we dont have a lit)

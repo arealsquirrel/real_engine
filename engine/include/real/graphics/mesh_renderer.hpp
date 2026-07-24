@@ -4,7 +4,9 @@
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/graphics_system.hpp"
+#include "real/graphics/renderer.hpp"
 #include "real/math/mat4.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
@@ -47,7 +49,7 @@ public:
 			ResourceMesh *mesh, ResourceMesh::Mesh submesh, ResourceImage *texture,
 			ShaderMode mode=ShaderMode_Flat);
 
-	void draw_commands(Framebuffer *framebuffer) final override;
+	void draw_commands(Framebuffer *framebuffer, UniformBuffer *scene_data) final override;
 	void flush_commands() final override;
 	void destroy() final override;
 

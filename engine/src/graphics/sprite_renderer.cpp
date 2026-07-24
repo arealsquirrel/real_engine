@@ -29,7 +29,7 @@ SpriteRenderer::SpriteRenderer(Instance *_instance, Renderer *_renderer)
 				.front_face = GeometryFrontFace::CounterClockwise,
 				.cull_mode = GeometryCullMode::BACK,
 				.msaa = MultisamplingCount::Eight
-			}, {sprite_shader}, {});
+			}, {sprite_shader.get()->shader.get()}, {});
 
 	instance->resource_database->unregister_resource("sprite.slang.spv");
 	image_count = 0;
@@ -82,7 +82,7 @@ void SpriteRenderer::draw_sprite(ResourceImage *image, ResourceImage::Tile tile,
 			image, tile, tint_color);
 }
 
-void SpriteRenderer::draw_commands(Framebuffer *framebuffer) {
+void SpriteRenderer::draw_commands(Framebuffer *framebuffer, UniformBuffer *scene_data) {
 	ZoneScoped
 
 	if(draw_commands_vec.size() == 0)
@@ -91,7 +91,7 @@ void SpriteRenderer::draw_commands(Framebuffer *framebuffer) {
 	pass->begin_pass(framebuffer, false);
 	vertex_buffer->upload_data((char*)draw_commands_vec.data(), sizeof(Vertex)*draw_commands_vec.size());
 	pass->set_variable_array_image("sampler", queued_images.data(), MAX_BATCH_SPRITE_COUNT);
-	pass->set_variable("scene_data", renderer->scene_data->get_handle());
+	pass->set_variable("scene_data", scene_data->get_handle());
 	pass->bind_descriptors();
 	pass->draw(vertex_buffer.get(), 6, draw_commands_vec.size(), 0, 0);
 	pass->end_pass();

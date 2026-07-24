@@ -28,6 +28,7 @@ Instance::Instance(ArgParams _arg_params)
 	resource_database = create_ref<ResourceDatabase>(&engine_allocator, this);
 	renderer = Renderer::create(this, window).to_ref();
     renderer->init();
+	
 	resource_database->load_resource_disk<ResourcePack>("../../engine/resources/resource_pack.json");
 
 	renderer->subrenderers.make_emplace<MeshRenderer>(this, renderer.get());

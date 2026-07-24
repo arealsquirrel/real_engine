@@ -59,7 +59,7 @@ public:
 	SpriteRenderer(Instance *_instance, Renderer *_renderer);
 	~SpriteRenderer();
 
-	void draw_commands(Framebuffer *framebuffer) final override;
+	void draw_commands(Framebuffer *framebuffer, UniformBuffer *scene_data) final override;
 	void flush_commands() final override;
 	void destroy() final override;
 

@@ -1,4 +1,6 @@
 
-Startup:
-	
+Renderer Wishlist:
+	render to multiple framebuffers
+	use multiple cameras
+	have a global scene data UBO
 

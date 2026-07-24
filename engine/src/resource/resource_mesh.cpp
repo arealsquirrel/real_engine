@@ -83,7 +83,6 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 
 	std::map<StringHash, ResourceMesh::Mesh> meshes;
 	for (const auto& shape : shapes) {
-		RL_LOG_TRACE("mesh {}, found mesh {}", path.filename().c_str(), shape.name.c_str());
 		ResourceMesh::Mesh mesh {shape.name.c_str(), indices.size()};
 		u32 count = 0;
 

@@ -1,44 +1,17 @@
 
-#include "fmt/base.h"
 #include "real/core/game.hpp"
 #include "real/core/logging.hpp"
-#include "real/core/types.hpp"
-#include "real/debug/timer.hpp"
 #include "real/resource/resource.hpp"
 #include <real/resource/resource_shader.hpp>
 #include <tracy/Tracy.hpp>
 
 namespace real {
 
-const char *ShaderType_to_string(const ShaderTypeFlags type) {
-	RL_LOG_WARN("Function not implemented");
+ResourceShader::ResourceShader(Instance *_instance, std::vector<char> shader_code) 
+	: Resource(_instance) {
 
-	return "null";
+	shader = Shader::create(instance, shader_code);
 }
-
-const char *ShaderFieldType_to_string(const ShaderFieldType type) {
-	constexpr const char *arr[] = {
-		"UNIFORM", "PUSH_CONSTANT"
-	};
-
-	return arr[(int)type];
-}
-
-const char *ShaderDataType_to_string(const ShaderDataType type) {
-	constexpr const char *arr[] = {
-		"NONE", "FLOAT", "FLOAT2", "FLOAT3", "FLOAT4",
-		"INT", "INT2", "INT3", "INT4", 	"FLOAT4x4",
-	"FLOAT3x3", "FLOAT2x2", "STRUCT", "POINTER", "SAMPLED_IMAGE",
-	"UNIFORM_BUFFER", "STORAGE_IMAGE"
-	};
-
-	return arr[(int)type];
-}
-
-ResourceShader::ResourceShader(
-        Instance *_instance, std::vector<char> data,
-		std::vector<ShaderField> fields, u32 _type) 
-	: Resource(_instance), type(_type) {}
 
 ResourceShader::~ResourceShader() = default;
 
@@ -55,6 +28,26 @@ ShaderField ShaderLayout::get_field(std::string str) const {
 void ShaderLayout::add_field_entry(ShaderField field) {
 	field_map.emplace(field.name, field);
 	fields.push_back(field);
+}
+
+template<>
+ResourceHandle<ResourceShader> ResourceDatabase::load_resource_disk(Path path, std::string name) {
+	ZoneScoped
+
+    std::ifstream file(path, std::ios::ate | std::ios::binary);
+
+    if (!file.is_open()) {
+        RL_LOG_WARN("std::ifstream failed to open file {}", path.c_str());
+    }
+
+    size_t fileSize = (size_t)file.tellg();
+    std::vector<char> buffer(fileSize);
+    file.seekg(0);
+    file.read((char*)buffer.data(), fileSize);
+    file.close();
+
+	ResourceShader *shader = instance->engine_allocator.allocate_object<ResourceShader>(instance, buffer);
+	return register_resource(shader, name, UUID(), path);
 }
 
 }

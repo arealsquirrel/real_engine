@@ -51,7 +51,6 @@ private:
     void update_view();
 
 public:
-	Color4 clear_color;
 	Mat4 view;
 	Mat4 proj;
 

@@ -18,6 +18,7 @@ public:
 
 private:
 	real::ResourceHandle<real::ResourceImage> icon_camera;
+	real::ResourceHandle<real::ResourceImage> icon_sun_light;
 	real::Ref<real::SpriteRenderer> sprite_renderer;
 	real::Ref<real::Instance> instance;
 };

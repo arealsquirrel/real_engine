@@ -16,21 +16,21 @@
 #include <real/real.hpp>
 
 #include "vulkan_resource_image.hpp"
-#include "vulkan_resource_shader.hpp"
+#include "vulkan_shader.hpp"
 
 namespace real {
 
 VulkanRenderPassCompute::VulkanRenderPassCompute(
 		Instance *_instance,
-        ResourceHandle<ResourceShader> shader,
+        Shader *shader,
 		std::vector<RenderPassResource> _resources)
-	: RenderPassCompute(_instance, shader.get()->get_layout(), _resources) {
+	: RenderPassCompute(_instance, shader->get_layout(), _resources) {
 
 	ZoneScoped
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	DescriptorLayoutBuilder lb;
-	VulkanResourceShader *vshader = (VulkanResourceShader*)shader.get();
+	VulkanShader *vshader = (VulkanShader*)shader;
 	for(size_t i = 0; i < vshader->descriptor_types.size(); i++) {
 		lb.add_binding(i, vshader->descriptor_types[i]);
 	}
@@ -60,7 +60,7 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 	stageinfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	stageinfo.pNext = nullptr;
 	stageinfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-	stageinfo.module = ((VulkanResourceShader*)shader.get())->module;
+	stageinfo.module = vshader->module;
 	stageinfo.pName = "main";
 
 	VkComputePipelineCreateInfo computePipelineCreateInfo{};
@@ -148,7 +148,7 @@ void VulkanRenderPassCompute::set_variable_array(
 }
 
 UniquePointer<RenderPassCompute> RenderPassCompute::create(
-	Instance *instance, ResourceHandle<ResourceShader> shader, std::vector<RenderPassResource> _resources) {
+	Instance *instance, Shader *shader, std::vector<RenderPassResource> _resources) {
 
     return UniquePointer<RenderPassCompute>(
 			&instance->engine_allocator,

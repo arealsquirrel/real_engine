@@ -22,14 +22,6 @@ void MyGame::start() {
 	auto graphics = scene->add_system<GraphicsSystem>(screen_framebuffer.get());
 
 	{
-		auto entity = scene->create_entity("sprite");
-
-		entity.AddComponent<ComponentSpriteRenderer>(
-			resource_database->load_resource_disk<ResourceImage>("resources/mahjong/mahjong_tiles.json")
-		);
-	}
-
-	{
 		auto entity = scene->create_entity("awesomeness");
 
 		entity.AddComponent<ComponentMeshRenderer>(
@@ -39,14 +31,16 @@ void MyGame::start() {
 
 		auto &trans = entity.GetComponent<ComponentTransform>();
 		trans.scale = Vec3(0.01, -0.01, 0.01);
-		trans.position = Vec3(0, 15, 0);
+		trans.position = Vec3(12, 2, -2.5);
 	}
 
 	{
 		auto entity = scene->create_entity("camera");
 		entity.AddComponent<ComponentCamera>();
-		entity.GetComponent<ComponentTransform>().position.z = -3;
-		graphics->set_main_camera(entity);
+		auto &trans = entity.GetComponent<ComponentTransform>();
+		trans.position = Vec3(0, 0, -3);
+		trans.rotation = Vec3(0, 90, 0);
+		graphics->main_camera_entity = entity;
 	}
 }
 

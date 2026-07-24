@@ -31,7 +31,7 @@ Editor::Editor(real::Ref<real::Instance> _instance, real::ArgParams _params)
 
 	camera.block_input = true;
 	editor_state = EditorState::Editing;
-	camera.camera->clear_color = real::Color4(1.0f, 1.0f, 1.0f, 1.0f);
+	// camera.camera->clear_color = real::Color4(1.0f, 1.0f, 1.0f, 1.0f);
 	active_scene = create_ref<Scene>(&_instance->engine_allocator, instance.get());
 	viewport_framebuffer = Framebuffer::create(instance.get(), params.window_width, params.window_height, true, MultisamplingCount::Eight).to_ref();
 }
@@ -66,11 +66,8 @@ void Editor::load_game(Path path) {
 void Editor::destroy_game() {
 	graphics_system.reset();
 	panels.clear();
-	RL_LOG_TRACE("scene ref count {}", active_scene->get_reference_count());
 	active_scene->destroy();
-	RL_LOG_TRACE("scene ref count {}", active_scene->get_reference_count());
 	Game::destroy_game_dll(game, game_loader);
-	RL_LOG_TRACE("scene ref count {}", active_scene->get_reference_count());
 	active_scene.reset();
 }
 
@@ -79,14 +76,17 @@ bool Editor::render(u32 delta_time) {
 	exiting = instance->should_close();
 
 	if(editor_state == EditorState::Editing) {
-		instance->renderer->attach_camera(*camera.camera.get());
 		viewport_framebuffer->clear_image(Color4(1,0,0,1));
+		graphics_system->bind_main_camera = false;
+		SceneData *data = graphics_system->scene_data->get_data<real::SceneData>();
+		data->view = camera.camera->view;
+		data->proj = camera.camera->proj;
+		data->view_position = camera.camera->position;
 		gizmos.draw_gizmos(active_scene);
 		graphics_system->update(delta_time);
 	} else {
 		game->update(delta_time);
 		active_scene->update(delta_time);
-		graphics_system->bind_main_camera();
 	}
 
 	render_toolbar();
@@ -130,6 +130,18 @@ void Editor::render_engine_panel() {
 	ImGui::Text("System Allocator mem: %u/%u", instance->system_allocator.allocated_mem, instance->system_allocator.alloc_size);
 	ImGui::Text("Engine Allocator mem: %u/%u", instance->engine_allocator.allocated_mem, instance->engine_allocator.alloc_size);
 
+	ImGui::SeparatorText("Current Game");
+	for (auto sys : active_scene->systems) {
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{4, 6});
+		const ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_FramePadding;
+		bool open = ImGui::TreeNodeEx(sys->object_typeinfo()->name, flags);
+    	ImGui::PopStyleVar();
+		if (open) {
+			((real::System*)sys.get())->draw_imgui();
+			ImGui::TreePop();
+		}
+	}
+
 	LinkedListAllocator::Header *selected_block = nullptr;
 	u32 total_size = 0;
 	for(auto *iter = instance->engine_allocator.list_begin; iter != nullptr; iter = iter->next) {
@@ -138,11 +150,6 @@ void Editor::render_engine_panel() {
 		ImGui::TextColored(col, "[%p] size: %u", iter, iter->size);
 	}
 
-	ImGui::SeparatorText("Current Game");
-
-	for (auto &sys : active_scene->systems) {
-		sys->draw_imgui();
-	}
 
 	ImGui::End(); 
 }

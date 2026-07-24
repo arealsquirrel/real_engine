@@ -1,5 +1,6 @@
 
 #include "real/core/logging.hpp"
+#include "real/graphics/buffer.hpp"
 #include "real/graphics/framebuffer.hpp"
 #include "real/graphics/renderer.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
@@ -23,7 +24,7 @@ MeshRenderer::MeshRenderer(Instance *_instance, Renderer *_renderer)
 				.front_face = GeometryFrontFace::CounterClockwise,
 				.cull_mode = GeometryCullMode::BACK,
 				.msaa = MultisamplingCount::Eight,
-			}, {flat_shader}, {});
+			}, {flat_shader.get()->shader.get()}, {});
 
 	instance->resource_database->unregister_resource("mesh.slang.spv");
 	image_count = 0;
@@ -52,11 +53,11 @@ void MeshRenderer::draw_mesh(Mat4 model,
 	}
 }
 
-void MeshRenderer::draw_commands(Framebuffer *framebuffer) {
+void MeshRenderer::draw_commands(Framebuffer *framebuffer, UniformBuffer *scene_data) {
 	ZoneScoped
 
     diffuse_pass->begin_pass(framebuffer);
-	diffuse_pass->set_variable("scene_data", renderer->scene_data->get_handle());
+	diffuse_pass->set_variable("scene_data", scene_data->get_handle());
 	diffuse_pass->set_variable_array_image("sampler", queued_images.data(), MAX_BATCH_SPRITE_COUNT);
 	diffuse_pass->bind_descriptors();
 

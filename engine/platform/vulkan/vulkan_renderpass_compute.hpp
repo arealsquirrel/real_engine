@@ -15,7 +15,7 @@ RL_OBJECT(VulkanRenderPassCompute, RenderPassCompute)
 public:
 	VulkanRenderPassCompute(
 		Instance *_instance,
-        ResourceHandle<ResourceShader> _shader,
+        Shader *_shader,
         std::vector<RenderPassResource> _resources);
 
 	~VulkanRenderPassCompute();
@@ -23,8 +23,10 @@ public:
 public:
     void begin_pass() final override;
     void end_pass() final override;
+	
 	void set_variable(ShaderField field, char *data, size_t size) final override;
 	void set_variable_array(ShaderField field, char *data, size_t size) final override;
+
     void bind_descriptors() final override;
     void dispatch(u32 groupCountX, u32 groupCountY, u32 groupCountZ) final override;
 

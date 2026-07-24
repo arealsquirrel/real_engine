@@ -10,7 +10,7 @@ namespace real {
 Camera::Camera(u32 _width, u32 _height, Projection projection,
                 float _fov, float _near, float _far) 
     : width(_width), height(_height), projection(projection), 
-        fov(_fov), near(_near), far(_far), clear_color(1.0f, 1.0f, 1.0f, 1.0f) {
+        fov(_fov), near(_near), far(_far) {
 
     update_proj();
     update_view();

@@ -14,7 +14,7 @@
 #include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
 #include "vulkan_resource_image.hpp"
-#include "vulkan_resource_shader.hpp"
+#include "vulkan_shader.hpp"
 #include "vulkan_util.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
@@ -29,16 +29,16 @@ namespace real {
 
 VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 		Instance *_instance, RenderPassGeometryInfo info,
-		std::vector<ResourceHandle<ResourceShader>> shaders,
+		std::vector<Shader*> shaders,
 		std::vector<RenderPassResource> _resources)
-		: RenderPassGeometry(_instance, shaders[0].get()->get_layout(), _resources) {
+		: RenderPassGeometry(_instance, shaders[0]->get_layout(), _resources) {
 
 	ZoneScoped
 
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 
 	DescriptorLayoutBuilder builder;
-	for (auto field : shaders[0].get()->get_layout().fields) {
+	for (auto field : shaders[0]->get_layout().fields) {
 		if(field.type == ShaderFieldType::UNIFORM) {
 			switch (field.data_type) {
 			case ShaderDataType::SAMPLED_IMAGE:
@@ -107,16 +107,16 @@ VulkanRenderPassGeometry::VulkanRenderPassGeometry(
 			VkPipelineShaderStageCreateInfo stage = {};
 			stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 			stage.pNext = nullptr;
-			stage.module = dynamic_cast<VulkanResourceShader*>(s.get())->module;
-			if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_VERTEX) {
+			stage.module = dynamic_cast<VulkanShader*>(s)->module;
+			if(CHECK_FLAG(s->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_VERTEX) {
 				stage.pName = "vertex_main";
 				stage.stage = VK_SHADER_STAGE_VERTEX_BIT;
 				shaderStages.push_back(stage);
-			} else if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_FRAGMENT) {
+			} else if(CHECK_FLAG(s->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_FRAGMENT) {
 				stage.pName = "fragment_main";
 				stage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 				shaderStages.push_back(stage);
-			} else if(CHECK_FLAG(s.get()->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_GEOMETRY) {
+			} else if(CHECK_FLAG(s->get_type(), BIT(i)) && BIT(i) == ShaderTypeFlag_GEOMETRY) {
 				stage.pName = "geometry_main";
 				stage.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
 				shaderStages.push_back(stage);
@@ -160,7 +160,6 @@ VkPipelineDepthStencilStateCreateInfo VulkanRenderPassGeometry::create_depth(
 	
 	VkPipelineDepthStencilStateCreateInfo depth = { .sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO };
 	if(info.depth) {
-		RL_LOG_TRACE("Depthing it");
 		depth.depthTestEnable = VK_TRUE;
 		depth.depthWriteEnable = VK_TRUE;
 	} else {
@@ -437,7 +436,7 @@ void VulkanRenderPassGeometry::set_variable_array(
 
 UniquePointer<RenderPassGeometry> RenderPassGeometry::create(
 		Instance *instance, RenderPassGeometryInfo info,
-		std::vector<ResourceHandle<ResourceShader>> shaders,
+		std::vector<Shader*> shaders,
 		std::vector<RenderPassResource> _resources) {
 
     return UniquePointer<RenderPassGeometry>(

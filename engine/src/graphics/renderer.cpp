@@ -11,6 +11,7 @@ Renderer::Renderer(Instance *_instance, Ref<Window> _window)
 Renderer::~Renderer() {
 }
 
+/*
 void Renderer::attach_camera(Camera &camera) {
 	ZoneScoped
 
@@ -18,6 +19,7 @@ void Renderer::attach_camera(Camera &camera) {
 	data->view = camera.view;
 	data->proj = camera.proj;
 }
+*/
 
 void Renderer::destroy_renderers() {
 	for(auto &r : subrenderers) {

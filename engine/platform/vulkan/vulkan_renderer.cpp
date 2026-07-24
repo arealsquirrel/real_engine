@@ -71,7 +71,7 @@ void VulkanRenderer::init() {
 		should_resize = true;
 	});
 
-	scene_data = UniformBuffer::create(instance, sizeof(SceneData));
+	// scene_data = UniformBuffer::create(instance, sizeof(SceneData));
 
 	GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
 	fns.pfn_vkSetDebugUtilsObjectNameEXT =  (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(
@@ -82,10 +82,7 @@ VulkanRenderer::~VulkanRenderer() {
 	ZoneScoped
 
     GraphicsBackendVulkan *vulkan_backend = (GraphicsBackendVulkan*)Graphics::get_backend();
-	RL_LOG_TRACE("destroying vulkan renderer");
     vkDeviceWaitIdle(device);
-
-	scene_data.destroy();
 
     ImGui_ImplVulkan_Shutdown();
 	vkDestroyDescriptorPool(device, imgui_descriptor_pool, nullptr);
@@ -100,16 +97,12 @@ VulkanRenderer::~VulkanRenderer() {
 
     for (int i = 0; i < VULKAN_FRAME_OVERLAP; i++) {
 		frame_data[i].frameDescriptors.destroy_pools(device);
-
         vkDestroyCommandPool(device, frame_data[i].command_pool, nullptr);
-
 	    vkDestroyFence(device, frame_data[i].render_fence, nullptr);
 	    vkDestroySemaphore(device, frame_data[i].swapchain_semaphores, nullptr);
-    
         frame_data[i].delete_queue.flush();
     }
 
-	RL_LOG_TRACE("destroying vulkan renderer");
 	vkDestroyFence(device, imm_fence, nullptr);
     vkDestroyCommandPool(device, imm_command_pool, nullptr);
 
@@ -118,7 +111,6 @@ VulkanRenderer::~VulkanRenderer() {
 
 	descriptor_allocator.destroy_pool(device);
 
-	RL_LOG_TRACE("destroying vulkan renderer");
 	vmaDestroyAllocator(allocator);
 
 	vkDestroyDevice(device, nullptr);

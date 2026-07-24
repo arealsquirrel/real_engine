@@ -32,6 +32,7 @@ void PanelSceneView::draw() {
         }
     }
 
+	/*
 	ImGui::SeparatorText("Systems");
 
 	for (auto sys : scene->systems) {
@@ -46,6 +47,8 @@ void PanelSceneView::draw() {
 			ImGui::TreePop();
 		}
 	}
+
+	*/
 
     ImGui::End();
 
@@ -192,7 +195,7 @@ void PanelSceneView::render_properties() {
 
     draw_component<ComponentCamera>("Camera", handle,
     [](auto &cam) {
-        ImGui::ColorEdit4("Clear Color", &cam.camera.clear_color.r);
+        ImGui::ColorEdit4("Clear Color", &cam.clear_color.r);
     });
 }
 
