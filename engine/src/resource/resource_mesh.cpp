@@ -77,7 +77,7 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 	Path mtl_path = path;
 	mtl_path.remove_filename();
 	tinyobj::ObjReaderConfig reader_config;
-	reader_config.mtl_search_path = mtl_path; // Path to material files
+	reader_config.mtl_search_path = mtl_path;
 	tinyobj::ObjReader reader;
 	if (!reader.ParseFromFile(path, reader_config)) {
 		if (!reader.Error().empty()) {
