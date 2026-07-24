@@ -26,7 +26,7 @@ void PanelResourceViewer::display(real::ResourceShader *resource) {
 
 template<>
 void PanelResourceViewer::display(real::ResourceImage *resource) {
-	auto [width, height] = resource->get_image_extent();
+	auto [width, height] = resource->texture->get_image_extent();
 	ImVec2 room_avail = ImGui::GetContentRegionAvail();
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -54,7 +54,7 @@ void PanelResourceViewer::display(real::ResourceImage *resource) {
 		ImVec2 uv0((float)tile.second.position.first / width, (float)tile.second.position.second / height);
 		ImVec2 uv1((float)(tile.second.position.first + tile.second.dimension.first) / width, (float)(tile.second.position.second + tile.second.dimension.second) / height);
 
-		ImGui::Image(resource->get_imgui_textureID(), display_size, uv0, uv1);
+		ImGui::Image(resource->texture->get_imgui_textureID(), display_size, uv0, uv1);
 		ImGui::TextWrapped("%s", tile.second.name.c_str());
 		ImGui::NextColumn();
 	}

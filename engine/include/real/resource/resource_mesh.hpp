@@ -10,6 +10,7 @@
 #include "real/container/string_hash.hpp"
 #include "real/graphics/buffer.hpp"
 #include "real/resource/resource.hpp"
+#include "real/resource/resource_image.hpp"
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -22,6 +23,12 @@ class REALLIB_EXPORT ResourceMesh : public Resource {
 RL_OBJECT(ResourceMesh, Resource)
 
 public:
+	struct Material {
+		ResourceImage *diffuse_image;
+		float metallic;
+		float roughness;
+	};
+
 	struct Mesh {
 		std::string name;
 		size_t start_index;

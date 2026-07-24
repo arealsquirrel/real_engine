@@ -6,14 +6,11 @@
 #include "real/core/instance.hpp"
 #include "real/core/logging.hpp"
 #include "real/core/types.hpp"
-#include "real/container/vec.hpp"
-#include "real/resource/resource.hpp"
 #include "vulkan_renderer.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <memory>
 #include <real/resource/resource_shader.hpp>
 #include <string>
 #include <tracy/Tracy.hpp>

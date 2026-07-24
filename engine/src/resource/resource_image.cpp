@@ -19,12 +19,13 @@ namespace real {
 
 ResourceImage::ResourceImage(
 		Instance *_instance,
-		u32 _width, u32 _height,
-		ColorFormat _cformat, ImageFormat _iformat, void *data,
+		u32 width, u32 height,
+		ColorFormat cformat, ImageFormat iformat, void *data,
 		std::map<StringHash, Tile> _tiles)
-	: Resource(_instance),
-	  cformat(_cformat), iformat(_iformat),
-	  width(_width), height(_height), tiles(_tiles) {
+	: Resource(_instance), tiles(_tiles) {
+
+	texture = Texture::create(instance, width, height, cformat, iformat);
+	texture->upload_data(data, width*height*4);
 
 	tiles.insert({StringHash("_full_image"), Tile {
 		.position = {0,0},
@@ -34,18 +35,6 @@ ResourceImage::ResourceImage(
 }
 
 ResourceImage::~ResourceImage() {}
-
-std::pair<u32, u32> ResourceImage::get_image_extent() {
-	return std::make_pair(width, height);
-}
-
-ImageFormat ResourceImage::get_image_format() {
-	return iformat;
-}
-
-ColorFormat ResourceImage::get_color_format() {
-	return cformat;
-}
 
 template<>
 ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
@@ -94,10 +83,11 @@ ResourceHandle<ResourceImage> ResourceDatabase::load_resource_disk<>(
 		RL_LOG_ERROR("stbi error {} on image {}", stbi_failure_reason(), image_path.c_str());
 	}
 
-	auto *image = ResourceImage::create(
+	auto *image = instance->engine_allocator.allocate_object<ResourceImage>(
 			instance, (u32)x, (u32)y,
 			ColorFormat::RGBA_FLOAT8, ImageFormat::RENDER_ATTACHMENT_COLOR,
-			data, 0, tiles).release();
+			(void*)data, tiles);
+
 	free(data);
 
 	return register_resource(image, name, UUID(), image_path);

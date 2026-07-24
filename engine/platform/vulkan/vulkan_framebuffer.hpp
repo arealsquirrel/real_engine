@@ -3,9 +3,9 @@
 
 #include "real/core/object.hpp"
 #include "real/graphics/framebuffer.hpp"
-#include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
-#include "vulkan_resource_image.hpp"
+#include "vulkan_texture.hpp"
+
 namespace real {
 
 class VulkanFramebuffer : public Framebuffer {
@@ -18,18 +18,18 @@ public:
 
     ~VulkanFramebuffer();
 
-    Ref<ResourceImage> get_depth_image() final override;
-    Ref<ResourceImage> get_msaa_color_image() final override;
-	Ref<ResourceImage> get_color_resolve_image() final override;
+    Texture *get_depth_image() final override;
+    Texture *get_msaa_color_image() final override;
+	Texture *get_color_resolve_image() final override;
 
     void bind() final override;
     void clear_image(Color4 col={0.0f, 0.0f, 0.0f, 0.0f}) final override;
     void unbind() final override;
 
-private:
-    Ref<VulkanResourceImage> depth_image;
-    Ref<VulkanResourceImage> msaa_color_image;
-    Ref<VulkanResourceImage> resolve_image;
+public:
+    Ref<VulkanTexture> depth_image;
+    Ref<VulkanTexture> msaa_color_image;
+    Ref<VulkanTexture> resolve_image;
 };
 
 }

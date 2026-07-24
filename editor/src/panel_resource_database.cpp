@@ -86,7 +86,7 @@ void PanelResourceDatabase::draw_resource_icon_view() {
 		ResourceImage *icon = icon_file.get();
 		if(id.load_path.has_value()) icon = get_icon_from_path(id.load_path.value());
 
-		ImGui::ImageWithBg(icon->get_imgui_textureID(), display_size, {0,0}, {1,1}, {0,0,0,0}, {0.2705882, 0.521, 0.533, 1.0f});
+		ImGui::ImageWithBg(icon->texture-> get_imgui_textureID(), display_size, {0,0}, {1,1}, {0,0,0,0}, {0.2705882, 0.521, 0.533, 1.0f});
 
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
 			ImGui::SetDragDropPayload("REAL_RESOURCE_NAME", name.c_str(), name.size());
@@ -118,7 +118,7 @@ void PanelResourceDatabase::draw_filesystem_view(Path path) {
 		
 		ImGui::SameLine();
 		ResourceImage *icon = (entry.is_directory() == true) ? icon_folder.get() : get_icon_from_path(entry.path());
-		ImGui::ImageWithBg(icon->get_imgui_textureID(), {20,20}, {0,0}, {1,1}, {0,0,0,0}, {0.596, 0.592, 0.101, 1.0f});
+		ImGui::ImageWithBg(icon->texture->get_imgui_textureID(), {20,20}, {0,0}, {1,1}, {0,0,0,0}, {0.596, 0.592, 0.101, 1.0f});
 		ImGui::SameLine();
 		ImGui::Text("%s", entry.path().filename().c_str());
 		ImGui::PopStyleColor(2);

@@ -9,6 +9,7 @@
 #include "real/debug/timer.hpp"
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/camera.hpp"
+#include "real/graphics/texture.hpp"
 #include "real/graphics/window.hpp"
 #include <real/core/core.hpp>
 
@@ -92,7 +93,7 @@ public:
 	/**
 	 * ends the frame and uploads the commands to the GPU
 	 */
-    virtual void end_frame(const ResourceImage *copy_to_screen_image=nullptr) = 0;
+    virtual void end_frame(const Texture *copy_to_screen_image=nullptr) = 0;
 
 	/* 
 	 * calls the draw function for all subrenderers and

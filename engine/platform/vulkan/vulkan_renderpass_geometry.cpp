@@ -13,8 +13,8 @@
 #include "vulkan_buffer.hpp"
 #include "vulkan_descriptor_builder.hpp"
 #include "vulkan_renderer.hpp"
-#include "vulkan_resource_image.hpp"
 #include "vulkan_shader.hpp"
+#include "vulkan_texture.hpp"
 #include "vulkan_util.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdlib>
@@ -272,8 +272,8 @@ void VulkanRenderPassGeometry::begin_pass(Framebuffer *framebuffer, bool clear_d
 
 	VulkanRenderer *renderer = (VulkanRenderer*)instance->renderer.get();
 	FrameDataVulkan &frame = renderer->get_current_frame();
-	VulkanResourceImage *vimg = (VulkanResourceImage*)framebuffer->get_msaa_color_image().get();
-	VulkanResourceImage *dimg = (VulkanResourceImage*)framebuffer->get_depth_image().get();
+	VulkanTexture *vimg = (VulkanTexture*)framebuffer->get_msaa_color_image();
+	VulkanTexture *dimg = (VulkanTexture*)framebuffer->get_depth_image();
 
 	VkRenderingAttachmentInfo depthAttachment = vkutil::depth_attachment_info(
 			dimg->imageView, VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL, 
@@ -415,7 +415,7 @@ void VulkanRenderPassGeometry::set_variable_array(
 
 			std::vector<std::tuple<VkImageView, VkSampler, VkImageLayout>> arr;
 			for (size_t i = 0; i < (size); i++) {
-				VulkanResourceImage *image = ((VulkanResourceImage**)data)[i];
+				VulkanTexture *image = ((VulkanTexture**)data)[i];
 				arr.push_back({
 						image->imageView,
 						renderer->samplerNearest,

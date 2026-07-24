@@ -18,7 +18,7 @@ typedef char* PushConstantBuffer;
 class Renderer;
 
 struct REALLIB_EXPORT RenderPassResource {
-	ResourceHandle<ResourceImage> texture;
+	Texture *texture;
 	ImageFormat format;
 };
 
@@ -52,7 +52,7 @@ public:
 
 	virtual void set_variable(ShaderField field, char *data, size_t size) = 0;
 
-	virtual void set_variable_array_image(std::string name, ResourceImage **value, size_t count) {
+	virtual void set_variable_array_image(std::string name, Texture **value, size_t count) {
 		set_variable_array(shader_layout.get_field(name), (char*)value, count);
 	}
 

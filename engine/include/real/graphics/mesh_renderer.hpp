@@ -7,6 +7,7 @@
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderer.hpp"
+#include "real/graphics/texture.hpp"
 #include "real/math/mat4.hpp"
 #include "real/resource/resource_handle.hpp"
 #include "real/resource/resource_image.hpp"
@@ -36,7 +37,7 @@ public:
 		Mat4 model;
 		ResourceMesh *mesh;
 		ResourceMesh::Mesh submesh;
-		ResourceImage *image;
+		Texture *image;
 		unsigned int texture_index;
 		unsigned int shader_mode;
 	};
@@ -46,7 +47,7 @@ public:
 	~MeshRenderer();
 
 	void draw_mesh(Mat4 model,
-			ResourceMesh *mesh, ResourceMesh::Mesh submesh, ResourceImage *texture,
+			ResourceMesh *mesh, ResourceMesh::Mesh submesh, Texture *texture,
 			ShaderMode mode=ShaderMode_Flat);
 
 	void draw_commands(Framebuffer *framebuffer, UniformBuffer *scene_data) final override;
@@ -58,7 +59,7 @@ private:
 	ResourceHandle<ResourceImage> image;
 	std::vector<DrawCommand> draw_commands_cmd;
 	u32 image_count;
-	std::array<ResourceImage*, MAX_BATCH_SPRITE_COUNT> queued_images;
+	std::array<Texture*, MAX_BATCH_SPRITE_COUNT> queued_images;
 	std::map<UUID, u32> batched_images;
 };
 

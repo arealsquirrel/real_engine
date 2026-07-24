@@ -162,7 +162,7 @@ void PanelSceneView::render_properties() {
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 		draw_list->AddCallback(ImGui::GetPlatformIO().DrawCallback_SetSamplerNearest, nullptr);
 		auto tile = sprite.tile;
-		auto [width, height] = sprite.texture.get()->get_image_extent();
+		auto [width, height] = sprite.texture.get()->texture->get_image_extent();
 		ImVec2 size(tile.dimension.first, tile.dimension.second);
 		float scale = std::min(thumbnailSize / size.x, thumbnailSize / size.y);
 		ImVec2 display_size = ImVec2(size.x * scale, size.y * scale);
@@ -170,7 +170,7 @@ void PanelSceneView::render_properties() {
 		ImVec2 uv1(
 				(float)(tile.position.first + tile.dimension.first) / width,
 				(float)(tile.position.second + tile.dimension.second) / height);
-		ImGui::Image(sprite.texture.get()->get_imgui_textureID(), display_size, uv0, uv1);
+		ImGui::Image(sprite.texture.get()->texture->get_imgui_textureID(), display_size, uv0, uv1);
 		if(ImGui::TreeNode("Texture Resource Tiles")) {
 			StringHash current_hash = StringHash(sprite.tile.name.c_str());
 			if(ImGui::BeginCombo("Tile", sprite.tile.name.c_str())) {

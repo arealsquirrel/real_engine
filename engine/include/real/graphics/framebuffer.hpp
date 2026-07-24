@@ -4,6 +4,7 @@
 #include "real/container/color.hpp"
 #include "real/core/instance.hpp"
 #include "real/core/object.hpp"
+#include "real/graphics/texture.hpp"
 #include "real/resource/resource_image.hpp"
 #include <real/core/core.hpp>
 #include <real/core/types.hpp>
@@ -22,9 +23,9 @@ protected:
 public:
     virtual ~Framebuffer();
 
-    virtual Ref<ResourceImage> get_depth_image() = 0;
-    virtual Ref<ResourceImage> get_msaa_color_image() = 0;
-    virtual Ref<ResourceImage> get_color_resolve_image() = 0;
+    virtual Texture *get_depth_image() = 0;
+    virtual Texture *get_msaa_color_image() = 0;
+    virtual Texture *get_color_resolve_image() = 0;
 
     virtual void bind() = 0;
     virtual void clear_image(Color4 col={0.0f, 0.0f, 0.0f, 0.0f}) = 0;

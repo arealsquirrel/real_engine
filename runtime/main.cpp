@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 			instance->renderer->start_frame();
 			game->update(0);
 			game->scene->update(0);
-			instance->renderer->end_frame(screen_framebuffer->get_color_resolve_image().get());
+			instance->renderer->end_frame(screen_framebuffer->get_color_resolve_image());
 			FrameMarkEnd("Render Frame");
 		}
  

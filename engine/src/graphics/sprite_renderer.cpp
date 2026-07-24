@@ -19,7 +19,7 @@ SpriteRenderer::SpriteRenderer(Instance *_instance, Renderer *_renderer)
     auto sprite_shader = instance->resource_database->get_resource<ResourceShader>("sprite.slang.spv");
 	image = instance->resource_database->get_resource<ResourceImage>("prototype_512x512_green1.png");
 
-	queued_images.fill(image.get());
+	queued_images.fill(image.get()->texture.get());
 
 	pass = RenderPassGeometry::create(instance,
 			{
@@ -43,7 +43,7 @@ void SpriteRenderer::destroy() {
 }
 
 void SpriteRenderer::draw_sprite(
-		Mat4 model, ResourceImage *texture,
+		Mat4 model, Texture *texture,
 		Vec2 uv0, Vec2 uv1, Color4 tint_color) {
 
 	ZoneScoped
@@ -59,27 +59,12 @@ void SpriteRenderer::draw_sprite(
 	}
 }
 
-void SpriteRenderer::draw_sprite(Mat4 model, ResourceImage *texture, ResourceImage::Tile tile, Color4 tint_color) {
-	auto [width, height] = texture->get_image_extent();
-	Vec2 uv0((float)tile.position.first / width, (float)tile.position.second / height);
-	Vec2 uv1(
-			(float)(tile.position.first+tile.dimension.first) / width, 
-			(float)(tile.position.second+tile.dimension.second) / height);
-
-	draw_sprite(model, texture, uv0, uv1, tint_color);
-}
-
 void SpriteRenderer::draw_sprite(
-		ResourceImage *image, Color4 tint_color,
+		Texture *image, Color4 tint_color,
 		Vec3 position, Vec3 rotation, Vec3 scale) {
 	
 	draw_sprite(math::translate(position)*math::make_mat4_from_q(math::make_q_from_euler_angles(rotation.x, rotation.y, rotation.z))*math::scale(scale),
-	 		image, image->tiles[StringHash("_full_image")], tint_color);
-}
-
-void SpriteRenderer::draw_sprite(ResourceImage *image, ResourceImage::Tile tile, Color4 tint_color, Vec3 position, Vec3 rotation, Vec3 scale) {
-	draw_sprite(math::translate(position)*math::make_mat4_from_q(math::make_q_from_euler_angles(rotation.x, rotation.y, rotation.z))*math::scale(scale),
-			image, tile, tint_color);
+	 		image, Vec2(0,0), Vec2(1,1), tint_color);
 }
 
 void SpriteRenderer::draw_commands(Framebuffer *framebuffer, UniformBuffer *scene_data) {

@@ -11,6 +11,7 @@
 #include "real/graphics/buffer.hpp"
 #include "real/graphics/graphics_system.hpp"
 #include "real/graphics/renderpass_geometry.hpp"
+#include "real/graphics/texture.hpp"
 #include "real/math/mat4.hpp"
 #include "real/math/vec2.hpp"
 #include "real/math/vec3.hpp"
@@ -63,10 +64,8 @@ public:
 	void flush_commands() final override;
 	void destroy() final override;
 
-	void draw_sprite(Mat4 model, ResourceImage *image, Vec2 uv0={0.0f, 0.0f}, Vec2 uv1={1.0f, 1.0f}, Color4 tint_color={1,1,1,1});
-	void draw_sprite(Mat4 model, ResourceImage *image, ResourceImage::Tile tile, Color4 tint_color);
-	void draw_sprite(ResourceImage *image, Color4 tint_color={1,1,1,1}, Vec3 position={0,0,0}, Vec3 rotation={0,0,0}, Vec3 scale={1,1,1});
-	void draw_sprite(ResourceImage *image, ResourceImage::Tile tile, Color4 tint_color={1,1,1,1}, Vec3 position={0,0,0}, Vec3 rotation={0,0,0}, Vec3 scale={1,1,1});
+	void draw_sprite(Mat4 model, Texture *image, Vec2 uv0={0.0f, 0.0f}, Vec2 uv1={1.0f, 1.0f}, Color4 tint_color={1,1,1,1});
+	void draw_sprite(Texture *image, Color4 tint_color={1,1,1,1}, Vec3 position={0,0,0}, Vec3 rotation={0,0,0}, Vec3 scale={1,1,1});
 
 private:
 	UniquePointer<RenderPassGeometry> pass;
@@ -75,7 +74,7 @@ private:
 	
 	std::vector<Vertex> draw_commands_vec;
 	u32 image_count;
-	std::array<ResourceImage*, MAX_BATCH_SPRITE_COUNT> queued_images;
+	std::array<Texture*, MAX_BATCH_SPRITE_COUNT> queued_images;
 	std::map<UUID, u32> batched_images;
 };
 

@@ -14,7 +14,7 @@ MeshRenderer::MeshRenderer(Instance *_instance, Renderer *_renderer)
 	: SubRenderer(_instance, _renderer) {
     auto flat_shader = instance->resource_database->get_resource<ResourceShader>("mesh.slang.spv");
 	image = instance->resource_database->get_resource<ResourceImage>("prototype_512x512_green1.png");
-	queued_images.fill(image.get());
+	queued_images.fill(image.get()->texture.get());
 
     diffuse_pass = RenderPassGeometry::create(
         instance, {
@@ -38,7 +38,7 @@ void MeshRenderer::destroy() {
 
 void MeshRenderer::draw_mesh(Mat4 model,
 		ResourceMesh *mesh, ResourceMesh::Mesh submesh,
-		ResourceImage *texture, ShaderMode mode) {
+		Texture *texture, ShaderMode mode) {
 
 	ZoneScoped
 

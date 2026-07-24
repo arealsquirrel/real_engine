@@ -5,7 +5,6 @@
 #include "real/graphics/framebuffer.hpp"
 #include "real/resource/resource_image.hpp"
 #include "vulkan_renderer.hpp"
-#include "vulkan_resource_image.hpp"
 #include "vulkan_util.hpp"
 #include <tracy/Tracy.hpp>
 
@@ -16,43 +15,41 @@ VulkanFramebuffer::VulkanFramebuffer(
         bool _depth, MultisamplingCount _count) 
             : Framebuffer(_instance, _width, _height, _depth, _count) {
 
-	resolve_image = Ref<VulkanResourceImage>(
+	resolve_image = Ref<VulkanTexture>(
 		&instance->engine_allocator,
-		instance->engine_allocator.allocate_object<VulkanResourceImage>(
-			instance, width, height, ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR, nullptr, 0));
+		instance->engine_allocator.allocate_object<VulkanTexture>(
+			instance, width, height, ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR, 0));
 
     if(depth) {
-        depth_image = Ref<VulkanResourceImage>(
+        depth_image = Ref<VulkanTexture>(
 			&instance->engine_allocator,
-			instance->engine_allocator.allocate_object<VulkanResourceImage>(
+			instance->engine_allocator.allocate_object<VulkanTexture>(
 				instance, width, height, ColorFormat::DEPTH, ImageFormat::RENDER_ATTACHMENT_DEPTH,
-				nullptr, 0, vkutil::MSAA_to_vulkan_counts(_count)));
+				0, vkutil::MSAA_to_vulkan_counts(_count)));
 
     }
 
     if(_count != MultisamplingCount::One) {
-        msaa_color_image = Ref<VulkanResourceImage>(
+        msaa_color_image = Ref<VulkanTexture>(
 			&instance->engine_allocator,
-			instance->engine_allocator.allocate_object<VulkanResourceImage>(
+			instance->engine_allocator.allocate_object<VulkanTexture>(
 				instance, width, height, ColorFormat::RGBA_FLOAT16, ImageFormat::RENDER_ATTACHMENT_COLOR,
-				nullptr, 0, vkutil::MSAA_to_vulkan_counts(_count)));
+				0, vkutil::MSAA_to_vulkan_counts(_count)));
     }
 }
 
-VulkanFramebuffer::~VulkanFramebuffer() {
-    
+VulkanFramebuffer::~VulkanFramebuffer() {}
+
+Texture *VulkanFramebuffer::get_depth_image() {
+    return (Texture*)depth_image.get();
 }
 
-Ref<ResourceImage> VulkanFramebuffer::get_depth_image() {
-    return Ref<ResourceImage>(&instance->engine_allocator, (ResourceImage*)depth_image.get());
+Texture *VulkanFramebuffer::get_msaa_color_image() {
+    return (Texture*)msaa_color_image.get();
 }
 
-Ref<ResourceImage> VulkanFramebuffer::get_msaa_color_image() {
-    return Ref<ResourceImage>(&instance->engine_allocator, (ResourceImage*)msaa_color_image.get());
-}
-
-Ref<ResourceImage> VulkanFramebuffer::get_color_resolve_image() {
-    return Ref<ResourceImage>(&instance->engine_allocator, (ResourceImage*)resolve_image.get());
+Texture *VulkanFramebuffer::get_color_resolve_image() {
+    return (Texture*)resolve_image.get();
 }
 
 void VulkanFramebuffer::bind() {
@@ -81,8 +78,8 @@ void VulkanFramebuffer::unbind() {
     if(msaa != MultisamplingCount::One) {
         FrameDataVulkan &frame = ((VulkanRenderer*)instance->renderer.get())->get_current_frame();
         VkCommandBuffer cmd = frame.main_command_buffer;
-        VulkanResourceImage *vk_render_image = (VulkanResourceImage*)msaa_color_image.get();
-        VulkanResourceImage *vk_resolve_image = (VulkanResourceImage*)resolve_image.get();
+    	VulkanTexture *vk_render_image = (VulkanTexture*)msaa_color_image.get();
+        VulkanTexture *vk_resolve_image = (VulkanTexture*)resolve_image.get();
         vk_render_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
         vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 

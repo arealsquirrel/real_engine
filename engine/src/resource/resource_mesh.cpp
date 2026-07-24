@@ -74,12 +74,28 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
-	tinyobj::attrib_t attrib;
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-	std::string warn;
-	std::string err;
-	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str());
+	Path mtl_path = path;
+	mtl_path.remove_filename();
+	tinyobj::ObjReaderConfig reader_config;
+	reader_config.mtl_search_path = mtl_path; // Path to material files
+	tinyobj::ObjReader reader;
+	if (!reader.ParseFromFile(path, reader_config)) {
+		if (!reader.Error().empty()) {
+			std::cout << "TinyObjReader: " << reader.Error();
+		}
+	}
+
+	if (!reader.Warning().empty()) {
+		std::cout << "TinyObjReader: " << reader.Warning();
+	}
+
+	auto& attrib = reader.GetAttrib();
+	auto& shapes = reader.GetShapes();
+	auto& materials = reader.GetMaterials();
+
+	for(const auto &material : materials) {
+		RL_LOG_INFO("adding material {}", material.diffuse_texname.c_str());
+	}
 
 	std::map<StringHash, ResourceMesh::Mesh> meshes;
 	for (const auto& shape : shapes) {

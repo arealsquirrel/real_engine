@@ -15,8 +15,8 @@
 #include "vulkan_renderer.hpp"
 #include <real/real.hpp>
 
-#include "vulkan_resource_image.hpp"
 #include "vulkan_shader.hpp"
+#include "vulkan_texture.hpp"
 
 namespace real {
 
@@ -38,7 +38,7 @@ VulkanRenderPassCompute::VulkanRenderPassCompute(
 	descriptor_set_layout = lb.build(renderer->device, VK_SHADER_STAGE_COMPUTE_BIT);
 	descriptor_set = renderer->descriptor_allocator.allocate(renderer->device, descriptor_set_layout);	
 	DescriptorWriter writer;
-	writer.write_image(0, ((VulkanResourceImage*)_resources[0].texture.get())->imageView, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_GENERAL, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
+	writer.write_image(0, ((VulkanTexture*)_resources[0].texture)->imageView, VK_NULL_HANDLE, VK_IMAGE_LAYOUT_GENERAL, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
 	writer.update_set(renderer->device, descriptor_set);
 
 	VkPushConstantRange pushConstant{};
@@ -92,7 +92,7 @@ void VulkanRenderPassCompute::begin_pass() {
 	FrameDataVulkan &frame = renderer->get_current_frame();
 
 	for (auto &resource : resources) {
-		VulkanResourceImage *image = (VulkanResourceImage*)resource.texture.get();
+		VulkanTexture *image = (VulkanTexture*)resource.texture;
 		image->transition_image(VK_IMAGE_LAYOUT_GENERAL);
 	}
 

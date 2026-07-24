@@ -203,7 +203,7 @@ void Editor::render_viewport() {
 		drawSize = ImVec2(windowSize.x, windowSize.x / imgAspect);
 	}
 
-	auto id = viewport_framebuffer->get_color_resolve_image().get()->get_imgui_textureID();
+	auto id = viewport_framebuffer->get_color_resolve_image()->get_imgui_textureID();
 	ImGui::Image(id, drawSize);
 
 	ImGui::End();

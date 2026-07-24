@@ -3,10 +3,8 @@
 
 #include "real/core/game.hpp"
 #include "real/core/object.hpp"
-#include "real/graphics/renderer.hpp"
-#include "real/resource/resource_image.hpp"
+#include "real/graphics/texture.hpp"
 #include "vulkan_backend.hpp"
-#include <utility>
 #include <vulkan/vulkan_core.h>
 #include <imgui.h>
 
@@ -14,28 +12,24 @@ namespace real {
 
 class VulkanRenderer;
 
-class VulkanResourceImage : public ResourceImage {
-RL_OBJECT(VulkanResourceImage, ResourceImage)
+class VulkanTexture : public Texture {
+RL_OBJECT(VulkanTexture, Texture)
 
 public:
-    VulkanResourceImage(
+    VulkanTexture(
         Instance *_instance,
         u32 width, u32 height,
         ColorFormat cformat, ImageFormat iformat,
-		void *data=nullptr, int mips=0, VkSampleCountFlagBits samples=VK_SAMPLE_COUNT_1_BIT,
-		std::map<StringHash, Tile> tiles={});
+		int mips=0, VkSampleCountFlagBits samples=VK_SAMPLE_COUNT_1_BIT);
 
-    ~VulkanResourceImage();
+    ~VulkanTexture();
 
-	ImageHandle get_handle() override;
-	ImTextureID get_imgui_textureID() override;
+	void *get_imgui_textureID() override;
+	void upload_data(void *data, size_t size) override;
 
 	void transition_image(VkImageLayout to_layout);
 
 private:
-	void make_image_from_data(
-			void* data, VkImageUsageFlags usage, bool mipmapped);
-
 	void expose_to_imgui();
 
 public:

@@ -7,23 +7,21 @@
 #include "real/core/object.hpp"
 #include "real/core/types.hpp"
 #include "real/graphics/imgui_style.hpp"
-#include "vulkan_resource_image.hpp"
 #include "real/resource/resource_image.hpp"
 
 #include "real/graphics/graphics.hpp"
 #include "vulkan_backend.hpp"
 #include <cassert>
-#include "vulkan_resource_image.hpp"
 #include <real/graphics/renderer.hpp>
 #include <tracy/Tracy.hpp>
 #include <vulkan/vulkan_core.h>
+#include "vulkan_texture.hpp"
 #include "vulkan_util.hpp"
 #include <imgui.h>
 #include <backends/imgui_impl_vulkan.h>
 #include <backends/imgui_impl_glfw.h>
 
 #include "vulkan_renderer.hpp"
-#include "vulkan_resource_image.hpp"
 
 #pragma clang diagnostic push             // Save current state
 #pragma clang diagnostic ignored "-Wnullability-completeness" // Disable a specific flag (e.g., -Wunused-variable)
@@ -410,7 +408,7 @@ void VulkanRenderer::start_frame() {
 	transition_swapchain(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 }
 
-void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
+void VulkanRenderer::end_frame(const Texture *copy_to_screen_image) {
 	ZoneScoped
 
     GraphicsBackendVulkan *backend = (GraphicsBackendVulkan*)Graphics::get_backend();
@@ -418,7 +416,7 @@ void VulkanRenderer::end_frame(const ResourceImage *copy_to_screen_image) {
     VkCommandBuffer cmd = frame.main_command_buffer;
 
 	if(copy_to_screen_image != nullptr) {
-		VulkanResourceImage *vk_resolve_image = (VulkanResourceImage*)copy_to_screen_image;
+		VulkanTexture *vk_resolve_image = (VulkanTexture*)copy_to_screen_image;
 		vk_resolve_image->transition_image(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 		VkExtent2D draw_extent;
 		draw_extent.width = vk_resolve_image->get_image_extent().first;

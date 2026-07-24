@@ -69,7 +69,7 @@ void GraphicsSystem::update(u32 delta_time) {
 		for (auto [ent, mesh_comp, trans] : view.each())
 			mesh_renderer->draw_mesh(
 					trans.get_transform(), mesh_comp.mesh.get(),
-					mesh_comp.sub_mesh, mesh_comp.texture.get(), mesh_comp.shader_mode);
+					mesh_comp.sub_mesh, mesh_comp.texture.get()->texture.get(), mesh_comp.shader_mode);
 		mesh_renderer->draw_commands(framebuffer, scene_data.get());
 		mesh_renderer->flush_commands();
 	}
@@ -78,8 +78,7 @@ void GraphicsSystem::update(u32 delta_time) {
 		auto view = scene->registry->view<ComponentSpriteRenderer, ComponentTransform>();
 		for (auto [ent, sprite, trans] : view.each())
 			sprite_renderer->draw_sprite(
-					trans.get_transform(), sprite.texture.get(),
-					sprite.tile, sprite.tint_color);
+					trans.get_transform(), sprite.texture.get()->texture.get());
 		sprite_renderer->draw_commands(framebuffer, scene_data.get());
 		sprite_renderer->flush_commands();
 	}	
