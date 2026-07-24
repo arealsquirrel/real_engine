@@ -1,0 +1,6 @@
+{
+	"directories": [
+		{ "path": "textures/diff", "type": "Image" },
+		{ "path": "models", "type": "Mesh" }
+	]
+}

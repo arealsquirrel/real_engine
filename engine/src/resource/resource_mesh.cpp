@@ -12,7 +12,6 @@
 #include "real/resource/resource.hpp"
 #include <cstdint>
 #include <tracy/Tracy.hpp>
-#include <unordered_map>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.hpp>
@@ -27,6 +26,7 @@ struct Vertex {
 	Vec3 normal;
 	float uv_y;
 	Vec4 color;
+	unsigned int material_id;
 
 	bool operator==(const Vertex& other) const {
     	return pos == other.pos && color == other.color && uv_x == other.uv_x && uv_y == other.uv_y && other.normal == normal;
@@ -93,15 +93,52 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 	auto& shapes = reader.GetShapes();
 	auto& materials = reader.GetMaterials();
 
-	for(const auto &material : materials) {
-		RL_LOG_INFO("adding material {}", material.diffuse_texname.c_str());
-	}
-
 	std::map<StringHash, ResourceMesh::Mesh> meshes;
 	for (const auto& shape : shapes) {
 		ResourceMesh::Mesh mesh {shape.name.c_str(), indices.size()};
 		u32 count = 0;
+		u32 face_count = 0;
 
+		for(auto face : shape.mesh.num_face_vertices) {
+			size_t fv = face;
+			int mat_id = -1;
+			tinyobj::material_t material;
+			mat_id = shape.mesh.material_ids[face_count++];
+			material = materials[mat_id];
+
+			for (size_t v = 0; v < fv; v++) {
+                tinyobj::index_t index = shape.mesh.indices[count + v];
+                Vertex vertex{};
+
+				vertex.pos = {
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.normal = {
+					attrib.normals[3 * index.normal_index + 0],
+					attrib.normals[3 * index.normal_index + 1],
+					attrib.normals[3 * index.normal_index + 2],
+				};
+
+				vertex.color = {material.diffuse[0], material.diffuse[1], material.diffuse[2]};
+
+				vertex.uv_x = attrib.texcoords[2 * index.texcoord_index + 0],
+				vertex.uv_y = 1.0f - attrib.texcoords[2 * index.texcoord_index + 1];
+
+				vertices.push_back(vertex);
+				indices.push_back(indices.size());
+			}
+
+			count += fv;
+		}
+
+		mesh.count = count;
+		meshes.insert({StringHash(shape.name.c_str()), mesh});
+
+
+		/*
 		for (const auto& index : shape.mesh.indices) {
 			Vertex vertex{};
 			count++;
@@ -126,9 +163,7 @@ ResourceHandle<ResourceMesh> ResourceDatabase::load_resource_disk<>(Path path, s
 			vertices.push_back(vertex);
 	        indices.push_back(indices.size());
 		}
-
-		mesh.count = count;
-		meshes.insert({StringHash(shape.name.c_str()), mesh});
+		*/
 	}
 
 	auto *mesh = instance->engine_allocator.allocate_object<ResourceMesh>(

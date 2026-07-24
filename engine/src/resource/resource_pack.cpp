@@ -29,7 +29,6 @@ ResourcePack::ResourcePack(Instance *_instance, std::set<std::pair<Path, UUID>> 
 	// do one whole pass for metadata
 	for (auto [path, uuid] : resources) {
 		if(uuid.uuid == ResourceImage::object_typeinfo_static()->id.uuid) {
-			RL_LOG_INFO("image {} {}", uuid.uuid, path.c_str());
 			if(path.extension() != ".json")
 				continue;
 			
@@ -39,17 +38,14 @@ ResourcePack::ResourcePack(Instance *_instance, std::set<std::pair<Path, UUID>> 
 
 	for (auto [path, uuid] : resources) {
 		if(uuid.uuid == ResourceImage::object_typeinfo_static()->id.uuid) {
-			RL_LOG_TRACE("image {} {}", uuid.uuid, path.c_str());
 			if(path.extension() == ".json")
 				continue;
 			if(instance->resource_database->has_resource(path.filename()) == false)
 				instance->resource_database->load_resource_disk<ResourceImage>(path);
 
 		} else if(uuid.uuid == ResourceShader::object_typeinfo_static()->id.uuid) {
-			RL_LOG_TRACE("shader {} {}", uuid.uuid, path.c_str());
 			instance->resource_database->load_resource_disk<ResourceShader>(path);
 		} else if(uuid.uuid == ResourceMesh::object_typeinfo_static()->id.uuid) {
-			RL_LOG_TRACE("mesh {} {}", uuid.uuid, path.c_str());
 			if(path.extension() == ".mtl")
 				continue;
 			instance->resource_database->load_resource_disk<ResourceMesh>(path);

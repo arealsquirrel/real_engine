@@ -19,7 +19,7 @@ class MeshRenderer : public SubRenderer {
 RL_OBJECT(MeshRenderer, SubRenderer)
 
 public:
-	static constexpr u32 MAX_BATCH_SPRITE_COUNT = 32;
+	static constexpr u32 MAX_BATCH_SPRITE_COUNT = 64;
 	
 	enum ShaderMode : unsigned int {
 		ShaderMode_Flat,
@@ -40,6 +40,10 @@ public:
 		Texture *image;
 		unsigned int texture_index;
 		unsigned int shader_mode;
+	};
+
+	struct Material {
+		
 	};
 
 public:

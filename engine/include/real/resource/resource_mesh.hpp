@@ -23,12 +23,6 @@ class REALLIB_EXPORT ResourceMesh : public Resource {
 RL_OBJECT(ResourceMesh, Resource)
 
 public:
-	struct Material {
-		ResourceImage *diffuse_image;
-		float metallic;
-		float roughness;
-	};
-
 	struct Mesh {
 		std::string name;
 		size_t start_index;

@@ -120,7 +120,7 @@ void PanelResourceViewer::draw() {
 	std::string cn = current_handle->get()->object_name();
 	if(cn == "VulkanResourceShader") {
 		display<ResourceShader>((ResourceShader*)current_handle->get());
-	} else if(cn == "VulkanResourceImage") {
+	} else if(cn == "ResourceImage") {
 		display<ResourceImage>((ResourceImage*)current_handle->get());
 	} else if(cn == "VulkanResourceMesh") {
 		display<ResourceMesh>((ResourceMesh*)current_handle->get());

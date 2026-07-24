@@ -6,6 +6,7 @@
 #include "real/math/vec3.hpp"
 #include "real/resource/resource_image.hpp"
 #include "real/resource/resource_mesh.hpp"
+#include "real/resource/resource_pack.hpp"
 #include "real/scene/components.hpp"
 #include "real/scene/entity.hpp"
 #include <real/core/reflection.hpp>
@@ -21,11 +22,13 @@ EXPOSE_GAME_TO_REAL(MyGame)
 void MyGame::start() {
 	auto graphics = scene->add_system<GraphicsSystem>(screen_framebuffer.get());
 
+	instance->resource_database->load_resource_disk<ResourcePack>("resources/resource_pack.json");
+
 	{
 		auto entity = scene->create_entity("awesomeness");
 
 		entity.AddComponent<ComponentMeshRenderer>(
-			resource_database->load_resource_disk<ResourceMesh>("resources/models/sponza.obj"),
+			resource_database->get_resource<ResourceMesh>("sponza.obj"),
 			resource_database->get_resource<ResourceImage>("prototype_512x512_green1.png")
 		);
 

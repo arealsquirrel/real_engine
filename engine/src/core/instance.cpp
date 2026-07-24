@@ -15,7 +15,7 @@
 namespace real {
 
 Instance::Instance(ArgParams _arg_params)
-	: arg_params(_arg_params), frame_allocator(1024), engine_allocator(20000) {
+	: arg_params(_arg_params), frame_allocator(1024), engine_allocator(70000) {
 	
 	ZoneScoped
 

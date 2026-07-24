@@ -6,6 +6,7 @@ struct Vertex {
     float3 normal;
     float  uv_y;
     float4 color;
+	uint material_id;
 };
 
 struct VSOutput {
@@ -45,7 +46,7 @@ cbuffer PushConstants {
 	uint shader_id;
 };
 
-Sampler2D sampler[32];
+Sampler2D sampler[64];
 ConstantBuffer<SceneData> scene_data;
 
 [shader("vertex")]
